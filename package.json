@@ -1,0 +1,19 @@
+{
+  "name": "job-portal",
+  "version": "1.0.0",
+  "description": "Full-stack job portal application with React frontend and Node.js backend",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-deps": "npm install && cd server && npm install && cd ../client && npm install",
+    "start": "cd server && npm start"
+  },
+  "keywords": ["job-portal", "react", "nodejs", "mongodb", "express"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
