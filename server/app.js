@@ -54,8 +54,8 @@ const corsOptions = {
       'http://localhost:3000',
       'http://localhost:3001',
       process.env.CLIENT_URL,
-      // Add your Vercel deployment URL here after deployment
-      // 'https://your-app-name.vercel.app'
+      'https://jobs-git-main-sunil2480s-projects.vercel.app',
+      'https://job-1-5csh.onrender.com'
     ].filter(Boolean);
     
     if (allowedOrigins.indexOf(origin) !== -1) {
