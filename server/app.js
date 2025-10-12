@@ -55,12 +55,20 @@ const corsOptions = {
       'http://localhost:3001',
       process.env.CLIENT_URL,
       'https://jobs-git-main-sunil2480s-projects.vercel.app',
+      'https://jobs-ten-phi.vercel.app',
+      'https://jobs-a9qjuvbsu-sunil2480s-projects.vercel.app',
       'https://job-1-5csh.onrender.com'
     ].filter(Boolean);
     
+    // Check if origin is in allowed list
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
-    } else {
+    } 
+    // Allow any *.vercel.app domain
+    else if (origin && origin.match(/https:\/\/.*\.vercel\.app$/)) {
+      callback(null, true);
+    }
+    else {
       callback(new Error('Not allowed by CORS'));
     }
   },
