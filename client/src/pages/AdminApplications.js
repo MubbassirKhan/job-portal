@@ -54,6 +54,7 @@ import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import { applicationsAPI } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SERVER_BASE_URL } from '../config/api';
 
 const AdminApplications = () => {
   const [applications, setApplications] = useState([]);
@@ -93,7 +94,7 @@ const AdminApplications = () => {
   };
 
   const handleOpenCv = (resumeUrl) => {
-    setSelectedCvUrl(`http://localhost:5000${resumeUrl}`);
+    setSelectedCvUrl(`${SERVER_BASE_URL}${resumeUrl}`);
     setCvDialog(true);
   };
 
@@ -575,7 +576,7 @@ const AdminApplications = () => {
                                 <Button
                                   size="small"
                                   startIcon={<Download />}
-                                  onClick={() => window.open(`http://localhost:5000${application.resume}`, '_blank')}
+                                  onClick={() => window.open(`${SERVER_BASE_URL}${application.resume}`, '_blank')}
                                   sx={{
                                     textTransform: 'none',
                                     color: '#10b981',
@@ -894,7 +895,7 @@ const AdminApplications = () => {
               <Button
                 variant="contained"
                 startIcon={<Download />}
-                onClick={() => window.open(`http://localhost:5000${selectedApplication.resume}`, '_blank')}
+                onClick={() => window.open(`${SERVER_BASE_URL}${selectedApplication.resume}`, '_blank')}
                 sx={{
                   background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
                   px: 3,

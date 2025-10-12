@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, GlobalStyles } from '@mui/material';
+import { CssBaseline, GlobalStyles, Box } from '@mui/material';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -267,6 +267,8 @@ function App() {
         <Router>
           <div className="App">
             <Navbar />
+            {/* Spacer for fixed navbar */}
+            <Box sx={{ height: '80px' }} />
             <AnimatePresence mode="wait">
               <Routes>
                 {/* Public Routes */}
