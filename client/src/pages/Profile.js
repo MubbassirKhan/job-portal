@@ -120,7 +120,7 @@ const Profile = () => {
   const handleResumeView = () => {
     if (user.profile?.resumeUrl) {
       // Open resume in new tab
-      window.open(`http://localhost:5000${user.profile.resumeUrl}`, '_blank');
+      window.open(`https://job-1-5csh.onrender.com${user.profile.resumeUrl}`, '_blank');
     }
   };
 
