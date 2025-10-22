@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "job-portal-frontend",
   "builds": [
     {
       "src": "package.json",
@@ -14,11 +15,16 @@
       "src": "/static/(.*)",
       "headers": {
         "cache-control": "s-maxage=31536000,immutable"
-      }
+      },
+      "dest": "/static/$1"
     },
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "env": {
+    "REACT_APP_API_URL": "https://job-portal-backend-fwdx.onrender.com/api",
+    "REACT_APP_SERVER_URL": "https://job-portal-backend-fwdx.onrender.com"
+  }
 }
