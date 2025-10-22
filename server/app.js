@@ -73,12 +73,23 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } 
-    // Allow any *.vercel.app domain
+    // Allow any *.vercel.app domain (for Vercel deployments)
     else if (origin && origin.match(/https:\/\/.*\.vercel\.app$/)) {
       callback(null, true);
     }
+    // Allow any *.onrender.com domain (for Render deployments)
+    else if (origin && origin.match(/https:\/\/.*\.onrender\.com$/)) {
+      callback(null, true);
+    }
     else {
-      callback(new Error('Not allowed by CORS'));
+      // In production, be more strict
+      if (process.env.NODE_ENV === 'production') {
+        console.log('CORS blocked origin:', origin);
+        callback(new Error('Not allowed by CORS'));
+      } else {
+        // In development, allow all origins
+        callback(null, true);
+      }
     }
   },
   credentials: true,
@@ -118,8 +129,9 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    memory: process.memoryUsage(),
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    version: '1.0.0'
+    version: require('./package.json').version
   });
 });
 
