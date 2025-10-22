@@ -3,9 +3,7 @@ import {
   Container,
   Typography,
   Box,
-  Card,
   CardContent,
-  CardActions,
   Avatar,
   IconButton,
   Button,
@@ -22,8 +20,6 @@ import {
   Paper,
   Skeleton,
   Fab,
-  Backdrop,
-  Fade,
   Stack,
   Badge,
   Tooltip,
@@ -37,16 +33,13 @@ import {
   Share,
   MoreVert,
   Add,
-  Image as ImageIcon,
   Send,
   Close,
   Visibility,
   Public,
-  Lock,
   Group,
   TrendingUp,
-  PhotoCamera,
-  EmojiEmotions
+  PhotoCamera
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { socialAPI } from '../utils/socialAPI';
