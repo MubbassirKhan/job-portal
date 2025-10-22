@@ -23,6 +23,18 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Tabs,
+  Tab,
+  Paper,
+  Avatar,
+  IconButton,
+  Tooltip,
+  Menu,
+  ListItemIcon,
+  ListItemText,
+  Badge,
+  Stack,
+  Container,
 } from '@mui/material';
 import { 
   Work, 
@@ -30,14 +42,44 @@ import {
   Add, 
   Assignment,
   CheckCircle,
-  Schedule
+  Schedule,
+  PostAdd,
+  Delete,
+  Edit,
+  Visibility,
+  MoreVert,
+  Block,
+  CheckCircleOutline,
+  Report,
+  Share,
+  Favorite,
+  FavoriteOutlined,
+  ChatBubbleOutline,
+  Public
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import { jobsAPI, applicationsAPI } from '../utils/api';
+import { socialAPI } from '../utils/socialAPI';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
+
+// Utility constants and functions
+const SERVER_BASE_URL = process.env.REACT_APP_SERVER_URL || 'http://localhost:5000';
+
+const formatTimeAgo = (dateString) => {
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffInSeconds = Math.floor((now - date) / 1000);
+
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  
+  return format(date, 'MMM d, yyyy');
+};
 
 const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
   <motion.div
@@ -138,6 +180,11 @@ const AdminDashboard = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [createJobDialog, setCreateJobDialog] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [posts, setPosts] = useState([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [stats, setStats] = useState({
     totalJobs: 0,
     activeJobs: 0,
@@ -197,6 +244,79 @@ const AdminDashboard = () => {
     }
   };
 
+  // Post Management Functions
+  const fetchAllPosts = async () => {
+    try {
+      setPostsLoading(true);
+      const response = await socialAPI.getAllPosts(); // We'll need to create this API
+      setPosts(response.data || []);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      toast.error('Failed to fetch posts');
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
+  const handlePostAction = async (postId, action) => {
+    try {
+      switch (action) {
+        case 'delete':
+          await socialAPI.adminDeletePost(postId);
+          toast.success('Post deleted successfully');
+          break;
+        case 'hide':
+          await socialAPI.hidePost(postId);
+          toast.success('Post hidden successfully');
+          break;
+        case 'approve':
+          await socialAPI.approvePost(postId);
+          toast.success('Post approved successfully');
+          break;
+        default:
+          break;
+      }
+      fetchAllPosts(); // Refresh the posts list
+    } catch (error) {
+      toast.error(`Failed to ${action} post`);
+    }
+    setAnchorEl(null);
+    setSelectedPost(null);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+    if (newValue === 1 && posts.length === 0) {
+      fetchAllPosts();
+    }
+  };
+
+  const formatTimeAgo = (date) => {
+    const now = new Date();
+    const postDate = new Date(date);
+    const diffInHours = Math.floor((now - postDate) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    
+    return format(postDate, 'MMM dd, yyyy');
+  };
+
+  const getPostStatusColor = (post) => {
+    if (!post.isActive) return 'error';
+    if (post.isHidden) return 'warning';
+    return 'success';
+  };
+
+  const getPostStatusText = (post) => {
+    if (!post.isActive) return 'Deleted';
+    if (post.isHidden) return 'Hidden';
+    return 'Active';
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'warning';
@@ -218,8 +338,8 @@ const AdminDashboard = () => {
 
   return (
     <>
+      {/* Stats Cards - Always visible */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {/* Stats Cards */}
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
             icon={<Work />}
@@ -260,82 +380,113 @@ const AdminDashboard = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3}>
-        {/* Quick Actions */}
-        <Grid item xs={12}>
-          <Card
-            sx={{
-              borderRadius: '16px',
-              border: '1px solid',
-              borderColor: 'grey.200',
-              mb: 3,
-            }}
-          >
-            <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                Quick Actions
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  startIcon={<Add />}
-                  onClick={() => setCreateJobDialog(true)}
-                  sx={{
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    px: 3,
-                    py: 1,
-                    borderRadius: '8px',
-                    '&:hover': {
-                      background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                    }
-                  }}
-                >
-                  Post New Job
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/admin/jobs')}
-                  sx={{
-                    borderColor: '#6366f1',
-                    color: '#6366f1',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    px: 3,
-                    py: 1,
-                    borderRadius: '8px',
-                    '&:hover': {
-                      borderColor: '#4f46e5',
-                      backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                    }
-                  }}
-                >
-                  Manage Jobs
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/admin/applications')}
-                  sx={{
-                    borderColor: '#10b981',
-                    color: '#10b981',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    px: 3,
-                    py: 1,
-                    borderRadius: '8px',
-                    '&:hover': {
-                      borderColor: '#059669',
-                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    }
-                  }}
-                >
-                  Review Applications
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+      {/* Tab Navigation */}
+      <Paper sx={{ mb: 3, borderRadius: 2 }}>
+        <Tabs 
+          value={tabValue} 
+          onChange={handleTabChange}
+          sx={{
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '1rem',
+              minHeight: 60
+            }
+          }}
+        >
+          <Tab 
+            icon={<Work />} 
+            label="Jobs & Applications" 
+            iconPosition="start"
+            sx={{ gap: 1 }}
+          />
+          <Tab 
+            icon={<PostAdd />} 
+            label="Post Management" 
+            iconPosition="start"
+            sx={{ gap: 1 }}
+          />
+        </Tabs>
+      </Paper>
+
+      {/* Tab Content */}
+      {tabValue === 0 && (
+        <Grid container spacing={3}>
+          {/* Quick Actions */}
+          <Grid item xs={12}>
+            <Card
+              sx={{
+                borderRadius: '16px',
+                border: '1px solid',
+                borderColor: 'grey.200',
+                mb: 3,
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                  Quick Actions
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<Add />}
+                    onClick={() => setCreateJobDialog(true)}
+                    sx={{
+                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      px: 3,
+                      py: 1,
+                      borderRadius: '8px',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                      }
+                    }}
+                  >
+                    Post New Job
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate('/admin/jobs')}
+                    sx={{
+                      borderColor: '#6366f1',
+                      color: '#6366f1',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      px: 3,
+                      py: 1,
+                      borderRadius: '8px',
+                      '&:hover': {
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                      }
+                    }}
+                  >
+                    Manage Jobs
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate('/admin/applications')}
+                    sx={{
+                      borderColor: '#10b981',
+                      color: '#10b981',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      px: 3,
+                      py: 1,
+                      borderRadius: '8px',
+                      '&:hover': {
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                      }
+                    }}
+                  >
+                    Review Applications
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
 
         {/* Recent Jobs */}
         <Grid item xs={12} md={6}>
@@ -459,7 +610,335 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         </Grid>
-      </Grid>
+        </Grid>
+      )}
+
+      {/* Post Management Tab */}
+      {tabValue === 1 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Card
+              sx={{
+                borderRadius: '16px',
+                border: '1px solid',
+                borderColor: 'grey.200',
+              }}
+            >
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    📱 Post Management
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    onClick={fetchAllPosts}
+                    disabled={postsLoading}
+                    startIcon={postsLoading ? <CircularProgress size={16} /> : null}
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Refresh
+                  </Button>
+                </Box>
+
+                {postsLoading ? (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : posts.length > 0 ? (
+                  <Stack spacing={3}>
+                    {posts.map((post, index) => (
+                      <motion.div
+                        key={post._id}
+                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ 
+                          delay: index * 0.1,
+                          duration: 0.5,
+                          type: "spring",
+                          stiffness: 100
+                        }}
+                        whileHover={{ 
+                          scale: 1.02,
+                          transition: { duration: 0.2 }
+                        }}
+                      >
+                        <Paper 
+                          elevation={4}
+                          sx={{ 
+                            borderRadius: 4,
+                            overflow: 'hidden',
+                            background: 'white',
+                            border: '1px solid rgba(0, 0, 0, 0.06)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            position: 'relative',
+                            '&:hover': {
+                              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12)',
+                              '&::before': {
+                                opacity: 1
+                              }
+                            },
+                            '&::before': {
+                              content: '""',
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              height: '3px',
+                              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                              opacity: 0,
+                              transition: 'opacity 0.3s ease'
+                            }
+                          }}
+                        >
+                          {/* Post Header */}
+                          <CardContent sx={{ p: 3, pb: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
+                              <Badge
+                                overlap="circular"
+                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                badgeContent={
+                                  <Box sx={{
+                                    width: 12,
+                                    height: 12,
+                                    borderRadius: '50%',
+                                    backgroundColor: '#4caf50',
+                                    border: '2px solid white'
+                                  }} />
+                                }
+                              >
+                                <Avatar
+                                  src={post.author?.profile?.profileImage}
+                                  sx={{ 
+                                    width: 50,
+                                    height: 50,
+                                    mr: 2,
+                                    border: '3px solid transparent',
+                                    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
+                                  }}
+                                >
+                                  {post.author?.profile?.firstName?.charAt(0) || 'U'}
+                                </Avatar>
+                              </Badge>
+                              <Box sx={{ flex: 1 }}>
+                                <Typography 
+                                  variant="subtitle1" 
+                                  sx={{ 
+                                    fontWeight: 700,
+                                    color: '#2c3e50',
+                                    fontSize: '1.1rem'
+                                  }}
+                                >
+                                  {post.author?.profile?.firstName} {post.author?.profile?.lastName}
+                                </Typography>
+                                <Typography 
+                                  variant="body2" 
+                                  color="text.secondary"
+                                  sx={{ 
+                                    fontWeight: 500,
+                                    fontSize: '0.875rem'
+                                  }}
+                                >
+                                  {post.author?.profile?.headline || post.author?.role}
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                                  <Visibility sx={{ fontSize: 14, mr: 0.5, color: '#94a3b8' }} />
+                                  <Typography 
+                                    variant="caption" 
+                                    color="text.secondary"
+                                    sx={{ fontSize: '0.75rem' }}
+                                  >
+                                    {formatTimeAgo(post.createdAt)}
+                                  </Typography>
+                                  {post.visibility === 'public' && (
+                                    <Tooltip title="Public post">
+                                      <Public sx={{ fontSize: 14, ml: 1, color: '#94a3b8' }} />
+                                    </Tooltip>
+                                  )}
+                                </Box>
+                              </Box>
+                              
+                              {/* Admin Actions Menu */}
+                              <Tooltip title="Admin Actions">
+                                <IconButton 
+                                  size="small"
+                                  onClick={(e) => {
+                                    setAnchorEl(e.currentTarget);
+                                    setSelectedPost(post);
+                                  }}
+                                  sx={{
+                                    '&:hover': {
+                                      backgroundColor: 'rgba(102, 126, 234, 0.1)'
+                                    }
+                                  }}
+                                >
+                                  <MoreVert />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+
+                            {/* Post Content */}
+                            <Typography 
+                              variant="body1" 
+                              sx={{ 
+                                mb: 2.5,
+                                lineHeight: 1.6,
+                                fontSize: '1rem',
+                                color: '#374151'
+                              }}
+                            >
+                              {post.content}
+                            </Typography>
+
+                            {/* Post Type Indicator */}
+                            {post.postType && post.postType !== 'text' && (
+                              <Chip
+                                label={post.postType.replace('_', ' ').toUpperCase()}
+                                size="small"
+                                sx={{ 
+                                  mb: 2,
+                                  background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                                  color: 'white',
+                                  fontWeight: 600,
+                                  fontSize: '0.75rem'
+                                }}
+                              />
+                            )}
+
+                            {/* Media Display */}
+                            {post.mediaUrls && post.mediaUrls.length > 0 && (
+                              <Box sx={{ mb: 2.5 }}>
+                                <Grid container spacing={1}>
+                                  {post.mediaUrls.map((url, idx) => (
+                                    <Grid item xs={post.mediaUrls.length === 1 ? 12 : 6} key={idx}>
+                                      <Box
+                                        sx={{
+                                          position: 'relative',
+                                          borderRadius: 3,
+                                          overflow: 'hidden',
+                                          '&:hover img': {
+                                            transform: 'scale(1.05)'
+                                          }
+                                        }}
+                                      >
+                                        <img
+                                          src={url.startsWith('http') ? url : `${SERVER_BASE_URL}${url}`}
+                                          alt="Post media"
+                                          style={{
+                                            width: '100%',
+                                            height: post.mediaUrls.length === 1 ? '300px' : '200px',
+                                            objectFit: 'cover',
+                                            transition: 'transform 0.3s ease'
+                                          }}
+                                          onError={(e) => {
+                                            console.error('Image failed to load:', url);
+                                            e.target.style.display = 'none';
+                                          }}
+                                        />
+                                      </Box>
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              </Box>
+                            )}
+
+                            {/* Post Stats & Status */}
+                            <Box sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'space-between',
+                              mb: 1.5,
+                              pt: 2,
+                              borderTop: '1px solid rgba(0, 0, 0, 0.06)'
+                            }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                {/* Engagement Stats */}
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Favorite sx={{ color: '#ef4444', fontSize: 18 }} />
+                                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                    {post.likes?.length || 0}
+                                  </Typography>
+                                </Box>
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <ChatBubbleOutline sx={{ color: '#1976d2', fontSize: 18 }} />
+                                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                    {post.comments?.length || 0}
+                                  </Typography>
+                                </Box>
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Share sx={{ color: '#2e7d32', fontSize: 18 }} />
+                                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                    {post.shares?.length || 0}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              {/* Post Status */}
+                              <Chip
+                                label={getPostStatusText(post)}
+                                color={getPostStatusColor(post)}
+                                size="small"
+                                sx={{ fontWeight: 600 }}
+                              />
+                            </Box>
+                          </CardContent>
+                        </Paper>
+                      </motion.div>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Box sx={{ textAlign: 'center', py: 6 }}>
+                    <PostAdd sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                      No posts found
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Posts from users will appear here for moderation
+                    </Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+        )}
+
+      {/* Action Menu for Posts */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => {
+          setAnchorEl(null);
+          setSelectedPost(null);
+        }}
+        PaperProps={{
+          sx: { minWidth: 200 }
+        }}
+      >
+        <MenuItem onClick={() => handlePostAction(selectedPost?._id, 'approve')}>
+          <ListItemIcon>
+            <CheckCircleOutline fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Approve Post</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handlePostAction(selectedPost?._id, 'hide')}>
+          <ListItemIcon>
+            <Block fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Hide Post</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handlePostAction(selectedPost?._id, 'delete')}>
+          <ListItemIcon>
+            <Delete fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText>Delete Post</ListItemText>
+        </MenuItem>
+      </Menu>
 
       {/* Create Job Dialog */}
       <Dialog open={createJobDialog} onClose={() => setCreateJobDialog(false)} maxWidth="md" fullWidth>
