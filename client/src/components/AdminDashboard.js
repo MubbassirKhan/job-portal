@@ -34,7 +34,6 @@ import {
   ListItemText,
   Badge,
   Stack,
-  Container,
 } from '@mui/material';
 import { 
   Work, 
@@ -45,15 +44,12 @@ import {
   Schedule,
   PostAdd,
   Delete,
-  Edit,
   Visibility,
   MoreVert,
   Block,
   CheckCircleOutline,
-  Report,
   Share,
   Favorite,
-  FavoriteOutlined,
   ChatBubbleOutline,
   Public
 } from '@mui/icons-material';
@@ -63,23 +59,10 @@ import { toast } from 'react-toastify';
 import { jobsAPI, applicationsAPI } from '../utils/api';
 import { socialAPI } from '../utils/socialAPI';
 import { useForm } from 'react-hook-form';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 // Utility constants and functions
 const SERVER_BASE_URL = process.env.REACT_APP_SERVER_URL || 'http://localhost:5000';
-
-const formatTimeAgo = (dateString) => {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffInSeconds = Math.floor((now - date) / 1000);
-
-  if (diffInSeconds < 60) return 'Just now';
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  
-  return format(date, 'MMM d, yyyy');
-};
 
 const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
   <motion.div

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Grid,
   Card,
@@ -41,8 +41,7 @@ import {
   Delete,
   MoreVert,
   Favorite,
-  ChatBubbleOutline,
-  Share
+  ChatBubbleOutline
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -221,11 +220,7 @@ const CandidateDashboard = () => {
     accepted: 0,
   });
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const [applicationsRes, jobsRes] = await Promise.all([
         applicationsAPI.getMyApplications({ limit: 5 }),
@@ -262,7 +257,11 @@ const CandidateDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.id]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   // Post management functions
   const handleEditPost = (post) => {
