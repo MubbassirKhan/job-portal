@@ -63,7 +63,7 @@ import { toast } from 'react-toastify';
 import { jobsAPI, applicationsAPI } from '../utils/api';
 import { socialAPI } from '../utils/socialAPI';
 import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Utility constants and functions
 const SERVER_BASE_URL = process.env.REACT_APP_SERVER_URL || 'http://localhost:5000';
