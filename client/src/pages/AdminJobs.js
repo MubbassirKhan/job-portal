@@ -162,6 +162,7 @@ const AdminJobs = () => {
     setValue('salaryMin', job.salaryRange?.min || '');
     setValue('salaryMax', job.salaryRange?.max || '');
     setValue('currency', job.salaryRange?.currency || 'USD');
+    setValue('applicationDeadline', job.applicationDeadline ? job.applicationDeadline.split('T')[0] : '');
     setValue('isActive', job.isActive);
     setEditJobDialog(true);
   };
@@ -410,6 +411,19 @@ const AdminJobs = () => {
               <MenuItem value="INR">INR</MenuItem>
             </Select>
           </FormControl>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            {...register('applicationDeadline', { required: 'Application deadline is required' })}
+            label="Application Deadline"
+            type="date"
+            fullWidth
+            InputLabelProps={{
+              shrink: true,
+            }}
+            error={!!errors.applicationDeadline}
+            helperText={errors.applicationDeadline?.message}
+          />
         </Grid>
       </Grid>
     </form>

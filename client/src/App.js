@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { AuthProvider } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -21,6 +22,11 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import AdminJobs from './pages/AdminJobs';
 import AdminApplications from './pages/AdminApplications';
+
+// Social Pages
+import SocialFeed from './pages/SocialFeed';
+import Connections from './pages/Connections';
+import Messages from './pages/Messages';
 
 // Enhanced modern theme with professional color scheme
 const theme = createTheme({
@@ -264,11 +270,12 @@ function App() {
       <CssBaseline />
       {globalStyles}
       <AuthProvider>
-        <Router>
-          <div className="App">
-            <Navbar />
-            {/* Spacer for fixed navbar */}
-            <Box sx={{ height: '80px' }} />
+        <SocketProvider>
+          <Router>
+            <div className="App">
+              <Navbar />
+              {/* Spacer for fixed navbar */}
+              <Box sx={{ height: '80px' }} />
             <AnimatePresence mode="wait">
               <Routes>
                 {/* Public Routes */}
@@ -386,6 +393,53 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                
+                {/* Social Routes */}
+                <Route
+                  path="/feed"
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <SocialFeed />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/network"
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Connections />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/messages"
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Messages />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
               </Routes>
             </AnimatePresence>
             <ToastContainer
@@ -405,6 +459,7 @@ function App() {
             />
           </div>
         </Router>
+        </SocketProvider>
       </AuthProvider>
     </ThemeProvider>
   );

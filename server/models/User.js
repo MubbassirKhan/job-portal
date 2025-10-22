@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['candidate', 'admin'],
+    enum: ['candidate', 'recruiter', 'admin'],
     default: 'candidate'
   },
   profile: {
@@ -58,6 +58,32 @@ const userSchema = new mongoose.Schema({
     bio: {
       type: String,
       maxlength: [500, 'Bio cannot exceed 500 characters']
+    },
+    profileImage: {
+      type: String
+    },
+    coverImage: {
+      type: String
+    },
+    headline: {
+      type: String,
+      maxlength: [100, 'Headline cannot exceed 100 characters']
+    },
+    company: {
+      type: String,
+      maxlength: [100, 'Company name cannot exceed 100 characters']
+    },
+    website: {
+      type: String
+    },
+    socialLinks: {
+      linkedin: String,
+      twitter: String,
+      github: String
+    },
+    isProfilePublic: {
+      type: Boolean,
+      default: true
     }
   },
   isEmailVerified: {
@@ -70,6 +96,43 @@ const userSchema = new mongoose.Schema({
   lastLogin: {
     type: Date,
     default: Date.now
+  },
+  // Social features
+  connectionCount: {
+    type: Number,
+    default: 0
+  },
+  postCount: {
+    type: Number,
+    default: 0
+  },
+  // Notification preferences
+  notificationSettings: {
+    email: {
+      type: Boolean,
+      default: true
+    },
+    push: {
+      type: Boolean,
+      default: true
+    },
+    connections: {
+      type: Boolean,
+      default: true
+    },
+    messages: {
+      type: Boolean,
+      default: true
+    }
+  },
+  // Last activity tracking
+  lastActive: {
+    type: Date,
+    default: Date.now
+  },
+  isOnline: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

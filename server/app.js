@@ -3,7 +3,11 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const http = require('http');
 require('dotenv').config();
+
+// Import socket service
+const socketService = require('./services/socketService');
 
 
 // Import routes
@@ -11,6 +15,10 @@ const authRoutes = require('./routes/auth');
 const jobRoutes = require('./routes/jobs');
 const applicationRoutes = require('./routes/applications');
 const uploadRoutes = require('./routes/upload');
+const connectionRoutes = require('./routes/connections');
+const chatRoutes = require('./routes/chat');
+const postRoutes = require('./routes/posts');
+const notificationRoutes = require('./routes/notifications');
 
 // Import middleware
 const { errorHandler, notFound, requestLogger } = require('./middleware/errorHandler');
@@ -18,6 +26,7 @@ const { generalLimiter } = require('./middleware/rateLimiter');
 
 // Create Express app
 const app = express();
+const server = http.createServer(app);
 
 // Security middleware
 app.use(helmet({
@@ -128,6 +137,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/connections', connectionRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Catch-all for API routes
 app.all('/api/*', (req, res) => {
@@ -196,10 +209,16 @@ const startServer = async () => {
     // Connect to database
     await connectDB();
     
-    // Start server
-    const server = app.listen(PORT, () => {
+    // Start HTTP server
+    server.listen(PORT, () => {
       console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
     });
+
+    // Initialize Socket.io
+    socketService.initialize(server);
+    
+    // Make socket service globally available
+    global.socketService = socketService;
 
     // Make server accessible for graceful shutdown
     global.server = server;

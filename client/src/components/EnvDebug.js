@@ -1,5 +1,6 @@
 // Debug component to check environment variables
 import React from 'react';
+import { API_BASE_URL, SERVER_BASE_URL } from '../config/api';
 
 const EnvDebug = () => {
   if (process.env.NODE_ENV !== 'development') {
@@ -18,8 +19,8 @@ const EnvDebug = () => {
       fontSize: '12px',
       zIndex: 9999
     }}>
-      <div>API URL: {process.env.REACT_APP_API_URL || 'NOT SET'}</div>
-      <div>Base URL: {process.env.REACT_APP_BASE_URL || 'NOT SET'}</div>
+      <div>API URL: {API_BASE_URL}</div>
+      <div>Server URL: {SERVER_BASE_URL}</div>
       <div>NODE_ENV: {process.env.NODE_ENV}</div>
     </div>
   );

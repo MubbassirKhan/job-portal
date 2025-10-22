@@ -53,7 +53,7 @@ Create `.env` file in the `server` directory:
 ```
 NODE_ENV=development
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/job-portal
+MONGODB_URI=mongodb+srv://khanmkj:Khan%40123@khanjobdb.4cax3hj.mongodb.net/jobportal?retryWrites=true&w=majority&appName=khanjobdb
 JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRE=7d
 BCRYPT_ROUNDS=12

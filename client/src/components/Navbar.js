@@ -23,6 +23,7 @@ import {
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import NotificationCenter from './NotificationCenter';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -178,6 +179,98 @@ const Navbar = () => {
                   </Button>
                 </motion.div>
 
+                {isAuthenticated && (
+                  <>
+                    {/* Social Navigation Items */}
+                    <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                      <Button
+                        component={Link}
+                        to="/feed"
+                        sx={{
+                          color: isActive('/feed') ? '#6366f1' : '#64748b',
+                          fontWeight: isActive('/feed') ? 600 : 500,
+                          textTransform: 'none',
+                          px: 2,
+                          py: 1,
+                          borderRadius: '8px',
+                          position: 'relative',
+                          '&::after': isActive('/feed') ? {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 0,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '20px',
+                            height: '3px',
+                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+                            borderRadius: '2px',
+                          } : {},
+                        }}
+                      >
+                        Feed
+                      </Button>
+                    </motion.div>
+
+                    <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                      <Button
+                        component={Link}
+                        to="/connections"
+                        sx={{
+                          color: isActive('/connections') ? '#6366f1' : '#64748b',
+                          fontWeight: isActive('/connections') ? 600 : 500,
+                          textTransform: 'none',
+                          px: 2,
+                          py: 1,
+                          borderRadius: '8px',
+                          position: 'relative',
+                          '&::after': isActive('/connections') ? {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 0,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '20px',
+                            height: '3px',
+                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+                            borderRadius: '2px',
+                          } : {},
+                        }}
+                      >
+                        Network
+                      </Button>
+                    </motion.div>
+
+                    <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                      <Button
+                        component={Link}
+                        to="/messages"
+                        sx={{
+                          color: isActive('/messages') ? '#6366f1' : '#64748b',
+                          fontWeight: isActive('/messages') ? 600 : 500,
+                          textTransform: 'none',
+                          px: 2,
+                          py: 1,
+                          borderRadius: '8px',
+                          position: 'relative',
+                          '&::after': isActive('/messages') ? {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 0,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '20px',
+                            height: '3px',
+                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+                            borderRadius: '2px',
+                          } : {},
+                        }}
+                      >
+                        Messages
+                      </Button>
+                    </motion.div>
+                  </>
+                )}
+
                 {isAuthenticated ? (
                   <>
                     <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
@@ -220,6 +313,9 @@ const Navbar = () => {
                         }}
                       />
                     )}
+
+                    {/* Notification Center */}
+                    <NotificationCenter />
 
                     <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                       <IconButton
@@ -411,6 +507,56 @@ const Navbar = () => {
                     
                     {isAuthenticated ? (
                       <>
+                        {/* Social Navigation Items */}
+                        <Button
+                          component={Link}
+                          to="/feed"
+                          fullWidth
+                          onClick={() => setMobileMenuOpen(false)}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            py: 1.5,
+                            px: 2,
+                            color: '#64748b',
+                            textTransform: 'none',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Feed
+                        </Button>
+                        <Button
+                          component={Link}
+                          to="/connections"
+                          fullWidth
+                          onClick={() => setMobileMenuOpen(false)}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            py: 1.5,
+                            px: 2,
+                            color: '#64748b',
+                            textTransform: 'none',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Network
+                        </Button>
+                        <Button
+                          component={Link}
+                          to="/messages"
+                          fullWidth
+                          onClick={() => setMobileMenuOpen(false)}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            py: 1.5,
+                            px: 2,
+                            color: '#64748b',
+                            textTransform: 'none',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Messages
+                        </Button>
+                        
                         <Button
                           onClick={handleDashboardClick}
                           fullWidth

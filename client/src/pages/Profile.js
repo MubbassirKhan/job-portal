@@ -18,6 +18,7 @@ import {
 import { Edit, CloudUpload, Delete, Visibility } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import { SERVER_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { uploadAPI } from '../utils/api';
 
@@ -120,7 +121,7 @@ const Profile = () => {
   const handleResumeView = () => {
     if (user.profile?.resumeUrl) {
       // Open resume in new tab
-      window.open(`https://job-1-5csh.onrender.com${user.profile.resumeUrl}`, '_blank');
+      window.open(`${SERVER_BASE_URL}${user.profile.resumeUrl}`, '_blank');
     }
   };
 
