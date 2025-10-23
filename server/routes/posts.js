@@ -66,42 +66,51 @@ router.post('/', authenticateToken, upload.array('media', 5), async (req, res) =
 
     // Handle media uploads (both file uploads and Base64)
     let mediaUrls = [];
+    let mediaBase64Array = [];
     
-    // Handle traditional file uploads
+    // Handle traditional file uploads (convert to base64 for consistency)
     if (req.files && req.files.length > 0) {
-      mediaUrls = req.files.map(file => `/uploads/posts/${file.filename}`);
+      const fs = require('fs');
+      
+      for (const file of req.files) {
+        try {
+          // Read the file and convert to base64
+          const fileBuffer = fs.readFileSync(file.path);
+          const base64Data = fileBuffer.toString('base64');
+          
+          mediaBase64Array.push({
+            data: base64Data,
+            mimeType: file.mimetype,
+            filename: file.originalname
+          });
+          
+          // Clean up the uploaded file since we're storing base64
+          fs.unlinkSync(file.path);
+        } catch (error) {
+          console.error('Error processing uploaded file:', error);
+        }
+      }
     }
     
-    // Handle Base64 images
+    // Handle Base64 images from client
     if (mediaBase64 && Array.isArray(mediaBase64)) {
-      const fs = require('fs');
-      const crypto = require('crypto');
-      
       for (const base64Data of mediaBase64) {
         if (base64Data && base64Data.startsWith('data:image/')) {
           try {
             // Extract base64 data and mime type
             const matches = base64Data.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
             if (matches) {
-              const mimeType = matches[1];
+              const mimeType = `image/${matches[1]}`;
               const imageData = matches[2];
               
-              // Generate unique filename
-              const filename = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${mimeType}`;
-              const filepath = path.join(__dirname, '../uploads/posts/', filename);
-              
-              // Ensure directory exists
-              const dir = path.dirname(filepath);
-              if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-              }
-              
-              // Save base64 image to file
-              fs.writeFileSync(filepath, imageData, 'base64');
-              mediaUrls.push(`/uploads/posts/${filename}`);
+              mediaBase64Array.push({
+                data: imageData,
+                mimeType: mimeType,
+                filename: `image.${matches[1]}`
+              });
             }
           } catch (error) {
-            console.error('Error saving base64 image:', error);
+            console.error('Error processing base64 image:', error);
           }
         }
       }
@@ -132,7 +141,8 @@ router.post('/', authenticateToken, upload.array('media', 5), async (req, res) =
     const post = await Post.create({
       author: userId,
       content: sanitizedContent,
-      mediaUrls,
+      mediaUrls, // Keep for backward compatibility
+      mediaBase64: mediaBase64Array, // Store base64 images in database
       postType,
       visibility,
       jobId: postType === 'job_share' ? jobId : undefined,

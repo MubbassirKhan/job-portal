@@ -45,6 +45,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { socialAPI } from '../utils/socialAPI';
 import { useSocketEvent } from '../hooks/useSocket';
 import { SERVER_BASE_URL } from '../config/api';
+import { toast } from 'react-toastify';
 
 const SocialFeed = () => {
   const theme = useTheme();
@@ -388,13 +389,43 @@ const SocialFeed = () => {
     if (!newPost.content.trim()) return;
 
     setSubmitting(true);
+    setError(''); // Clear any previous errors
     try {
       await socialAPI.createPost(newPost);
       // Don't add to posts here and don't reload feed - let socket handle it to prevent duplicates
       setNewPost({ content: '', visibility: 'public', media: [], mediaBase64: [] });
       setCreatePostOpen(false);
+      
+      // Show professional success toast
+      toast.success('Post published successfully! Your content is now live in your network.', {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        style: {
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fffe 100%)',
+          border: '1px solid rgba(76, 175, 80, 0.2)',
+          borderRadius: '12px',
+          boxShadow: '0 8px 32px rgba(76, 175, 80, 0.15)',
+          color: '#1b5e20',
+          fontWeight: '500'
+        },
+        progressStyle: {
+          background: 'linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)'
+        }
+      });
     } catch (error) {
       setError(error.message);
+      toast.error(error.message || 'Failed to publish post', {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -802,11 +833,44 @@ const SocialFeed = () => {
                 )}
 
                 {/* Media Display */}
-                {post.mediaUrls && post.mediaUrls.length > 0 && (
+                {((post.mediaUrls && post.mediaUrls.length > 0) || (post.mediaBase64 && post.mediaBase64.length > 0)) && (
                   <Box sx={{ mb: 2.5 }}>
                     <Grid container spacing={1}>
-                      {post.mediaUrls.map((url, idx) => (
-                        <Grid item xs={post.mediaUrls.length === 1 ? 12 : 6} key={idx}>
+                      {/* Display base64 images if available */}
+                      {post.mediaBase64 && post.mediaBase64.length > 0 && post.mediaBase64.map((media, idx) => (
+                        <Grid item xs={post.mediaBase64.length === 1 ? 12 : 6} key={`base64-${idx}`}>
+                          <Box
+                            sx={{
+                              position: 'relative',
+                              borderRadius: 3,
+                              overflow: 'hidden',
+                              '&:hover img': {
+                                transform: 'scale(1.05)'
+                              }
+                            }}
+                          >
+                            <img
+                              src={`data:${media.mimeType};base64,${media.data}`}
+                              alt="Post media"
+                              style={{
+                                width: '100%',
+                                height: post.mediaBase64.length === 1 ? '300px' : '200px',
+                                objectFit: 'cover',
+                                transition: 'transform 0.3s ease'
+                              }}
+                              onError={(e) => {
+                                console.warn('Base64 image failed to load for post:', post._id);
+                                e.target.style.display = 'none';
+                                // Could also show a placeholder image here
+                              }}
+                            />
+                          </Box>
+                        </Grid>
+                      ))}
+                      
+                      {/* Fallback to URL-based images if no base64 images */}
+                      {(!post.mediaBase64 || post.mediaBase64.length === 0) && post.mediaUrls && post.mediaUrls.map((url, idx) => (
+                        <Grid item xs={post.mediaUrls.length === 1 ? 12 : 6} key={`url-${idx}`}>
                           <Box
                             sx={{
                               position: 'relative',
@@ -827,8 +891,9 @@ const SocialFeed = () => {
                                 transition: 'transform 0.3s ease'
                               }}
                               onError={(e) => {
-                                console.error('Image failed to load:', url);
+                                console.warn('Legacy image URL failed to load:', url);
                                 e.target.style.display = 'none';
+                                // Could also show a placeholder image here
                               }}
                             />
                           </Box>

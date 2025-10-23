@@ -35,7 +35,7 @@ import { motion } from 'framer-motion';
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, loading } = useAuth();
+  const { login, logout, loading } = useAuth();
   const [error, setError] = useState('');
   const [loginType, setLoginType] = useState(0); // 0 for candidate, 1 for admin
   const [showPassword, setShowPassword] = useState(false);
@@ -56,6 +56,8 @@ const Login = () => {
       const expectedRole = loginType === 0 ? 'candidate' : 'admin';
       
       if (user && user.role !== expectedRole) {
+        // Logout the user immediately since they used the wrong tab
+        logout();
         setError(`This account is registered as ${user.role === 'candidate' ? 'Job Seeker' : 'Admin/Recruiter'}. Please use the correct login tab.`);
         return; // Don't navigate if wrong role
       }

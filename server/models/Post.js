@@ -15,6 +15,18 @@ const postSchema = new mongoose.Schema({
   mediaUrls: [{
     type: String
   }],
+  // Store images as base64 strings directly in database
+  mediaBase64: [{
+    data: {
+      type: String // base64 image data
+    },
+    mimeType: {
+      type: String // image/jpeg, image/png, etc.
+    },
+    filename: {
+      type: String // original filename for reference
+    }
+  }],
   postType: {
     type: String,
     enum: ['text', 'job_share', 'achievement', 'article', 'poll'],
