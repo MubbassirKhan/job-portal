@@ -101,10 +101,10 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 
-# Uploads (uncomment if you want to exclude uploaded files)
-# uploads/
-# server/uploads/
-# client/public/uploads/
+# Uploads (exclude uploaded files since we use base64 storage)
+uploads/
+server/uploads/
+client/public/uploads/
 
 # PM2 ecosystem file
 ecosystem.config.js
