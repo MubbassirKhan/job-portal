@@ -64,8 +64,25 @@ const requireRole = (roles) => {
   };
 };
 
-// Check if user is admin
-const requireAdmin = requireRole('admin');
+// Check if user is recruiter (including admin users who should have recruiter access)
+const requireRecruiter = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+
+  // Allow both 'recruiter' and 'admin' roles to access recruiter endpoints
+  if (req.user.role !== 'recruiter' && req.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Insufficient permissions - Recruiter access required'
+    });
+  }
+
+  next();
+};
 
 // Check if user is candidate
 const requireCandidate = requireRole('candidate');
@@ -92,7 +109,7 @@ const optionalAuth = async (req, res, next) => {
 module.exports = {
   authenticateToken,
   requireRole,
-  requireAdmin,
+  requireRecruiter,
   requireCandidate,
   optionalAuth
 };

@@ -94,6 +94,9 @@ router.post('/start', authenticateToken, async (req, res) => {
     const { participantId } = req.body;
     const userId = req.user.id;
 
+    console.log('Starting conversation between:', userId, 'and', participantId);
+    console.log('User role:', req.user.role);
+
     // Check if trying to chat with self
     if (userId === participantId) {
       return res.status(400).json({
@@ -102,9 +105,11 @@ router.post('/start', authenticateToken, async (req, res) => {
       });
     }
 
-    // Check if users are connected (for security)
+    // Check if users are connected (for security) - Allow admin users
     const areConnected = await Connection.areConnected(userId, participantId);
-    if (!areConnected) {
+    console.log('Are users connected:', areConnected);
+    
+    if (!areConnected && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'You can only message connected users'

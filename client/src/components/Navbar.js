@@ -301,9 +301,9 @@ const Navbar = () => {
                       </Button>
                     </motion.div>
 
-                    {user?.role === 'admin' && (
-                      <Chip
-                        label="Admin"
+                    {(user?.role === 'recruiter' || user?.role === 'admin') && (
+                      <Chip 
+                        label="Recruiter"
                         size="small"
                         sx={{
                           background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',

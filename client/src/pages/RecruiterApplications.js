@@ -56,7 +56,7 @@ import { applicationsAPI } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SERVER_BASE_URL } from '../config/api';
 
-const AdminApplications = () => {
+const RecruiterApplications = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState(null);
@@ -1060,4 +1060,4 @@ const AdminApplications = () => {
   );
 };
 
-export default AdminApplications;
+export default RecruiterApplications;

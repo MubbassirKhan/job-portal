@@ -56,6 +56,18 @@ class SocialAPI {
     return this.handleResponse(response);
   }
 
+  async getSentRequests() {
+    const response = await fetch(`${this.baseURL}/connections/pending-requests`, {
+      headers: this.getAuthHeaders()
+    });
+    const data = await this.handleResponse(response);
+    // Return just the sent requests (where current user is the requester)
+    return {
+      success: true,
+      data: data.data?.sent || []
+    };
+  }
+
   async removeConnection(connectionId) {
     const response = await fetch(`${this.baseURL}/connections/remove/${connectionId}`, {
       method: 'DELETE',
@@ -71,8 +83,40 @@ class SocialAPI {
     return this.handleResponse(response);
   }
 
+  async acceptConnectionRequest(requestId) {
+    const response = await fetch(`${this.baseURL}/connections/respond/${requestId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ response: 'accepted' })
+    });
+    return this.handleResponse(response);
+  }
+
+  async declineConnectionRequest(requestId) {
+    const response = await fetch(`${this.baseURL}/connections/respond/${requestId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ response: 'declined' })
+    });
+    return this.handleResponse(response);
+  }
+
   async getConnectionStatus(userId) {
     const response = await fetch(`${this.baseURL}/connections/status/${userId}`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async getUserProfile(userId) {
+    const response = await fetch(`${this.baseURL}/users/profile/${userId}`, {
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async getAllUsers(page = 1, limit = 20) {
+    const response = await fetch(`${this.baseURL}/users/all?page=${page}&limit=${limit}`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
@@ -316,16 +360,16 @@ class SocialAPI {
     return this.handleResponse(response);
   }
 
-  // Admin Functions
-  async getAllPosts(page = 1, limit = 50) {
-    const response = await fetch(`${this.baseURL}/posts/admin/all?page=${page}&limit=${limit}`, {
+  // Recruiter Functions
+  async getRecruiterPosts(page = 1, limit = 10) {
+    const response = await fetch(`${this.baseURL}/posts/recruiter/all?page=${page}&limit=${limit}`, {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
   async hidePost(postId) {
-    const response = await fetch(`${this.baseURL}/posts/admin/${postId}/hide`, {
+    const response = await fetch(`${this.baseURL}/posts/recruiter/${postId}/hide`, {
       method: 'PUT',
       headers: this.getAuthHeaders()
     });
@@ -333,15 +377,15 @@ class SocialAPI {
   }
 
   async approvePost(postId) {
-    const response = await fetch(`${this.baseURL}/posts/admin/${postId}/approve`, {
+    const response = await fetch(`${this.baseURL}/posts/recruiter/${postId}/approve`, {
       method: 'PUT',
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
   }
 
-  async adminDeletePost(postId) {
-    const response = await fetch(`${this.baseURL}/posts/admin/${postId}`, {
+  async recruiterDeletePost(postId) {
+    const response = await fetch(`${this.baseURL}/posts/recruiter/${postId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
     });

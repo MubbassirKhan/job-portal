@@ -37,7 +37,7 @@ const Login = () => {
   const location = useLocation();
   const { login, logout, loading } = useAuth();
   const [error, setError] = useState('');
-  const [loginType, setLoginType] = useState(0); // 0 for candidate, 1 for admin
+  const [loginType, setLoginType] = useState(0); // 0 for candidate, 1 for recruiter
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -53,17 +53,18 @@ const Login = () => {
     if (result.success) {
       // Check if the logged-in user's role matches the selected login type
       const user = result.user;
-      const expectedRole = loginType === 0 ? 'candidate' : 'admin';
+      const expectedRole = loginType === 0 ? 'candidate' : 'recruiter';
       
-      if (user && user.role !== expectedRole) {
+      if (user && user.role !== expectedRole && !(loginType === 1 && user.role === 'admin')) {
         // Logout the user immediately since they used the wrong tab
+        // Allow admin users to login through recruiter tab (loginType === 1)
         logout();
-        setError(`This account is registered as ${user.role === 'candidate' ? 'Job Seeker' : 'Admin/Recruiter'}. Please use the correct login tab.`);
+        setError(`This account is registered as ${user.role === 'candidate' ? 'Job Seeker' : 'Recruiter'}. Please use the correct login tab.`);
         return; // Don't navigate if wrong role
       }
       
       // Navigate to appropriate dashboard based on user role
-      const defaultRoute = user.role === 'admin' ? '/dashboard' : '/dashboard';
+      const defaultRoute = (user.role === 'recruiter' || user.role === 'admin') ? '/dashboard' : '/dashboard';
       const from = location.state?.from?.pathname || defaultRoute;
       navigate(from, { replace: true });
     } else {
@@ -261,7 +262,7 @@ const Login = () => {
                       icon={<AdminPanelSettings />} 
                       label={
                         <Chip 
-                          label="Admin/Recruiter" 
+                          label="Recruiter" 
                           color={loginType === 1 ? "secondary" : "default"}
                           variant={loginType === 1 ? "filled" : "outlined"}
                           sx={{ 
@@ -407,7 +408,7 @@ const Login = () => {
                         }
                       }}
                     >
-                      {loading ? 'Signing In...' : `Sign In as ${loginType === 0 ? 'Job Seeker' : 'Admin/Recruiter'}`}
+                      {loading ? 'Signing In...' : `Sign In as ${loginType === 0 ? 'Job Seeker' : 'Recruiter'}`}
                     </Button>
                   </motion.div>
 

@@ -53,7 +53,7 @@ import { jobsAPI } from '../utils/api';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const AdminJobs = () => {
+const RecruiterJobs = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -968,4 +968,4 @@ const AdminJobs = () => {
   );
 };
 
-export default AdminJobs;
+export default RecruiterJobs;

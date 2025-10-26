@@ -8,7 +8,7 @@ const {
   getMyJobs,
   getJobStats
 } = require('../controllers/jobController');
-const { authenticateToken, requireAdmin, optionalAuth } = require('../middleware/auth');
+const { authenticateToken, requireRecruiter, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -16,11 +16,11 @@ const router = express.Router();
 router.get('/', optionalAuth, getJobs);
 router.get('/:id', optionalAuth, getJob);
 
-// Protected routes (Admin only)
-router.post('/', authenticateToken, requireAdmin, createJob);
-router.put('/:id', authenticateToken, requireAdmin, updateJob);
-router.delete('/:id', authenticateToken, requireAdmin, deleteJob);
-router.get('/admin/my-jobs', authenticateToken, requireAdmin, getMyJobs);
-router.get('/admin/stats', authenticateToken, requireAdmin, getJobStats);
+// Protected routes (Recruiter only)
+router.post('/', authenticateToken, requireRecruiter, createJob);
+router.put('/:id', authenticateToken, requireRecruiter, updateJob);
+router.delete('/:id', authenticateToken, requireRecruiter, deleteJob);
+router.get('/recruiter/my-jobs', authenticateToken, requireRecruiter, getMyJobs);
+router.get('/recruiter/stats', authenticateToken, requireRecruiter, getJobStats);
 
 module.exports = router;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Typography, Box, Paper } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import CandidateDashboard from '../components/CandidateDashboard';
-import AdminDashboard from '../components/AdminDashboard';
+import RecruiterDashboard from '../components/RecruiterDashboard';
 import { motion } from 'framer-motion';
 import { Dashboard as DashboardIcon, Person, AdminPanelSettings } from '@mui/icons-material';
 
@@ -45,7 +45,7 @@ const Dashboard = () => {
         >
           <Box sx={{ position: 'relative', zIndex: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              {user?.role === 'admin' ? (
+              {user?.role === 'recruiter' || user?.role === 'admin' ? (
                 <AdminPanelSettings sx={{ fontSize: 40 }} />
               ) : (
                 <Person sx={{ fontSize: 40 }} />
@@ -55,7 +55,7 @@ const Dashboard = () => {
                   {getGreeting()}, {user?.profile?.firstName}!
                 </Typography>
                 <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400 }}>
-                  {user?.role === 'admin' 
+                  {user?.role === 'recruiter' || user?.role === 'admin' 
                     ? 'Manage your job postings and review applications' 
                     : 'Track your applications and discover new opportunities'
                   }
@@ -66,7 +66,7 @@ const Dashboard = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
               <DashboardIcon sx={{ fontSize: 20 }} />
               <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                {user?.role === 'admin' ? 'Admin Dashboard' : 'Candidate Dashboard'}
+                {user?.role === 'recruiter' || user?.role === 'admin' ? 'Recruiter Dashboard' : 'Candidate Dashboard'}
               </Typography>
             </Box>
           </Box>
@@ -78,7 +78,7 @@ const Dashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        {user?.role === 'admin' ? <AdminDashboard /> : <CandidateDashboard />}
+        {user?.role === 'recruiter' || user?.role === 'admin' ? <RecruiterDashboard /> : <CandidateDashboard />}
       </motion.div>
     </Container>
   );

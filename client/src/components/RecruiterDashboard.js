@@ -44,6 +44,7 @@ import {
   Schedule,
   PostAdd,
   Delete,
+  Edit,
   Visibility,
   MoreVert,
   Block,
@@ -157,7 +158,7 @@ const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
   </motion.div>
 );
 
-const AdminDashboard = () => {
+const RecruiterDashboard = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
@@ -168,6 +169,10 @@ const AdminDashboard = () => {
   const [postsLoading, setPostsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [editDialog, setEditDialog] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
+  const [editContent, setEditContent] = useState('');
+  const [deleteDialog, setDeleteDialog] = useState(false);
   const [stats, setStats] = useState({
     totalJobs: 0,
     activeJobs: 0,
@@ -231,7 +236,7 @@ const AdminDashboard = () => {
   const fetchAllPosts = async () => {
     try {
       setPostsLoading(true);
-      const response = await socialAPI.getAllPosts(); // We'll need to create this API
+      const response = await socialAPI.getRecruiterPosts(1, 20); // Fetch recruiter posts
       setPosts(response.data || []);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -245,7 +250,7 @@ const AdminDashboard = () => {
     try {
       switch (action) {
         case 'delete':
-          await socialAPI.adminDeletePost(postId);
+          await socialAPI.recruiterDeletePost(postId);
           toast.success('Post deleted successfully');
           break;
         case 'hide':
@@ -265,6 +270,53 @@ const AdminDashboard = () => {
     }
     setAnchorEl(null);
     setSelectedPost(null);
+  };
+
+  // Edit post functions
+  const handleEditPost = (post) => {
+    setEditingPost(post);
+    setEditContent(post.content);
+    setEditDialog(true);
+    setAnchorEl(null);
+    setSelectedPost(null);
+  };
+
+  const handleUpdatePost = async () => {
+    try {
+      await socialAPI.updatePost(editingPost._id, { content: editContent });
+      setPosts(prev => prev.map(post => 
+        post._id === editingPost._id 
+          ? { ...post, content: editContent }
+          : post
+      ));
+      toast.success('Post updated successfully');
+      setEditDialog(false);
+      setEditingPost(null);
+      setEditContent('');
+    } catch (error) {
+      console.error('Error updating post:', error);
+      toast.error('Failed to update post');
+    }
+  };
+
+  // Delete post functions
+  const handleDeletePost = (post) => {
+    setSelectedPost(post);
+    setDeleteDialog(true);
+    setAnchorEl(null);
+  };
+
+  const confirmDeletePost = async () => {
+    try {
+      await socialAPI.recruiterDeletePost(selectedPost._id);
+      setPosts(prev => prev.filter(post => post._id !== selectedPost._id));
+      toast.success('Post deleted successfully');
+      setDeleteDialog(false);
+      setSelectedPost(null);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast.error('Failed to delete post');
+    }
   };
 
   const handleTabChange = (event, newValue) => {
@@ -430,7 +482,7 @@ const AdminDashboard = () => {
                   </Button>
                   <Button
                     variant="outlined"
-                    onClick={() => navigate('/admin/jobs')}
+                    onClick={() => navigate('/recruiter/jobs')}
                     sx={{
                       borderColor: '#6366f1',
                       color: '#6366f1',
@@ -449,7 +501,7 @@ const AdminDashboard = () => {
                   </Button>
                   <Button
                     variant="outlined"
-                    onClick={() => navigate('/admin/applications')}
+                    onClick={() => navigate('/recruiter/applications')}
                     sx={{
                       borderColor: '#10b981',
                       color: '#10b981',
@@ -651,28 +703,15 @@ const AdminDashboard = () => {
                         <Paper 
                           elevation={4}
                           sx={{ 
-                            borderRadius: 4,
+                            borderRadius: 0, // Square edges
                             overflow: 'hidden',
                             background: 'white',
-                            border: '1px solid rgba(0, 0, 0, 0.06)',
+                            border: '1px solid rgba(0, 0, 0, 0.12)',
                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                             position: 'relative',
                             '&:hover': {
-                              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12)',
-                              '&::before': {
-                                opacity: 1
-                              }
-                            },
-                            '&::before': {
-                              content: '""',
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              height: '3px',
-                              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-                              opacity: 0,
-                              transition: 'opacity 0.3s ease'
+                              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+                              borderColor: 'rgba(0, 0, 0, 0.2)'
                             }
                           }}
                         >
@@ -698,9 +737,9 @@ const AdminDashboard = () => {
                                     width: 50,
                                     height: 50,
                                     mr: 2,
-                                    border: '3px solid transparent',
-                                    background: 'linear-gradient(45deg, #667eea, #764ba2)',
-                                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
+                                    borderRadius: 1, // Slightly rounded square
+                                    border: '2px solid #e5e7eb',
+                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
                                   }}
                                 >
                                   {post.author?.profile?.firstName?.charAt(0) || 'U'}
@@ -725,7 +764,7 @@ const AdminDashboard = () => {
                                     fontSize: '0.875rem'
                                   }}
                                 >
-                                  {post.author?.profile?.headline || post.author?.role}
+                                  {post.author?.profile?.headline || (post.author?.role === 'admin' ? 'Recruiter' : post.author?.role)}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
                                   <Visibility sx={{ fontSize: 14, mr: 0.5, color: '#94a3b8' }} />
@@ -744,8 +783,8 @@ const AdminDashboard = () => {
                                 </Box>
                               </Box>
                               
-                              {/* Admin Actions Menu */}
-                              <Tooltip title="Admin Actions">
+                              {/* Recruiter Actions Menu */}
+                              <Tooltip title="Recruiter Actions">
                                 <IconButton 
                                   size="small"
                                   onClick={(e) => {
@@ -770,7 +809,8 @@ const AdminDashboard = () => {
                                 mb: 2.5,
                                 lineHeight: 1.6,
                                 fontSize: '1rem',
-                                color: '#374151'
+                                color: '#374151',
+                                whiteSpace: 'pre-wrap' // Preserve line breaks and formatting
                               }}
                             >
                               {post.content}
@@ -783,41 +823,84 @@ const AdminDashboard = () => {
                                 size="small"
                                 sx={{ 
                                   mb: 2,
-                                  background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                                  background: '#1976d2',
                                   color: 'white',
                                   fontWeight: 600,
-                                  fontSize: '0.75rem'
+                                  fontSize: '0.75rem',
+                                  borderRadius: 0 // Square edges
                                 }}
                               />
                             )}
 
                             {/* Media Display */}
-                            {post.mediaUrls && post.mediaUrls.length > 0 && (
-                              <Box sx={{ mb: 2.5 }}>
-                                <Grid container spacing={1}>
-                                  {post.mediaUrls.map((url, idx) => (
-                                    <Grid item xs={post.mediaUrls.length === 1 ? 12 : 6} key={idx}>
+                            {((post.mediaUrls && post.mediaUrls.length > 0) || (post.mediaBase64 && post.mediaBase64.length > 0)) && (
+                              <Box sx={{ mb: 2.5, mx: -3 }}>
+                                <Grid container spacing={0}>
+                                  {/* Display base64 images if available */}
+                                  {post.mediaBase64 && post.mediaBase64.length > 0 && post.mediaBase64.map((media, idx) => (
+                                    <Grid item xs={post.mediaBase64.length === 1 ? 12 : post.mediaBase64.length === 2 ? 6 : 4} key={`base64-${idx}`}>
                                       <Box
                                         sx={{
                                           position: 'relative',
-                                          borderRadius: 3,
+                                          borderRadius: 0, // Square edges
                                           overflow: 'hidden',
+                                          cursor: 'pointer',
+                                          backgroundColor: '#f8fafc', // Light background for contrast
+                                          border: '1px solid rgba(0,0,0,0.08)',
                                           '&:hover img': {
                                             transform: 'scale(1.05)'
                                           }
                                         }}
                                       >
                                         <img
-                                          src={url.startsWith('http') ? url : `${SERVER_BASE_URL}${url}`}
+                                          src={`data:${media.mimeType};base64,${media.data}`}
                                           alt="Post media"
                                           style={{
                                             width: '100%',
-                                            height: post.mediaUrls.length === 1 ? '300px' : '200px',
-                                            objectFit: 'cover',
-                                            transition: 'transform 0.3s ease'
+                                            height: 'auto', // Auto height to maintain aspect ratio
+                                            maxHeight: post.mediaBase64.length === 1 ? '400px' : post.mediaBase64.length === 2 ? '300px' : '250px', // Max height constraint
+                                            objectFit: 'contain', // Show full image without cropping
+                                            transition: 'transform 0.3s ease',
+                                            display: 'block'
                                           }}
                                           onError={(e) => {
-                                            console.error('Image failed to load:', url);
+                                            console.warn('Base64 image failed to load for post:', post._id);
+                                            e.target.style.display = 'none';
+                                          }}
+                                        />
+                                      </Box>
+                                    </Grid>
+                                  ))}
+                                  
+                                  {/* Fallback to URL-based images if no base64 images */}
+                                  {(!post.mediaBase64 || post.mediaBase64.length === 0) && post.mediaUrls && post.mediaUrls.map((url, idx) => (
+                                    <Grid item xs={post.mediaUrls.length === 1 ? 12 : post.mediaUrls.length === 2 ? 6 : 4} key={`url-${idx}`}>
+                                      <Box
+                                        sx={{
+                                          position: 'relative',
+                                          borderRadius: 0, // Square edges
+                                          overflow: 'hidden',
+                                          cursor: 'pointer',
+                                          backgroundColor: '#f8fafc', // Light background for contrast
+                                          border: '1px solid rgba(0,0,0,0.08)',
+                                          '&:hover img': {
+                                            transform: 'scale(1.05)'
+                                          }
+                                        }}
+                                      >
+                                        <img
+                                          src={url.startsWith('http') ? url : `http://localhost:5000${url}`}
+                                          alt="Post media"
+                                          style={{
+                                            width: '100%',
+                                            height: 'auto', // Auto height to maintain aspect ratio
+                                            maxHeight: post.mediaUrls.length === 1 ? '400px' : post.mediaUrls.length === 2 ? '300px' : '250px', // Max height constraint
+                                            objectFit: 'contain', // Show full image without cropping
+                                            transition: 'transform 0.3s ease',
+                                            display: 'block'
+                                          }}
+                                          onError={(e) => {
+                                            console.error('URL image failed to load:', url);
                                             e.target.style.display = 'none';
                                           }}
                                         />
@@ -866,7 +949,10 @@ const AdminDashboard = () => {
                                 label={getPostStatusText(post)}
                                 color={getPostStatusColor(post)}
                                 size="small"
-                                sx={{ fontWeight: 600 }}
+                                sx={{ 
+                                  fontWeight: 600,
+                                  borderRadius: 0 // Square edges
+                                }}
                               />
                             </Box>
                           </CardContent>
@@ -900,9 +986,18 @@ const AdminDashboard = () => {
           setSelectedPost(null);
         }}
         PaperProps={{
-          sx: { minWidth: 200 }
+          sx: { 
+            minWidth: 200,
+            borderRadius: 0 // Square edges
+          }
         }}
       >
+        <MenuItem onClick={() => handleEditPost(selectedPost)}>
+          <ListItemIcon>
+            <Edit fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Edit Post</ListItemText>
+        </MenuItem>
         <MenuItem onClick={() => handlePostAction(selectedPost?._id, 'approve')}>
           <ListItemIcon>
             <CheckCircleOutline fontSize="small" />
@@ -915,7 +1010,7 @@ const AdminDashboard = () => {
           </ListItemIcon>
           <ListItemText>Hide Post</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handlePostAction(selectedPost?._id, 'delete')}>
+        <MenuItem onClick={() => handleDeletePost(selectedPost)}>
           <ListItemIcon>
             <Delete fontSize="small" color="error" />
           </ListItemIcon>
@@ -1067,8 +1162,87 @@ const AdminDashboard = () => {
           </DialogActions>
         </form>
       </Dialog>
+
+      {/* Edit Post Dialog */}
+      <Dialog 
+        open={editDialog} 
+        onClose={() => setEditDialog(false)} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 0 } // Square edges
+        }}
+      >
+        <DialogTitle sx={{ borderRadius: 0 }}>Edit Post</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Post Content"
+            fullWidth
+            multiline
+            rows={6}
+            variant="outlined"
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            sx={{ 
+              mt: 2,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0 // Square edges
+              }
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button 
+            onClick={() => setEditDialog(false)}
+            sx={{ borderRadius: 0 }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleUpdatePost} 
+            variant="contained"
+            sx={{ borderRadius: 0 }}
+          >
+            Update Post
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialog}
+        onClose={() => setDeleteDialog(false)}
+        PaperProps={{
+          sx: { borderRadius: 0 } // Square edges
+        }}
+      >
+        <DialogTitle sx={{ borderRadius: 0 }}>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this post? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button 
+            onClick={() => setDeleteDialog(false)}
+            sx={{ borderRadius: 0 }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={confirmDeletePost} 
+            variant="contained" 
+            color="error"
+            sx={{ borderRadius: 0 }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
 
-export default AdminDashboard;
+export default RecruiterDashboard;

@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CircularProgress, Box } from '@mui/material';
 
-const ProtectedRoute = ({ children, requiredRole, adminOnly }) => {
+const ProtectedRoute = ({ children, requiredRole, recruiterOnly }) => {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
 
@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children, requiredRole, adminOnly }) => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  if (adminOnly && user?.role !== 'admin') {
+  if (recruiterOnly && user?.role !== 'recruiter' && user?.role !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }
 
