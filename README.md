@@ -1,6 +1,6 @@
 # Job Portal - Full Stack Application
 
-A comprehensive job portal application built with React.js, Node.js, Express, and MongoDB. This platform connects job seekers with employers, featuring separate dashboards for candidates and administrators.
+A comprehensive job portal application built with React.js, Node.js, Express, and MongoDB. This platform connects job seekers with employers, featuring separate dashboards for candidates and recruiters.
 
 ## Features
 
@@ -12,7 +12,7 @@ A comprehensive job portal application built with React.js, Node.js, Express, an
 - Application tracking and status updates
 - Dashboard with application analytics
 
-### For Admins/Recruiters
+### For Recruiters
 - Job posting and management
 - Application review and management
 - Candidate search and filtering
@@ -109,14 +109,14 @@ job-portal/
 ### Jobs
 - `GET /api/jobs` - Get all jobs (with filters)
 - `GET /api/jobs/:id` - Get single job
-- `POST /api/jobs` - Create job (admin only)
-- `PUT /api/jobs/:id` - Update job (admin only)
-- `DELETE /api/jobs/:id` - Delete job (admin only)
+- `POST /api/jobs` - Create job (recruiter only)
+- `PUT /api/jobs/:id` - Update job (recruiter only)
+- `DELETE /api/jobs/:id` - Delete job (recruiter only)
 
 ### Applications
 - `POST /api/applications` - Apply to job
 - `GET /api/applications/my-applications` - Get user applications
-- `PUT /api/applications/:id/status` - Update application status (admin)
+- `PUT /api/applications/:id/status` - Update application status (recruiter)
 
 ### File Upload
 - `POST /api/upload/resume` - Upload resume
@@ -128,7 +128,7 @@ job-portal/
 ### User Model
 - Personal information (name, email, phone, location)
 - Professional details (skills, experience, education)
-- Role-based access (candidate/admin)
+- Role-based access (candidate/recruiter)
 - Resume file reference
 
 ### Job Model

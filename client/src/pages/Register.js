@@ -346,7 +346,7 @@ const Register = () => {
                           }}
                           startAdornment={
                             <InputAdornment position="start">
-                              {selectedRole === 'admin' ? (
+                              {selectedRole === 'recruiter' ? (
                                 <AdminPanelSettings sx={{ color: 'text.secondary', ml: 1 }} />
                               ) : (
                                 <AccountCircle sx={{ color: 'text.secondary', ml: 1 }} />
@@ -360,10 +360,10 @@ const Register = () => {
                               Job Seeker
                             </Box>
                           </MenuItem>
-                          <MenuItem value="admin">
+                          <MenuItem value="recruiter">
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <AdminPanelSettings />
-                              Recruiter/Admin
+                              Recruiter
                             </Box>
                           </MenuItem>
                         </Select>

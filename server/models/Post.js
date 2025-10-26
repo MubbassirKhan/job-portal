@@ -161,7 +161,7 @@ const postSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
-  // Admin moderation fields
+  // Recruiter moderation fields
   isHidden: {
     type: Boolean,
     default: false

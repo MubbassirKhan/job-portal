@@ -114,9 +114,9 @@ const getJob = async (req, res, next) => {
   }
 };
 
-// @desc    Create new job
+// @desc    Create a new job
 // @route   POST /api/jobs
-// @access  Private/Admin
+// @access  Private/Recruiter
 const createJob = async (req, res, next) => {
   try {
     const jobData = {
@@ -140,7 +140,7 @@ const createJob = async (req, res, next) => {
 
 // @desc    Update job
 // @route   PUT /api/jobs/:id
-// @access  Private/Admin
+// @access  Private/Recruiter
 const updateJob = async (req, res, next) => {
   try {
     let job = await Job.findById(req.params.id);
@@ -152,8 +152,8 @@ const updateJob = async (req, res, next) => {
       });
     }
 
-    // Check if user is the creator or admin
-    if (job.postedBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    // Check if user is the creator or has recruiter/admin permissions
+    if (job.postedBy.toString() !== req.user.id && req.user.role !== 'recruiter' && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to update this job'
@@ -179,7 +179,7 @@ const updateJob = async (req, res, next) => {
 
 // @desc    Delete job
 // @route   DELETE /api/jobs/:id
-// @access  Private/Admin
+// @access  Private/Recruiter
 const deleteJob = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -191,8 +191,8 @@ const deleteJob = async (req, res, next) => {
       });
     }
 
-    // Check if user is the creator or admin
-    if (job.postedBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    // Check if user is the creator or has recruiter/admin permissions
+    if (job.postedBy.toString() !== req.user.id && req.user.role !== 'recruiter' && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to delete this job'
@@ -212,9 +212,9 @@ const deleteJob = async (req, res, next) => {
   }
 };
 
-// @desc    Get jobs posted by current user (admin)
+// @desc    Get jobs posted by current user (recruiter)
 // @route   GET /api/jobs/my-jobs
-// @access  Private/Admin
+// @access  Private/Recruiter
 const getMyJobs = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -242,9 +242,9 @@ const getMyJobs = async (req, res, next) => {
   }
 };
 
-// @desc    Get job statistics for admin
+// @desc    Get job statistics for recruiter
 // @route   GET /api/jobs/stats
-// @access  Private/Admin
+// @access  Private/Recruiter
 const getJobStats = async (req, res, next) => {
   try {
     const totalJobs = await Job.countDocuments({ postedBy: req.user.id });

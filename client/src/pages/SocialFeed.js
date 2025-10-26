@@ -24,7 +24,11 @@ import {
   Badge,
   Tooltip,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  ToggleButton,
+  ToggleButtonGroup,
+  Card,
+  CardMedia
 } from '@mui/material';
 import {
   FavoriteOutlined,
@@ -39,7 +43,10 @@ import {
   Public,
   Group,
   TrendingUp,
-  PhotoCamera
+  PhotoCamera,
+  GridView,
+  ViewCarousel,
+  Delete
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { socialAPI } from '../utils/socialAPI';
@@ -62,7 +69,8 @@ const SocialFeed = () => {
     content: '',
     visibility: 'public',
     media: [],
-    mediaBase64: []
+    mediaBase64: [],
+    imageLayout: 'grid' // 'grid' or 'carousel'
   });
   const [submitting, setSubmitting] = useState(false);
   const [commentDialogs, setCommentDialogs] = useState({});
@@ -118,6 +126,38 @@ const SocialFeed = () => {
   // Effect to clean up duplicates whenever posts change
   useEffect(() => {
     setPosts(prev => removeDuplicatePosts(prev));
+  }, []);
+
+  // Check for success message after page refresh
+  useEffect(() => {
+    const showSuccess = localStorage.getItem('showPostSuccess');
+    if (showSuccess === 'true') {
+      // Remove the flag first
+      localStorage.removeItem('showPostSuccess');
+      
+      // Show short success toast after a brief delay
+      setTimeout(() => {
+        toast.success('Post published successfully!', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          style: {
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fffe 100%)',
+            border: '1px solid rgba(76, 175, 80, 0.2)',
+            borderRadius: '12px',
+            boxShadow: '0 8px 32px rgba(76, 175, 80, 0.15)',
+            color: '#1b5e20',
+            fontWeight: '500'
+          },
+          progressStyle: {
+            background: 'linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)'
+          }
+        });
+      }, 1000); // Show toast 1 second after page load
+    }
   }, []);
 
   // Helper function to remove duplicates from posts array
@@ -390,32 +430,28 @@ const SocialFeed = () => {
 
     setSubmitting(true);
     setError(''); // Clear any previous errors
+    
+    console.log('📝 Creating post with data:', {
+      content: newPost.content,
+      hasMedia: newPost.media && newPost.media.length > 0,
+      mediaCount: newPost.media ? newPost.media.length : 0,
+      hasBase64: newPost.mediaBase64 && newPost.mediaBase64.length > 0,
+      base64Count: newPost.mediaBase64 ? newPost.mediaBase64.length : 0
+    });
+    
     try {
       await socialAPI.createPost(newPost);
       // Don't add to posts here and don't reload feed - let socket handle it to prevent duplicates
-      setNewPost({ content: '', visibility: 'public', media: [], mediaBase64: [] });
+      setNewPost({ content: '', visibility: 'public', media: [], mediaBase64: [], imageLayout: 'grid' });
       setCreatePostOpen(false);
       
-      // Show professional success toast
-      toast.success('Post published successfully! Your content is now live in your network.', {
-        position: "top-right",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        style: {
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8fffe 100%)',
-          border: '1px solid rgba(76, 175, 80, 0.2)',
-          borderRadius: '12px',
-          boxShadow: '0 8px 32px rgba(76, 175, 80, 0.15)',
-          color: '#1b5e20',
-          fontWeight: '500'
-        },
-        progressStyle: {
-          background: 'linear-gradient(90deg, #4caf50 0%, #8bc34a 100%)'
-        }
-      });
+      // Set flag for success message after refresh
+      localStorage.setItem('showPostSuccess', 'true');
+      
+      // Refresh the page immediately to show the new post
+      setTimeout(() => {
+        window.location.reload();
+      }, 500); // Quick refresh after 0.5 seconds
     } catch (error) {
       setError(error.message);
       toast.error(error.message || 'Failed to publish post', {
@@ -496,16 +532,16 @@ const SocialFeed = () => {
     <>
       <Box sx={{ 
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        py: { xs: 2, md: 4 }
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        py: { xs: 1, md: 2 }
       }}>
       <Container 
-        maxWidth="lg" 
+        maxWidth="xl" 
         sx={{ 
           px: { xs: 1, sm: 2, md: 3 }
         }}
       >
-        {/* Header Section */}
+        {/* Compact Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -514,29 +550,30 @@ const SocialFeed = () => {
           <Paper
             elevation={0}
             sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
               color: 'white',
-              p: { xs: 3, md: 4 },
-              mb: 4,
-              borderRadius: 3,
-              textAlign: 'center'
+              p: { xs: 2, md: 3 },
+              mb: 2,
+              borderRadius: 0, // Square edges for professional look
+              textAlign: 'center',
+              border: '1px solid rgba(255,255,255,0.1)'
             }}
           >
             <Typography 
-              variant={isMobile ? "h5" : "h4"} 
+              variant={isMobile ? "h6" : "h5"} 
               sx={{ 
                 fontWeight: 700, 
-                mb: 1,
+                mb: 0.5,
                 textShadow: '0 2px 4px rgba(0,0,0,0.3)'
               }}
             >
               🚀 Professional Feed
             </Typography>
             <Typography 
-              variant="body1" 
+              variant="body2" 
               sx={{ 
                 opacity: 0.9,
-                fontSize: { xs: '0.9rem', md: '1rem' }
+                fontSize: { xs: '0.8rem', md: '0.9rem' }
               }}
             >
               Connect, share, and grow with your professional network
@@ -544,10 +581,10 @@ const SocialFeed = () => {
           </Paper>
         </motion.div>
 
-        <Grid container spacing={3}>
-          {/* Left Sidebar - Hidden on mobile */}
+        <Grid container spacing={2}>
+          {/* Left Sidebar - Condensed */}
           {!isMobile && (
-            <Grid item lg={3} md={3}>
+            <Grid item lg={2.5} md={3}>
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -556,26 +593,27 @@ const SocialFeed = () => {
                 <Paper 
                   elevation={2}
                   sx={{ 
-                    p: 3, 
-                    borderRadius: 3,
+                    p: 2, 
+                    borderRadius: 0, // Square edges
                     background: 'white',
                     position: 'sticky',
-                    top: 20
+                    top: 20,
+                    border: '1px solid rgba(0,0,0,0.08)'
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5, color: '#1e293b' }}>
                     Quick Stats
                   </Typography>
-                  <Stack spacing={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <TrendingUp color="primary" />
-                      <Typography variant="body2">
+                  <Stack spacing={1.5}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: '#f8fafc', borderRadius: 0 }}>
+                      <TrendingUp sx={{ color: '#1e293b', fontSize: 18 }} />
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#334155' }}>
                         {posts.length} Posts Today
                       </Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Group color="primary" />
-                      <Typography variant="body2">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: '#f8fafc', borderRadius: 0 }}>
+                      <Group sx={{ color: '#1e293b', fontSize: 18 }} />
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#334155' }}>
                         Professional Network
                       </Typography>
                     </Box>
@@ -585,41 +623,44 @@ const SocialFeed = () => {
             </Grid>
           )}
 
-          {/* Main Content */}
-          <Grid item xs={12} md={isMobile ? 12 : 9} lg={6}>
-            {/* Create Post Card */}
+          {/* Main Content - Wider */}
+          <Grid item xs={12} md={isMobile ? 12 : 6} lg={7}>
+            {/* Compact Create Post Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <Paper 
-                elevation={3}
+                elevation={1}
                 sx={{ 
-                  mb: 3,
-                  borderRadius: 3,
+                  mb: 2,
+                  borderRadius: 0, // Square edges
                   overflow: 'hidden',
-                  background: 'white'
+                  background: 'white',
+                  border: '1px solid rgba(0,0,0,0.08)'
                 }}
               >
-                <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                <CardContent sx={{ p: 2 }}>
                   <Button
                     fullWidth
                     variant="outlined"
                     startIcon={<Add />}
                     onClick={() => setCreatePostOpen(true)}
                     sx={{
-                      py: { xs: 1.5, md: 2 },
+                      py: 1.5,
                       textTransform: 'none',
                       fontSize: { xs: '0.9rem', md: '1rem' },
-                      borderRadius: 2,
-                      border: '2px dashed #e0e0e0',
-                      background: 'linear-gradient(45deg, #f8f9fa, #ffffff)',
+                      borderRadius: 0, // Square edges
+                      border: '2px solid #e2e8f0',
+                      color: '#334155',
+                      fontWeight: 600,
+                      background: 'linear-gradient(45deg, #f8fafc, #ffffff)',
                       '&:hover': {
-                        background: 'linear-gradient(45deg, #e3f2fd, #f5f5f5)',
-                        border: '2px dashed #1976d2',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 8px 25px rgba(25, 118, 210, 0.15)'
+                        background: 'linear-gradient(45deg, #e2e8f0, #f1f5f9)',
+                        border: '2px solid #1e293b',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(30, 41, 59, 0.15)'
                       },
                       transition: 'all 0.3s ease'
                     }}
@@ -642,10 +683,11 @@ const SocialFeed = () => {
                   <Alert 
                     severity="error" 
                     sx={{ 
-                      mb: 3,
-                      borderRadius: 2,
+                      mb: 2,
+                      borderRadius: 0, // Square edges
+                      border: '1px solid rgba(211, 47, 47, 0.2)',
                       '& .MuiAlert-icon': {
-                        fontSize: '1.5rem'
+                        fontSize: '1.2rem'
                       }
                     }} 
                     onClose={() => setError('')}
@@ -656,56 +698,57 @@ const SocialFeed = () => {
               )}
             </AnimatePresence>
 
-            {/* Loading Skeletons */}
+            {/* Compact Loading Skeletons */}
             {loading && posts.length === 0 && (
-              <Stack spacing={3}>
+              <Stack spacing={2}>
                 {[1, 2, 3].map((item) => (
-                  <Paper key={item} elevation={2} sx={{ p: 3, borderRadius: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Skeleton variant="circular" width={50} height={50} />
-                      <Box sx={{ ml: 2, flex: 1 }}>
-                        <Skeleton variant="text" width="60%" height={24} />
-                        <Skeleton variant="text" width="40%" height={20} />
+                  <Paper key={item} elevation={1} sx={{ p: 2, borderRadius: 0, border: '1px solid rgba(0,0,0,0.08)' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                      <Skeleton variant="circular" width={40} height={40} />
+                      <Box sx={{ ml: 1.5, flex: 1 }}>
+                        <Skeleton variant="text" width="50%" height={20} />
+                        <Skeleton variant="text" width="30%" height={16} />
                       </Box>
                     </Box>
-                    <Skeleton variant="text" width="100%" height={20} />
-                    <Skeleton variant="text" width="80%" height={20} />
-                    <Skeleton variant="rectangular" width="100%" height={200} sx={{ mt: 2, borderRadius: 2 }} />
+                    <Skeleton variant="text" width="100%" height={16} />
+                    <Skeleton variant="text" width="70%" height={16} />
+                    <Skeleton variant="rectangular" width="100%" height={150} sx={{ mt: 1.5, borderRadius: 0 }} />
                   </Paper>
                 ))}
               </Stack>
             )}
 
-            {/* Posts Feed */}
-            <Stack spacing={3}>
+            {/* Posts Feed - Compact and Professional */}
+            <Stack spacing={2}>
               <AnimatePresence>
         {posts.map((post, index) => (
           <motion.div
             key={post._id}
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ 
-              delay: index * 0.1,
-              duration: 0.5,
+              delay: index * 0.05,
+              duration: 0.4,
               type: "spring",
               stiffness: 100
             }}
             whileHover={{ 
-              scale: 1.02,
+              scale: 1.01,
               transition: { duration: 0.2 }
             }}
           >
             <Paper 
-              elevation={4}
+              elevation={2}
               sx={{ 
-                borderRadius: 4,
+                borderRadius: 0, // Square edges for professional look
                 overflow: 'hidden',
                 background: 'white',
-                border: '1px solid rgba(0, 0, 0, 0.06)',
+                border: '1px solid rgba(0, 0, 0, 0.08)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 position: 'relative',
                 '&:hover': {
-                  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                  border: '1px solid rgba(30, 41, 59, 0.2)',
                   '&::before': {
                     opacity: 1
                   }
@@ -717,24 +760,24 @@ const SocialFeed = () => {
                   left: 0,
                   right: 0,
                   height: '3px',
-                  background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(90deg, #1e293b 0%, #334155 100%)',
                   opacity: 0,
                   transition: 'opacity 0.3s ease'
                 }
               }}
             >
-              {/* Post Header */}
-              <CardContent sx={{ p: { xs: 2, md: 3 }, pb: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
+              {/* Compact Post Header */}
+              <CardContent sx={{ p: 2, pb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
                   <Badge
                     overlap="circular"
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                     badgeContent={
                       <Box sx={{
-                        width: 12,
-                        height: 12,
+                        width: 10,
+                        height: 10,
                         borderRadius: '50%',
-                        backgroundColor: '#4caf50',
+                        backgroundColor: '#22c55e',
                         border: '2px solid white'
                       }} />
                     }
@@ -742,12 +785,11 @@ const SocialFeed = () => {
                     <Avatar
                       src={post.author.profile.profileImage}
                       sx={{ 
-                        width: { xs: 45, md: 50 },
-                        height: { xs: 45, md: 50 },
-                        mr: 2,
-                        border: '3px solid transparent',
-                        background: 'linear-gradient(45deg, #667eea, #764ba2)',
-                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
+                        width: 40,
+                        height: 40,
+                        mr: 1.5,
+                        border: '2px solid #e2e8f0',
+                        borderRadius: 0 // Square avatar for professional look
                       }}
                     >
                       {post.author.profile.firstName?.charAt(0)}
@@ -755,37 +797,39 @@ const SocialFeed = () => {
                   </Badge>
                   <Box sx={{ flex: 1 }}>
                     <Typography 
-                      variant="subtitle1" 
+                      variant="subtitle2" 
                       sx={{ 
                         fontWeight: 700,
-                        color: '#2c3e50',
-                        fontSize: { xs: '0.95rem', md: '1.1rem' }
+                        color: '#1e293b',
+                        fontSize: '0.95rem',
+                        lineHeight: 1.2
                       }}
                     >
                       {post.author.profile.firstName} {post.author.profile.lastName}
                     </Typography>
                     <Typography 
-                      variant="body2" 
+                      variant="caption" 
                       color="text.secondary"
                       sx={{ 
                         fontWeight: 500,
-                        fontSize: { xs: '0.8rem', md: '0.875rem' }
+                        fontSize: '0.8rem',
+                        display: 'block'
                       }}
                     >
-                      {post.author.profile.headline || post.author.role}
+                      {post.author.profile.headline || (post.author.role === 'admin' ? 'Recruiter' : post.author.role)}
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                      <Visibility sx={{ fontSize: 14, mr: 0.5, color: '#94a3b8' }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.2 }}>
+                      <Visibility sx={{ fontSize: 12, mr: 0.5, color: '#94a3b8' }} />
                       <Typography 
                         variant="caption" 
                         color="text.secondary"
-                        sx={{ fontSize: '0.75rem' }}
+                        sx={{ fontSize: '0.7rem' }}
                       >
                         {formatTimeAgo(post.createdAt)}
                       </Typography>
                       {post.visibility === 'public' && (
                         <Tooltip title="Public post">
-                          <Public sx={{ fontSize: 14, ml: 1, color: '#94a3b8' }} />
+                          <Public sx={{ fontSize: 12, ml: 0.5, color: '#94a3b8' }} />
                         </Tooltip>
                       )}
                     </Box>
@@ -794,58 +838,67 @@ const SocialFeed = () => {
                     <IconButton 
                       size="small"
                       sx={{
+                        width: 32,
+                        height: 32,
                         '&:hover': {
-                          backgroundColor: 'rgba(102, 126, 234, 0.1)'
+                          backgroundColor: 'rgba(30, 41, 59, 0.1)'
                         }
                       }}
                     >
-                      <MoreVert />
+                      <MoreVert sx={{ fontSize: 18 }} />
                     </IconButton>
                   </Tooltip>
                 </Box>
 
-                {/* Post Content */}
+                {/* Compact Post Content */}
                 <Typography 
-                  variant="body1" 
+                  variant="body2" 
                   sx={{ 
-                    mb: 2.5,
-                    lineHeight: 1.6,
-                    fontSize: { xs: '0.9rem', md: '1rem' },
-                    color: '#374151'
+                    mb: 1.5,
+                    lineHeight: 1.5,
+                    fontSize: '0.9rem',
+                    color: '#374151',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    fontFamily: 'inherit'
                   }}
                 >
                   {post.content}
                 </Typography>
 
-                {/* Post Type Indicator */}
+                {/* Compact Post Type Indicator */}
                 {post.postType !== 'text' && (
                   <Chip
                     label={post.postType.replace('_', ' ').toUpperCase()}
                     size="small"
                     sx={{ 
-                      mb: 2,
-                      background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                      mb: 1.5,
+                      background: 'linear-gradient(45deg, #1e293b, #334155)',
                       color: 'white',
                       fontWeight: 600,
-                      fontSize: '0.75rem'
+                      fontSize: '0.7rem',
+                      height: 24,
+                      borderRadius: 0 // Square edges
                     }}
                   />
                 )}
 
-                {/* Media Display */}
+                {/* Compact Media Display */}
                 {((post.mediaUrls && post.mediaUrls.length > 0) || (post.mediaBase64 && post.mediaBase64.length > 0)) && (
-                  <Box sx={{ mb: 2.5 }}>
-                    <Grid container spacing={1}>
+                  <Box sx={{ mb: 1.5 }}>
+                    <Grid container spacing={0.5}>
                       {/* Display base64 images if available */}
                       {post.mediaBase64 && post.mediaBase64.length > 0 && post.mediaBase64.map((media, idx) => (
                         <Grid item xs={post.mediaBase64.length === 1 ? 12 : 6} key={`base64-${idx}`}>
                           <Box
                             sx={{
                               position: 'relative',
-                              borderRadius: 3,
+                              borderRadius: 0, // Square edges
                               overflow: 'hidden',
+                              border: '1px solid rgba(0,0,0,0.08)',
+                              backgroundColor: '#f8fafc', // Light background for contrast
                               '&:hover img': {
-                                transform: 'scale(1.05)'
+                                transform: 'scale(1.02)'
                               }
                             }}
                           >
@@ -854,14 +907,15 @@ const SocialFeed = () => {
                               alt="Post media"
                               style={{
                                 width: '100%',
-                                height: post.mediaBase64.length === 1 ? '300px' : '200px',
-                                objectFit: 'cover',
-                                transition: 'transform 0.3s ease'
+                                height: 'auto', // Auto height to maintain aspect ratio
+                                maxHeight: post.mediaBase64.length === 1 ? '400px' : '300px', // Max height constraint
+                                objectFit: 'contain', // Show full image without cropping
+                                transition: 'transform 0.3s ease',
+                                display: 'block'
                               }}
                               onError={(e) => {
                                 console.warn('Base64 image failed to load for post:', post._id);
                                 e.target.style.display = 'none';
-                                // Could also show a placeholder image here
                               }}
                             />
                           </Box>
@@ -874,10 +928,12 @@ const SocialFeed = () => {
                           <Box
                             sx={{
                               position: 'relative',
-                              borderRadius: 3,
+                              borderRadius: 0, // Square edges
                               overflow: 'hidden',
+                              border: '1px solid rgba(0,0,0,0.08)',
+                              backgroundColor: '#f8fafc', // Light background for contrast
                               '&:hover img': {
-                                transform: 'scale(1.05)'
+                                transform: 'scale(1.02)'
                               }
                             }}
                           >
@@ -886,14 +942,15 @@ const SocialFeed = () => {
                               alt="Post media"
                               style={{
                                 width: '100%',
-                                height: post.mediaUrls.length === 1 ? '300px' : '200px',
-                                objectFit: 'cover',
-                                transition: 'transform 0.3s ease'
+                                height: 'auto', // Auto height to maintain aspect ratio
+                                maxHeight: post.mediaUrls.length === 1 ? '400px' : '300px', // Max height constraint
+                                objectFit: 'contain', // Show full image without cropping
+                                transition: 'transform 0.3s ease',
+                                display: 'block'
                               }}
                               onError={(e) => {
                                 console.warn('Legacy image URL failed to load:', url);
                                 e.target.style.display = 'none';
-                                // Could also show a placeholder image here
                               }}
                             />
                           </Box>
@@ -903,25 +960,25 @@ const SocialFeed = () => {
                   </Box>
                 )}
 
-                {/* Interactive Engagement Stats */}
+                {/* Compact Engagement Stats */}
                 <Box sx={{ 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'space-between',
-                  mb: 1.5,
-                  pt: 2,
+                  mb: 1,
+                  pt: 1.5,
                   borderTop: '1px solid rgba(0, 0, 0, 0.06)'
                 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    {/* Like Button/Counter */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    {/* Compact Like Button */}
                     <Box
                       sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 1,
+                        gap: 0.8,
                         cursor: 'pointer',
-                        p: 1,
-                        borderRadius: 2,
+                        p: 0.8,
+                        borderRadius: 0, // Square edges
                         transition: 'all 0.2s ease',
                         '&:hover': {
                           backgroundColor: post.isLiked ? 'rgba(239, 68, 68, 0.1)' : 'rgba(0, 0, 0, 0.04)',
@@ -931,32 +988,32 @@ const SocialFeed = () => {
                       onClick={() => handleLike(post._id)}
                     >
                       {post.isLiked ? (
-                        <Favorite sx={{ color: '#ef4444', fontSize: 20 }} />
+                        <Favorite sx={{ color: '#ef4444', fontSize: 18 }} />
                       ) : (
-                        <FavoriteOutlined sx={{ color: 'text.secondary', fontSize: 20 }} />
+                        <FavoriteOutlined sx={{ color: 'text.secondary', fontSize: 18 }} />
                       )}
                       <Typography 
-                        variant="body2" 
+                        variant="caption" 
                         color={post.isLiked ? '#ef4444' : 'text.secondary'}
-                        sx={{ fontWeight: 500 }}
+                        sx={{ fontWeight: 600, fontSize: '0.8rem' }}
                       >
-                        {post.likeCount || 0} {post.isLiked ? 'Liked' : 'Like'}
+                        {post.likeCount || 0}
                       </Typography>
                     </Box>
 
-                    {/* Comment Button/Counter */}
+                    {/* Compact Comment Button */}
                     <Box
                       sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 1,
+                        gap: 0.8,
                         cursor: 'pointer',
-                        p: 1,
-                        borderRadius: 2,
+                        p: 0.8,
+                        borderRadius: 0, // Square edges
                         transition: 'all 0.2s ease',
                         '&:hover': {
-                          backgroundColor: 'rgba(25, 118, 210, 0.1)',
-                          color: 'primary.main',
+                          backgroundColor: 'rgba(30, 41, 59, 0.1)',
+                          color: '#1e293b',
                           transform: 'scale(1.02)'
                         }
                       }}
@@ -1143,22 +1200,24 @@ const SocialFeed = () => {
               </AnimatePresence>
             </Stack>
 
-            {/* Load More Button */}
+            {/* Compact Load More Button */}
             {hasMore && !loading && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Button
                   variant="contained"
                   onClick={() => loadFeed(page + 1)}
                   sx={{ 
                     textTransform: 'none',
-                    borderRadius: 3,
+                    borderRadius: 0, // Square edges
                     px: 4,
-                    py: 1.5,
-                    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+                    py: 1,
+                    background: 'linear-gradient(45deg, #1e293b, #334155)',
+                    color: 'white',
+                    fontWeight: 600,
                     '&:hover': {
-                      background: 'linear-gradient(45deg, #5a67d8, #6b46c1)',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)'
+                      background: 'linear-gradient(45deg, #0f172a, #1e293b)',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 6px 20px rgba(30, 41, 59, 0.3)'
                     },
                     transition: 'all 0.3s ease'
                   }}
@@ -1169,9 +1228,9 @@ const SocialFeed = () => {
             )}
           </Grid>
 
-          {/* Right Sidebar - Hidden on mobile and tablet */}
+          {/* Right Sidebar - Compact and Professional */}
           {!isTablet && (
-            <Grid item lg={3}>
+            <Grid item lg={2.5}>
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -1180,14 +1239,15 @@ const SocialFeed = () => {
                 <Paper 
                   elevation={2}
                   sx={{ 
-                    p: 3, 
-                    borderRadius: 3,
+                    p: 2, 
+                    borderRadius: 0, // Square edges
                     background: 'white',
                     position: 'sticky',
-                    top: 20
+                    top: 20,
+                    border: '1px solid rgba(0,0,0,0.08)'
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5, color: '#1e293b' }}>
                     Trending Topics
                   </Typography>
                   <Stack spacing={1}>
@@ -1199,13 +1259,45 @@ const SocialFeed = () => {
                         variant="outlined"
                         sx={{
                           justifyContent: 'flex-start',
+                          borderRadius: 0, // Square edges
+                          border: '1px solid #e2e8f0',
+                          color: '#334155',
+                          fontSize: '0.8rem',
+                          height: 28,
                           '&:hover': {
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)'
+                            backgroundColor: 'rgba(30, 41, 59, 0.1)',
+                            borderColor: '#1e293b',
+                            color: '#1e293b'
                           }
                         }}
                       />
                     ))}
                   </Stack>
+                  
+                  {/* Professional Activity Section */}
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5, color: '#1e293b' }}>
+                      Activity
+                    </Typography>
+                    <Stack spacing={1}>
+                      <Box sx={{ p: 1.5, bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                        <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+                          Posts Today
+                        </Typography>
+                        <Typography variant="h6" sx={{ color: '#1e293b', fontWeight: 700 }}>
+                          {posts.length}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ p: 1.5, bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                        <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+                          Active Users
+                        </Typography>
+                        <Typography variant="h6" sx={{ color: '#1e293b', fontWeight: 700 }}>
+                          {Math.floor(posts.length * 1.5)}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Box>
                 </Paper>
               </motion.div>
             </Grid>
@@ -1213,7 +1305,7 @@ const SocialFeed = () => {
         </Grid>
       </Container>
 
-      {/* Floating Action Button for mobile */}
+      {/* Professional Floating Action Button for mobile */}
       {isMobile && (
         <Fab
           color="primary"
@@ -1223,12 +1315,17 @@ const SocialFeed = () => {
             position: 'fixed',
             bottom: 20,
             right: 20,
-            background: 'linear-gradient(45deg, #667eea, #764ba2)',
+            borderRadius: 0, // Square edges for professional look
+            background: 'linear-gradient(45deg, #1e293b, #334155)',
+            color: 'white',
+            width: 56,
+            height: 56,
             '&:hover': {
-              background: 'linear-gradient(45deg, #5a67d8, #6b46c1)',
-              transform: 'scale(1.1)'
+              background: 'linear-gradient(45deg, #0f172a, #1e293b)',
+              transform: 'scale(1.05)'
             },
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            boxShadow: '0 8px 24px rgba(30, 41, 59, 0.3)'
           }}
         >
           <Add />
@@ -1244,8 +1341,9 @@ const SocialFeed = () => {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: 3,
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
+            borderRadius: 0, // Square edges for professional look
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+            border: '1px solid rgba(0,0,0,0.08)'
           }
         }}
       >
@@ -1345,7 +1443,7 @@ const SocialFeed = () => {
                           })()}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {like.user?.profile?.headline || like.user?.role || like.user?.email || 'User'}
+                          {like.user?.profile?.headline || (like.user?.role === 'admin' ? 'Recruiter' : like.user?.role) || like.user?.email || 'User'}
                         </Typography>
                       </Box>
                     </Box>
@@ -1388,19 +1486,65 @@ const SocialFeed = () => {
         <DialogContent sx={{ pt: 2 }}>
           <TextField
             multiline
-            rows={4}
+            rows={6}
             fullWidth
-            placeholder="What's on your mind? Share something inspiring..."
+            placeholder="What's on your mind? Share something inspiring...
+
+💡 Tip: Your text formatting (line breaks, spacing) will be preserved in your post!"
             value={newPost.content}
             onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
             variant="outlined"
             sx={{ 
               mb: 2,
               '& .MuiOutlinedInput-root': {
-                borderRadius: 2
+                borderRadius: 2,
+                fontFamily: 'inherit',
+                lineHeight: 1.6
+              },
+              '& .MuiInputBase-input': {
+                fontSize: '0.95rem',
+                whiteSpace: 'pre-wrap', // Preserve whitespace and line breaks
+                fontFamily: 'inherit'
+              }
+            }}
+            inputProps={{
+              style: {
+                whiteSpace: 'pre-wrap', // Important for preserving formatting
+                fontFamily: 'inherit'
               }
             }}
           />
+
+          {/* Live Preview Section */}
+          {newPost.content.trim() && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: '#6366f1' }}>
+                📝 Live Preview
+              </Typography>
+              <Paper
+                sx={{
+                  p: 2,
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: 2,
+                  border: '1px solid #e0e0e0'
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    lineHeight: 1.6,
+                    fontSize: '0.95rem',
+                    color: '#374151',
+                    whiteSpace: 'pre-wrap', // Same formatting as actual posts
+                    wordBreak: 'break-word',
+                    fontFamily: 'inherit'
+                  }}
+                >
+                  {newPost.content}
+                </Typography>
+              </Paper>
+            </Box>
+          )}
           
           <Stack direction="row" spacing={2} alignItems="center">
             <input
@@ -1437,10 +1581,148 @@ const SocialFeed = () => {
             />
           </Stack>
 
-          {newPost.media.length > 0 && (
+          {/* Image Preview Section */}
+          {newPost.mediaBase64.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              {/* Layout Options */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  📸 Image Preview ({newPost.mediaBase64.length} image{newPost.mediaBase64.length > 1 ? 's' : ''})
+                </Typography>
+                
+                <ToggleButtonGroup
+                  value={newPost.imageLayout}
+                  exclusive
+                  onChange={(e, newLayout) => {
+                    if (newLayout) {
+                      setNewPost(prev => ({ ...prev, imageLayout: newLayout }));
+                    }
+                  }}
+                  size="small"
+                  sx={{
+                    '& .MuiToggleButton-root': {
+                      borderRadius: 1.5,
+                      textTransform: 'none',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5
+                    }
+                  }}
+                >
+                  <ToggleButton value="grid">
+                    <GridView sx={{ fontSize: 16, mr: 0.5 }} />
+                    Grid
+                  </ToggleButton>
+                  <ToggleButton value="carousel">
+                    <ViewCarousel sx={{ fontSize: 16, mr: 0.5 }} />
+                    Carousel
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+
+              {/* Image Preview Display */}
+              <Box sx={{ 
+                p: 2, 
+                backgroundColor: '#f8f9fa', 
+                borderRadius: 2,
+                border: '1px solid #e0e0e0'
+              }}>
+                {newPost.imageLayout === 'grid' ? (
+                  // Grid Layout Preview
+                  <Grid container spacing={1}>
+                    {newPost.mediaBase64.map((base64, index) => (
+                      <Grid 
+                        item 
+                        xs={newPost.mediaBase64.length === 1 ? 12 : 6} 
+                        key={index}
+                      >
+                        <Box sx={{ position: 'relative' }}>
+                          <Card sx={{ borderRadius: 0, backgroundColor: '#f8fafc' }}> {/* Square edges and light background */}
+                            <CardMedia
+                              component="img"
+                              image={base64}
+                              alt={`Preview ${index + 1}`}
+                              sx={{
+                                width: '100%',
+                                height: 'auto', // Auto height to maintain aspect ratio
+                                maxHeight: newPost.mediaBase64.length === 1 ? 300 : 200, // Max height constraint
+                                objectFit: 'contain' // Show full image without cropping
+                              }}
+                            />
+                          </Card>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setNewPost(prev => ({
+                                ...prev,
+                                media: prev.media.filter((_, i) => i !== index),
+                                mediaBase64: prev.mediaBase64.filter((_, i) => i !== index)
+                              }));
+                            }}
+                            sx={{
+                              position: 'absolute',
+                              top: 4,
+                              right: 4,
+                              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 1)'
+                              }
+                            }}
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  // Carousel Layout Preview
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Card sx={{ borderRadius: 0, maxWidth: 400, mx: 'auto', backgroundColor: '#f8fafc' }}> {/* Square edges and light background */}
+                      <CardMedia
+                        component="img"
+                        image={newPost.mediaBase64[0]}
+                        alt="Carousel Preview"
+                        sx={{
+                          width: '100%',
+                          height: 'auto', // Auto height to maintain aspect ratio
+                          maxHeight: 300, // Max height constraint
+                          objectFit: 'contain' // Show full image without cropping
+                        }}
+                      />
+                    </Card>
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                      Carousel view - {newPost.mediaBase64.length} image{newPost.mediaBase64.length > 1 ? 's' : ''} will be displayed in a slideshow
+                    </Typography>
+                    <Box sx={{ mt: 1 }}>
+                      {newPost.mediaBase64.map((_, index) => (
+                        <IconButton
+                          key={index}
+                          size="small"
+                          onClick={() => {
+                            setNewPost(prev => ({
+                              ...prev,
+                              media: prev.media.filter((_, i) => i !== index),
+                              mediaBase64: prev.mediaBase64.filter((_, i) => i !== index)
+                            }));
+                          }}
+                          sx={{ mx: 0.5 }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          )}
+
+          {/* File Count Display (when no preview available) */}
+          {newPost.media.length > 0 && newPost.mediaBase64.length === 0 && (
             <Box sx={{ mt: 2, p: 2, backgroundColor: '#f8f9fa', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                📎 {newPost.media.length} file(s) selected
+                📎 {newPost.media.length} file(s) selected (processing...)
               </Typography>
             </Box>
           )}

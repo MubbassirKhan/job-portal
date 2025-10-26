@@ -8,7 +8,7 @@ const {
   getJobApplications,
   deleteApplication
 } = require('../controllers/applicationController');
-const { authenticateToken, requireAdmin, requireCandidate } = require('../middleware/auth');
+const { authenticateToken, requireRecruiter, requireCandidate } = require('../middleware/auth');
 const { applicationLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
@@ -18,10 +18,10 @@ router.post('/', authenticateToken, requireCandidate, applicationLimiter, applyT
 router.get('/my-applications', authenticateToken, requireCandidate, getMyApplications);
 router.delete('/:id', authenticateToken, requireCandidate, deleteApplication);
 
-// Admin routes
-router.get('/admin/all', authenticateToken, requireAdmin, getAllApplications);
-router.get('/job/:jobId', authenticateToken, requireAdmin, getJobApplications);
-router.put('/:id/status', authenticateToken, requireAdmin, updateApplicationStatus);
+// Recruiter routes
+router.get('/recruiter/all', authenticateToken, requireRecruiter, getAllApplications);
+router.get('/job/:jobId', authenticateToken, requireRecruiter, getJobApplications);
+router.put('/:id/status', authenticateToken, requireRecruiter, updateApplicationStatus);
 
 // Shared routes (with proper authorization checks in controller)
 router.get('/:id', authenticateToken, getApplication);

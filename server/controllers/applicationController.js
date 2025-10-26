@@ -123,9 +123,9 @@ const getApplication = async (req, res, next) => {
     // Check if user has permission to view this application
     const isCandidate = req.user.id === application.candidateId._id.toString();
     const isJobPoster = req.user.id === application.jobId.postedBy.toString();
-    const isAdmin = req.user.role === 'admin';
+    const isRecruiter = req.user.role === 'recruiter' || req.user.role === 'admin';
 
-    if (!isCandidate && !isJobPoster && !isAdmin) {
+    if (!isCandidate && !isJobPoster && !isRecruiter) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to view this application'
@@ -141,9 +141,9 @@ const getApplication = async (req, res, next) => {
   }
 };
 
-// @desc    Update application status (admin only)
+// @desc    Update application status (recruiter only)
 // @route   PUT /api/applications/:id/status
-// @access  Private/Admin
+// @access  Private/Recruiter
 const updateApplicationStatus = async (req, res, next) => {
   try {
     const { status, notes, feedback, interviewDate } = req.body;
@@ -161,9 +161,9 @@ const updateApplicationStatus = async (req, res, next) => {
 
     // Check if user has permission to update this application
     const isJobPoster = req.user.id === application.jobId.postedBy.toString();
-    const isAdmin = req.user.role === 'admin';
+    const isRecruiter = req.user.role === 'recruiter' || req.user.role === 'admin';
 
-    if (!isJobPoster && !isAdmin) {
+    if (!isJobPoster && !isRecruiter) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to update this application'
@@ -191,9 +191,9 @@ const updateApplicationStatus = async (req, res, next) => {
   }
 };
 
-// @desc    Get all applications for admin
-// @route   GET /api/applications/admin/all
-// @access  Private/Admin
+// @desc    Get all applications for recruiter
+// @route   GET /api/applications/recruiter/all
+// @access  Private/Recruiter
 const getAllApplications = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -202,10 +202,10 @@ const getAllApplications = async (req, res, next) => {
 
     let query = {};
 
-    // Filter by job (if admin posted the job)
+    // Filter by job (if recruiter posted the job)
     if (req.query.jobId) {
       const job = await Job.findById(req.query.jobId);
-      if (!job || (job.postedBy.toString() !== req.user.id && req.user.role !== 'admin')) {
+      if (!job || (job.postedBy.toString() !== req.user.id && req.user.role !== 'recruiter' && req.user.role !== 'admin')) {
         return res.status(403).json({
           success: false,
           message: 'Not authorized to view applications for this job'
@@ -213,7 +213,7 @@ const getAllApplications = async (req, res, next) => {
       }
       query.jobId = req.query.jobId;
     } else {
-      // Only show applications for jobs posted by this admin
+      // Only show applications for jobs posted by this recruiter
       const userJobs = await Job.find({ postedBy: req.user.id }).select('_id');
       query.jobId = { $in: userJobs.map(job => job._id) };
     }
@@ -256,7 +256,7 @@ const getAllApplications = async (req, res, next) => {
 
 // @desc    Get applications for a specific job
 // @route   GET /api/applications/job/:jobId
-// @access  Private/Admin
+// @access  Private/Recruiter
 const getJobApplications = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.jobId);
@@ -269,7 +269,7 @@ const getJobApplications = async (req, res, next) => {
     }
 
     // Check if user has permission
-    if (job.postedBy.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (job.postedBy.toString() !== req.user.id && req.user.role !== 'recruiter' && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to view applications for this job'

@@ -5,7 +5,7 @@ const User = require('../models/User');
 const Job = require('../models/Job');
 const Connection = require('../models/Connection');
 const Notification = require('../models/Notification');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { authenticateToken, requireRecruiter } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const DOMPurify = require('dompurify');
@@ -54,6 +54,14 @@ router.post('/', authenticateToken, upload.array('media', 5), async (req, res) =
     const { content, postType = 'text', visibility = 'public', jobId, pollOptions, mediaBase64 } = req.body;
     const userId = req.user.id;
 
+    console.log('📝 Post creation request received');
+    console.log('📷 Media info:', {
+      hasFiles: req.files && req.files.length > 0,
+      fileCount: req.files ? req.files.length : 0,
+      hasBase64: mediaBase64 && Array.isArray(mediaBase64),
+      base64Count: mediaBase64 ? mediaBase64.length : 0
+    });
+
     // Sanitize content
     const sanitizedContent = purify.sanitize(content);
 
@@ -68,8 +76,11 @@ router.post('/', authenticateToken, upload.array('media', 5), async (req, res) =
     let mediaUrls = [];
     let mediaBase64Array = [];
     
+    console.log('🔄 Processing media...');
+    
     // Handle traditional file uploads (convert to base64 for consistency)
     if (req.files && req.files.length > 0) {
+      console.log('📁 Processing uploaded files:', req.files.length);
       const fs = require('fs');
       
       for (const file of req.files) {
@@ -84,16 +95,19 @@ router.post('/', authenticateToken, upload.array('media', 5), async (req, res) =
             filename: file.originalname
           });
           
+          console.log('✅ Converted file to base64:', file.originalname);
+          
           // Clean up the uploaded file since we're storing base64
           fs.unlinkSync(file.path);
         } catch (error) {
-          console.error('Error processing uploaded file:', error);
+          console.error('❌ Error processing uploaded file:', error);
         }
       }
     }
     
     // Handle Base64 images from client
     if (mediaBase64 && Array.isArray(mediaBase64)) {
+      console.log('🎨 Processing base64 images from client:', mediaBase64.length);
       for (const base64Data of mediaBase64) {
         if (base64Data && base64Data.startsWith('data:image/')) {
           try {
@@ -108,13 +122,20 @@ router.post('/', authenticateToken, upload.array('media', 5), async (req, res) =
                 mimeType: mimeType,
                 filename: `image.${matches[1]}`
               });
+              
+              console.log('✅ Processed base64 image:', mimeType);
             }
           } catch (error) {
-            console.error('Error processing base64 image:', error);
+            console.error('❌ Error processing base64 image:', error);
           }
         }
       }
     }
+    
+    console.log('📊 Final media arrays:', {
+      mediaUrlsCount: mediaUrls.length,
+      mediaBase64Count: mediaBase64Array.length
+    });
 
     // Validate job share
     if (postType === 'job_share' && jobId) {
@@ -216,10 +237,10 @@ router.post('/', authenticateToken, upload.array('media', 5), async (req, res) =
 // ADMIN ROUTES - Must be before generic routes
 // ========================
 
-// @route   GET /api/posts/admin/all
+// @route   GET /api/posts/recruiter/all
 // @desc    Get posts created by current admin/recruiter
 // @access  Private (Admin only)
-router.get('/admin/all', authenticateToken, requireAdmin, async (req, res) => {
+router.get('/recruiter/all', authenticateToken, requireRecruiter, async (req, res) => {
   try {
     console.log('Admin posts request by user:', req.user.id, 'role:', req.user.role);
 
@@ -268,10 +289,10 @@ router.get('/admin/all', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-// @route   PUT /api/posts/admin/:postId/hide
+// @route   PUT /api/posts/recruiter/:postId/hide
 // @desc    Hide own post (admin action)
 // @access  Private (Admin only)
-router.put('/admin/:postId/hide', authenticateToken, requireAdmin, async (req, res) => {
+router.put('/recruiter/:postId/hide', authenticateToken, requireRecruiter, async (req, res) => {
   try {
     const { postId } = req.params;
 
@@ -311,10 +332,10 @@ router.put('/admin/:postId/hide', authenticateToken, requireAdmin, async (req, r
   }
 });
 
-// @route   PUT /api/posts/admin/:postId/approve
+// @route   PUT /api/posts/recruiter/:postId/approve
 // @desc    Approve own post (admin action)
 // @access  Private (Admin only)
-router.put('/admin/:postId/approve', authenticateToken, requireAdmin, async (req, res) => {
+router.put('/recruiter/:postId/approve', authenticateToken, requireRecruiter, async (req, res) => {
   try {
     const { postId } = req.params;
 
@@ -355,10 +376,10 @@ router.put('/admin/:postId/approve', authenticateToken, requireAdmin, async (req
   }
 });
 
-// @route   DELETE /api/posts/admin/:postId
+// @route   DELETE /api/posts/recruiter/:postId
 // @desc    Delete own post (admin action)
 // @access  Private (Admin only)
-router.delete('/admin/:postId', authenticateToken, requireAdmin, async (req, res) => {
+router.delete('/recruiter/:postId', authenticateToken, requireRecruiter, async (req, res) => {
   try {
     const { postId } = req.params;
 
@@ -663,7 +684,7 @@ router.delete('/:postId', authenticateToken, async (req, res) => {
     }
 
     // Check if user owns the post or is admin
-    if (post.author.toString() !== userId && req.user.role !== 'admin') {
+    if (post.author.toString() !== userId && req.user.role !== 'recruiter') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to delete this post'

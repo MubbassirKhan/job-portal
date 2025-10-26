@@ -19,6 +19,7 @@ const connectionRoutes = require('./routes/connections');
 const chatRoutes = require('./routes/chat');
 const postRoutes = require('./routes/posts');
 const notificationRoutes = require('./routes/notifications');
+const userRoutes = require('./routes/users');
 
 // Import middleware
 const { errorHandler, notFound, requestLogger } = require('./middleware/errorHandler');
@@ -153,6 +154,7 @@ app.use('/api/connections', connectionRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/users', userRoutes);
 
 // Catch-all for API routes
 app.all('/api/*', (req, res) => {

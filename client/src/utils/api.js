@@ -57,8 +57,8 @@ export const jobsAPI = {
   createJob: (jobData) => api.post('/jobs', jobData),
   updateJob: (id, jobData) => api.put(`/jobs/${id}`, jobData),
   deleteJob: (id) => api.delete(`/jobs/${id}`),
-  getMyJobs: (params) => api.get('/jobs/admin/my-jobs', { params }),
-  getJobStats: () => api.get('/jobs/admin/stats'),
+  getMyJobs: (params) => api.get('/jobs/recruiter/my-jobs', { params }),
+  getJobStats: () => api.get('/jobs/recruiter/stats'),
 };
 
 // Applications API calls
@@ -67,7 +67,7 @@ export const applicationsAPI = {
   getMyApplications: (params) => api.get('/applications/my-applications', { params }),
   getApplication: (id) => api.get(`/applications/${id}`),
   updateApplicationStatus: (id, statusData) => api.put(`/applications/${id}/status`, statusData),
-  getAllApplications: (params) => api.get('/applications/admin/all', { params }),
+  getAllApplications: (params) => api.get('/applications/recruiter/all', { params }),
   getJobApplications: (jobId, params) => api.get(`/applications/job/${jobId}`, { params }),
   deleteApplication: (id) => api.delete(`/applications/${id}`),
 };

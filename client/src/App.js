@@ -1,4 +1,4 @@
-//localhost:3000/admin/applications
+//localhost:3000/recruiter/applications
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -20,13 +20,14 @@ import Jobs from './pages/Jobs';
 import JobDetails from './pages/JobDetails';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
-import AdminJobs from './pages/AdminJobs';
-import AdminApplications from './pages/AdminApplications';
+import RecruiterJobs from './pages/RecruiterJobs';
+import RecruiterApplications from './pages/RecruiterApplications';
 
 // Social Pages
 import SocialFeed from './pages/SocialFeed';
 import Connections from './pages/Connections';
 import Messages from './pages/Messages';
+// import UserProfile from './pages/UserProfile'; // Temporarily commented out
 
 // Enhanced modern theme with professional color scheme
 const theme = createTheme({
@@ -362,33 +363,33 @@ function App() {
                   }
                 />
                 
-                {/* Admin Routes */}
+                {/* Recruiter Routes */}
                 <Route
-                  path="/admin/jobs"
+                  path="/recruiter/jobs"
                   element={
-                    <ProtectedRoute adminOnly>
+                    <ProtectedRoute recruiterOnly>
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <AdminJobs />
+                        <RecruiterJobs />
                       </motion.div>
                     </ProtectedRoute>
                   }
                 />
                 <Route
-                  path="/admin/applications"
+                  path="/recruiter/applications"
                   element={
-                    <ProtectedRoute adminOnly>
+                    <ProtectedRoute recruiterOnly>
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <AdminApplications />
+                        <RecruiterApplications />
                       </motion.div>
                     </ProtectedRoute>
                   }
@@ -426,6 +427,21 @@ function App() {
                   }
                 />
                 <Route
+                  path="/connections"
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Connections />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/messages"
                   element={
                     <ProtectedRoute>
@@ -440,6 +456,21 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                {/* <Route
+                  path="/profile/:userId"
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <UserProfile />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                /> */}
               </Routes>
             </AnimatePresence>
             <ToastContainer

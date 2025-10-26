@@ -381,9 +381,12 @@ router.get('/status/:userId', authenticateToken, async (req, res) => {
 
     const status = await Connection.getConnectionStatus(currentUserId, targetUserId);
 
+    // If no connection exists, return 'none' status
+    const responseData = status || { status: 'none' };
+
     res.json({
       success: true,
-      data: status
+      data: responseData
     });
 
   } catch (error) {
