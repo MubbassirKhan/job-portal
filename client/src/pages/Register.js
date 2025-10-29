@@ -9,7 +9,6 @@ import {
   Alert,
   Grid,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
   InputAdornment,
@@ -36,8 +35,107 @@ import {
   PersonAdd,
   ArrowForward,
   Security,
-  Work as WorkIcon
+  Work as WorkIcon,
+  Google
 } from '@mui/icons-material';
+
+// Common input field styling
+const inputFieldStyles = {
+  mb: 1.5,
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    border: '2px solid rgba(0, 255, 136, 0.3)',
+    backdropFilter: 'blur(10px)',
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 'none',
+    },
+    '&:hover': {
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      borderColor: '#00ff88',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 15px rgba(0, 255, 136, 0.2)',
+    },
+    '&.Mui-focused': {
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      borderColor: '#00ff88',
+      boxShadow: '0 0 20px rgba(0, 255, 136, 0.4)',
+      transform: 'translateY(-1px)',
+    },
+    '&.Mui-error': {
+      borderColor: '#ff4444',
+      '&:hover, &.Mui-focused': {
+        borderColor: '#ff4444',
+        boxShadow: '0 0 20px rgba(255, 68, 68, 0.3)',
+      }
+    }
+  },
+  '& .MuiOutlinedInput-input': {
+    color: '#ffffff',
+    padding: '12px 14px',
+    fontSize: '0.95rem',
+    fontWeight: 400,
+    '&::placeholder': {
+      color: 'rgba(255, 255, 255, 0.6)',
+      opacity: 1,
+    }
+  },
+  '& .MuiFormHelperText-root': {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: '0.75rem',
+    marginLeft: '14px',
+    '&.Mui-error': {
+      color: '#ff4444',
+    }
+  },
+  '& .MuiSelect-root': {
+    color: '#ffffff',
+  },
+  '& .MuiSelect-icon': {
+    color: '#00ff88',
+  },
+};
+
+// Add global styles for animations
+const globalStyles = `
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  @keyframes underlineExpand {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(0, 255, 136, 0.6); }
+  }
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.type = 'text/css';
+  styleSheet.innerText = globalStyles;
+  document.head.appendChild(styleSheet);
+}
 
 const Register = () => {
   const navigate = useNavigate();
@@ -55,7 +153,6 @@ const Register = () => {
   } = useForm();
 
   const password = watch('password');
-  const selectedRole = watch('role');
 
   const onSubmit = async (data) => {
     setError('');
@@ -99,35 +196,56 @@ const Register = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)',
         display: 'flex',
         alignItems: 'center',
         py: 4,
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(circle at 25% 25%, rgba(0, 255, 136, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(0, 255, 136, 0.08) 0%, transparent 50%)',
+          animation: 'pulse 8s ease-in-out infinite',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'url("data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%2300ff88" fill-opacity="0.05"%3E%3Crect x="0" y="0" width="2" height="2"/%3E%3C/g%3E%3C/svg%3E")',
+        }
       }}
     >
-      <Container component="main" maxWidth="lg">
+      <Container component="main" maxWidth="lg" sx={{ position: 'relative', zIndex: 1, pt: 6, pb: 2 }}>
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <Grid container spacing={0} sx={{ minHeight: '700px' }}>
+          <Grid container spacing={0} sx={{ minHeight: '500px' }}>
             {/* Left Side - Branding */}
             <Grid 
               item 
               xs={12} 
               md={5} 
               sx={{
-                background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                borderRadius: { xs: '20px 20px 0 0', md: '20px 0 0 20px' },
+                background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 255, 136, 0.15) 100%)',
+                borderRadius: 0,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                p: 4,
+                p: 2,
                 color: 'white',
                 position: 'relative',
                 overflow: 'hidden',
+                border: '2px solid #00ff88',
                 '&::before': {
                   content: '""',
                   position: 'absolute',
@@ -135,7 +253,7 @@ const Register = () => {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+                  background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2300ff88" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
                 }
               }}
             >
@@ -154,45 +272,118 @@ const Register = () => {
                     sx={{
                       width: 120,
                       height: 120,
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      borderRadius: '30px',
+                      background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.3) 0%, rgba(0, 230, 118, 0.2) 50%, rgba(0, 255, 136, 0.1) 100%)',
+                      borderRadius: 0,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       mx: 'auto',
                       mb: 3,
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      backdropFilter: 'blur(15px)',
+                      border: '3px solid #00ff88',
+                      color: '#00ff88',
+                      filter: 'drop-shadow(0 0 30px rgba(0, 255, 136, 0.8))',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'linear-gradient(45deg, transparent 30%, rgba(0, 255, 136, 0.1) 50%, transparent 70%)',
+                        animation: 'shimmer 3s ease-in-out infinite',
+                      }
                     }}
                   >
-                    <PersonAdd sx={{ fontSize: 60 }} />
+                    <PersonAdd sx={{ fontSize: 60, color: '#00ff88', position: 'relative', zIndex: 1 }} />
                   </Box>
                 </motion.div>
                 
-                <Typography variant="h3" sx={{ fontWeight: 800, mb: 2 }}>
-                  Join JobPortal
+                <Typography variant="h3" sx={{ 
+                  fontWeight: 900, 
+                  mb: 2,
+                  background: 'linear-gradient(135deg, #00ff88 0%, #00e676 100%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent',
+                  textShadow: '0 0 20px rgba(0, 255, 136, 0.5)',
+                  letterSpacing: '1px'
+                }}>
+                  Join TalentHub
                 </Typography>
-                <Typography variant="h6" sx={{ opacity: 0.9, mb: 4, maxWidth: 300 }}>
+                <Typography variant="h6" sx={{ 
+                  opacity: 0.95, 
+                  mb: 3, 
+                  maxWidth: 320, 
+                  fontSize: '1.1rem',
+                  fontWeight: 400,
+                  lineHeight: 1.4,
+                  color: 'rgba(255, 255, 255, 0.9)'
+                }}>
                   Create your account and start your career journey or find the perfect candidates
                 </Typography>
                 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CheckCircle sx={{ fontSize: 20 }} />
-                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 2,
+                    p: 1.5,
+                    borderRadius: 0,
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    backgroundColor: 'rgba(0, 255, 136, 0.05)',
+                    minWidth: 200,
+                    justifyContent: 'flex-start'
+                  }}>
+                    <CheckCircle sx={{ fontSize: 24, color: '#00ff88' }} />
+                    <Typography variant="body2" sx={{ 
+                      opacity: 0.95, 
+                      fontSize: '0.9rem',
+                      fontWeight: 500 
+                    }}>
                       Free to join
                     </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Security sx={{ fontSize: 20 }} />
-                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 2,
+                    p: 1.5,
+                    borderRadius: 0,
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    backgroundColor: 'rgba(0, 255, 136, 0.05)',
+                    minWidth: 200,
+                    justifyContent: 'flex-start'
+                  }}>
+                    <Security sx={{ fontSize: 24, color: '#00ff88' }} />
+                    <Typography variant="body2" sx={{ 
+                      opacity: 0.95, 
+                      fontSize: '0.9rem',
+                      fontWeight: 500 
+                    }}>
                       Secure & Private
                     </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <WorkIcon sx={{ fontSize: 20 }} />
-                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                      Thousands of opportunities
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 2,
+                    p: 1.5,
+                    borderRadius: 0,
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    backgroundColor: 'rgba(0, 255, 136, 0.05)',
+                    minWidth: 200,
+                    justifyContent: 'flex-start'
+                  }}>
+                    <WorkIcon sx={{ fontSize: 24, color: '#00ff88' }} />
+                    <Typography variant="body2" sx={{ 
+                      opacity: 0.95, 
+                      fontSize: '0.9rem',
+                      fontWeight: 500 
+                    }}>
+                      Thousands of jobs
                     </Typography>
                   </Box>
                 </Box>
@@ -205,12 +396,15 @@ const Register = () => {
               xs={12} 
               md={7}
               sx={{
-                background: 'white',
-                borderRadius: { xs: '0 0 20px 20px', md: '0 20px 20px 0' },
+                background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(0, 0, 0, 0.95) 100%)',
+                borderRadius: 0,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                p: 4,
+                p: 3,
+                border: '2px solid #00ff88',
+                borderLeft: { xs: '2px solid #00ff88', md: 'none' },
+                borderTop: { xs: 'none', md: '2px solid #00ff88' },
               }}
             >
               <motion.div
@@ -219,11 +413,11 @@ const Register = () => {
                 animate="visible"
                 style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}
               >
-                <Box sx={{ textAlign: 'center', mb: 4 }}>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <Box sx={{ textAlign: 'center', mb: 2 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5, color: '#ffffff' }}>
                     Create Account
                   </Typography>
-                  <Typography variant="body1" color="text.secondary">
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.85rem' }}>
                     Fill in your details to get started
                   </Typography>
                 </Box>
@@ -249,8 +443,8 @@ const Register = () => {
                   </motion.div>
                 )}
 
-                <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-                  <Grid container spacing={2}>
+                <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 0 }}>
+                  <Grid container spacing={1.5}>
                     <Grid item xs={12} sm={6}>
                       <TextField
                         {...register('firstName', {
@@ -261,21 +455,17 @@ const Register = () => {
                           },
                         })}
                         fullWidth
-                        label="First Name"
+                        placeholder="First Name"
                         error={!!errors.firstName}
                         helperText={errors.firstName?.message}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <Person sx={{ color: 'text.secondary' }} />
+                              <Person sx={{ color: '#00ff88' }} />
                             </InputAdornment>
                           ),
                         }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px',
-                          }
-                        }}
+                        sx={inputFieldStyles}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -288,21 +478,17 @@ const Register = () => {
                           },
                         })}
                         fullWidth
-                        label="Last Name"
+                        placeholder="Last Name"
                         error={!!errors.lastName}
                         helperText={errors.lastName?.message}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <Person sx={{ color: 'text.secondary' }} />
+                              <Person sx={{ color: '#00ff88' }} />
                             </InputAdornment>
                           ),
                         }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px',
-                          }
-                        }}
+                        sx={inputFieldStyles}
                       />
                     </Grid>
                     <Grid item xs={12}>
@@ -315,60 +501,97 @@ const Register = () => {
                           },
                         })}
                         fullWidth
-                        label="Email Address"
+                        placeholder="Email Address"
                         type="email"
                         error={!!errors.email}
                         helperText={errors.email?.message}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <Email sx={{ color: 'text.secondary' }} />
+                              <Email sx={{ color: '#00ff88' }} />
                             </InputAdornment>
                           ),
                         }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px',
-                          }
-                        }}
+                        sx={inputFieldStyles}
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <FormControl fullWidth>
-                        <InputLabel>Account Type</InputLabel>
+                      <FormControl fullWidth sx={inputFieldStyles}>
                         <Select
                           {...register('role', { required: 'Account type is required' })}
-                          label="Account Type"
+                          displayEmpty
                           defaultValue="candidate"
                           error={!!errors.role}
                           sx={{
-                            borderRadius: '12px',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none',
+                            },
+                            '& .MuiSelect-select': {
+                              color: '#ffffff',
+                              padding: '12px 14px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                            }
                           }}
-                          startAdornment={
-                            <InputAdornment position="start">
-                              {selectedRole === 'recruiter' ? (
-                                <AdminPanelSettings sx={{ color: 'text.secondary', ml: 1 }} />
-                              ) : (
-                                <AccountCircle sx={{ color: 'text.secondary', ml: 1 }} />
-                              )}
-                            </InputAdornment>
-                          }
+                          renderValue={(selected) => {
+                            if (!selected) {
+                              return <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Select Account Type</span>;
+                            }
+                            return (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                {selected === 'recruiter' ? (
+                                  <>
+                                    <AdminPanelSettings sx={{ color: '#00ff88' }} />
+                                    Recruiter
+                                  </>
+                                ) : (
+                                  <>
+                                    <AccountCircle sx={{ color: '#00ff88' }} />
+                                    Job Seeker
+                                  </>
+                                )}
+                              </Box>
+                            );
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              sx: {
+                                bgcolor: 'rgba(26, 26, 26, 0.95)',
+                                backdropFilter: 'blur(10px)',
+                                border: '2px solid rgba(0, 255, 136, 0.3)',
+                                borderRadius: 0,
+                                '& .MuiMenuItem-root': {
+                                  color: '#ffffff',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                                  },
+                                  '&.Mui-selected': {
+                                    backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                                    '&:hover': {
+                                      backgroundColor: 'rgba(0, 255, 136, 0.3)',
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }}
                         >
                           <MenuItem value="candidate">
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <AccountCircle />
+                              <AccountCircle sx={{ color: '#00ff88' }} />
                               Job Seeker
                             </Box>
                           </MenuItem>
                           <MenuItem value="recruiter">
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <AdminPanelSettings />
+                              <AdminPanelSettings sx={{ color: '#00ff88' }} />
                               Recruiter
                             </Box>
                           </MenuItem>
                         </Select>
                         {errors.role && (
-                          <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 2 }}>
+                          <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 2, fontSize: '0.75rem' }}>
                             {errors.role.message}
                           </Typography>
                         )}
@@ -384,14 +607,14 @@ const Register = () => {
                           },
                         })}
                         fullWidth
-                        label="Password"
+                        placeholder="Password"
                         type={showPassword ? 'text' : 'password'}
                         error={!!errors.password}
                         helperText={errors.password?.message}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <Lock sx={{ color: 'text.secondary' }} />
+                              <Lock sx={{ color: '#00ff88' }} />
                             </InputAdornment>
                           ),
                           endAdornment: (
@@ -400,17 +623,14 @@ const Register = () => {
                                 aria-label="toggle password visibility"
                                 onClick={togglePasswordVisibility}
                                 edge="end"
+                                sx={{ color: '#00ff88' }}
                               >
                                 {showPassword ? <VisibilityOff /> : <Visibility />}
                               </IconButton>
                             </InputAdornment>
                           ),
                         }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px',
-                          }
-                        }}
+                        sx={inputFieldStyles}
                       />
                     </Grid>
                     <Grid item xs={12}>
@@ -421,14 +641,14 @@ const Register = () => {
                             value === password || 'Passwords do not match',
                         })}
                         fullWidth
-                        label="Confirm Password"
+                        placeholder="Confirm Password"
                         type={showConfirmPassword ? 'text' : 'password'}
                         error={!!errors.confirmPassword}
                         helperText={errors.confirmPassword?.message}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <Lock sx={{ color: 'text.secondary' }} />
+                              <Lock sx={{ color: '#00ff88' }} />
                             </InputAdornment>
                           ),
                           endAdornment: (
@@ -437,17 +657,14 @@ const Register = () => {
                                 aria-label="toggle confirm password visibility"
                                 onClick={toggleConfirmPasswordVisibility}
                                 edge="end"
+                                sx={{ color: '#00ff88' }}
                               >
                                 {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                               </IconButton>
                             </InputAdornment>
                           ),
                         }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px',
-                          }
-                        }}
+                        sx={inputFieldStyles}
                       />
                     </Grid>
                   </Grid>
@@ -463,21 +680,27 @@ const Register = () => {
                       disabled={loading}
                       endIcon={loading ? <CircularProgress size={20} color="inherit" /> : <ArrowForward />}
                       sx={{
-                        mt: 3,
-                        mb: 2,
-                        py: 1.5,
-                        background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                        borderRadius: '12px',
-                        fontWeight: 600,
+                        mt: 2,
+                        mb: 1,
+                        py: 1.2,
+                        background: '#00ff88',
+                        color: '#000000',
+                        borderRadius: 0,
+                        fontWeight: 700,
                         fontSize: '1rem',
-                        textTransform: 'none',
-                        boxShadow: '0 8px 30px rgba(99, 102, 241, 0.3)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        border: '2px solid #00ff88',
+                        boxShadow: '0 8px 30px rgba(0, 255, 136, 0.4)',
                         '&:hover': {
-                          background: 'linear-gradient(135deg, #4f46e5 0%, #db2777 100%)',
-                          boxShadow: '0 12px 40px rgba(99, 102, 241, 0.4)',
+                          background: 'transparent',
+                          color: '#00ff88',
+                          boxShadow: '0 12px 40px rgba(0, 255, 136, 0.6)',
                         },
                         '&:disabled': {
-                          background: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          color: 'rgba(255, 255, 255, 0.3)',
+                          borderColor: 'rgba(255, 255, 255, 0.1)',
                         }
                       }}
                     >
@@ -485,14 +708,58 @@ const Register = () => {
                     </Button>
                   </motion.div>
 
+                  {/* Google Login Section */}
+                  <Box sx={{ mt: 3, mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.2)' }} />
+                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.6)', px: 2 }}>
+                      OR
+                    </Typography>
+                    <Box sx={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.2)' }} />
+                  </Box>
+
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<Google />}
+                      sx={{
+                        py: 1.5,
+                        borderRadius: 0,
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        color: '#ffffff',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        textTransform: 'none',
+                        border: '2px solid rgba(255, 255, 255, 0.3)',
+                        mb: 2,
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          borderColor: '#ffffff',
+                          color: '#ffffff',
+                        },
+                      }}
+                      onClick={() => {
+                        // Add Google OAuth logic here
+                        console.log('Google signup clicked');
+                        // You can integrate with Google OAuth here
+                      }}
+                    >
+                      Sign up with Google
+                    </Button>
+                  </motion.div>
+
                   <Box sx={{ textAlign: 'center', mt: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                       Already have an account?{' '}
                       <Link 
                         component={RouterLink} 
                         to="/login"
                         sx={{ 
-                          color: '#6366f1',
+                          color: '#00ff88',
                           textDecoration: 'none',
                           fontWeight: 600,
                           '&:hover': {

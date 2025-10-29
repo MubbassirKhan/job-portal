@@ -76,6 +76,67 @@ const userSchema = new mongoose.Schema({
     website: {
       type: String
     },
+    jobTitle: {
+      type: String,
+      trim: true
+    },
+    linkedin: String,
+    github: String,
+    twitter: String,
+    birthDate: Date,
+    nationality: String,
+    maritalStatus: {
+      type: String,
+      enum: ['single', 'married', 'divorced', 'widowed', 'prefer-not-to-say']
+    },
+    // Detailed arrays for comprehensive profile
+    educationDetails: [{
+      id: String,
+      degree: String,
+      institution: String,
+      fieldOfStudy: String,
+      startDate: String,
+      endDate: String,
+      grade: String,
+      description: String
+    }],
+    workExperience: [{
+      id: String,
+      title: String,
+      company: String,
+      location: String,
+      startDate: String,
+      endDate: String,
+      current: Boolean,
+      description: String,
+      achievements: [String]
+    }],
+    skillsDetailed: [{
+      id: String,
+      name: String,
+      level: {
+        type: String,
+        enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert']
+      },
+      category: String
+    }],
+    certifications: [{
+      id: String,
+      name: String,
+      issuer: String,
+      issueDate: String,
+      expiryDate: String,
+      credentialId: String,
+      url: String
+    }],
+    languages: [{
+      id: String,
+      name: String,
+      proficiency: {
+        type: String,
+        enum: ['Beginner', 'Intermediate', 'Advanced', 'Native']
+      }
+    }],
     socialLinks: {
       linkedin: String,
       twitter: String,

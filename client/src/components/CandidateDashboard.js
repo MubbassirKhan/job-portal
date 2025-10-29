@@ -65,10 +65,11 @@ const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
   >
     <Card
       sx={{
-        height: '140px', // Fixed height for consistency
-        borderRadius: '16px',
-        border: '1px solid',
-        borderColor: 'grey.200',
+        height: { xs: '120px', sm: '140px' },
+        borderRadius: 0,
+        background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+        border: '2px solid rgba(0, 255, 136, 0.3)',
+        backdropFilter: 'blur(10px)',
         transition: 'all 0.3s ease-in-out',
         position: 'relative',
         overflow: 'hidden',
@@ -79,25 +80,34 @@ const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
           left: 0,
           right: 0,
           height: '3px',
-          background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
+          background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
         },
         '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: '0 8px 25px rgba(99, 102, 241, 0.15)',
-          borderColor: 'rgba(99, 102, 241, 0.3)',
+          transform: 'translateY(-4px)',
+          boxShadow: '0 12px 32px rgba(0, 255, 136, 0.2)',
+          borderColor: '#00ff88',
+          background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.9) 100%)',
         },
       }}
     >
-      <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <CardContent sx={{ 
+        p: { xs: 2, sm: 3 }, 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'space-between',
+        position: 'relative',
+        zIndex: 1
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <Box sx={{ flexGrow: 1 }}>
             <Typography 
               variant="h3" 
               sx={{ 
                 fontWeight: 700, 
-                color: '#1e293b', 
+                color: '#ffffff', 
                 mb: 0.5,
-                fontSize: '2rem',
+                fontSize: { xs: '1.5rem', sm: '2rem' },
                 lineHeight: 1.2
               }}
             >
@@ -106,9 +116,11 @@ const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
             <Typography 
               variant="body2" 
               sx={{ 
-                fontWeight: 500, 
-                color: 'text.secondary',
-                fontSize: '0.875rem'
+                fontWeight: 600, 
+                color: 'rgba(255, 255, 255, 0.8)',
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}
             >
               {title}
@@ -116,29 +128,33 @@ const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
           </Box>
           <Box
             sx={{
-              width: 48,
-              height: 48,
-              borderRadius: '12px',
-              background: 'rgba(99, 102, 241, 0.1)',
+              width: { xs: 40, sm: 48 },
+              height: { xs: 40, sm: 48 },
+              borderRadius: 0,
+              background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#6366f1',
+              color: '#000000',
               flexShrink: 0,
+              border: '1px solid rgba(0, 0, 0, 0.1)',
+              boxShadow: '0 4px 12px rgba(0, 255, 136, 0.3)',
             }}
           >
-            {React.cloneElement(icon, { sx: { fontSize: 24 } })}
+            {React.cloneElement(icon, { sx: { fontSize: { xs: 20, sm: 24 } } })}
           </Box>
         </Box>
         {trend && (
           <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-            <TrendingUp sx={{ fontSize: 14, color: '#10b981', mr: 0.5 }} />
+            <TrendingUp sx={{ fontSize: 14, color: '#00ff88', mr: 0.5 }} />
             <Typography 
               variant="caption" 
               sx={{ 
-                color: '#10b981',
-                fontWeight: 500,
-                fontSize: '0.75rem'
+                color: '#00ff88',
+                fontWeight: 600,
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.3px'
               }}
             >
               {trend}
@@ -158,36 +174,51 @@ const JobCard = ({ job, onClick }) => (
     <Paper
       sx={{
         p: 2.5,
-        borderRadius: '12px',
-        border: '1px solid',
-        borderColor: 'grey.200',
+        borderRadius: 0,
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(26, 26, 26, 0.4) 100%)',
+        border: '1px solid rgba(0, 255, 136, 0.2)',
         cursor: 'pointer',
         transition: 'all 0.3s ease-in-out',
         mb: 2,
+        backdropFilter: 'blur(5px)',
         '&:hover': {
-          borderColor: '#6366f1',
-          boxShadow: '0 8px 25px rgba(99, 102, 241, 0.15)',
+          borderColor: '#00ff88',
+          boxShadow: '0 8px 25px rgba(0, 255, 136, 0.3)',
           transform: 'translateY(-2px)',
+          background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(26, 26, 26, 0.6) 100%)',
         },
       }}
       onClick={onClick}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
         <Box sx={{ flexGrow: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5, lineHeight: 1.3 }}>
+          <Typography variant="subtitle1" sx={{ 
+            fontWeight: 600, 
+            mb: 0.5, 
+            lineHeight: 1.3,
+            color: '#ffffff'
+          }}>
             {job.title}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ 
+            fontWeight: 500,
+            color: '#cccccc'
+          }}>
             {job.company} • {job.location}
           </Typography>
         </Box>
-        <IconButton size="small" sx={{ color: 'text.secondary' }}>
+        <IconButton size="small" sx={{ 
+          color: '#00ff88',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 255, 136, 0.1)'
+          }
+        }}>
           <BookmarkBorder />
         </IconButton>
       </Box>
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: '#999999' }}>
           Posted {format(new Date(job.createdAt), 'MMM dd, yyyy')}
         </Typography>
         <Button
@@ -196,8 +227,11 @@ const JobCard = ({ job, onClick }) => (
           sx={{
             textTransform: 'none',
             fontWeight: 500,
-            color: '#6366f1',
-            '&:hover': { backgroundColor: '#6366f110' }
+            color: '#00ff88',
+            '&:hover': { 
+              backgroundColor: 'rgba(0, 255, 136, 0.1)',
+              transform: 'translateX(2px)'
+            }
           }}
         >
           View
@@ -358,17 +392,6 @@ const CandidateDashboard = () => {
     return postDate.toLocaleDateString();
   };
 
-  const getStatusChipColor = (status) => {
-    switch (status) {
-      case 'pending': return 'warning';
-      case 'reviewing': return 'info';
-      case 'interview': return 'primary';
-      case 'accepted': return 'success';
-      case 'rejected': return 'error';
-      default: return 'default';
-    }
-  };
-
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -380,9 +403,14 @@ const CandidateDashboard = () => {
   const successRate = stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0;
 
   return (
-    <Box>
+    <Box sx={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+      p: { xs: 2, sm: 3, md: 4 },
+      pt: { xs: 4, sm: 5, md: 6 }
+    }}>
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
             icon={<Send />}
@@ -429,17 +457,37 @@ const CandidateDashboard = () => {
           >
             <Card
               sx={{
-                borderRadius: '16px',
-                border: '1px solid',
-                borderColor: 'grey.200',
+                borderRadius: 0,
+                background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                border: '2px solid rgba(0, 255, 136, 0.3)',
+                backdropFilter: 'blur(10px)',
                 height: 'fit-content',
+                '&:hover': {
+                  borderColor: 'rgba(0, 255, 136, 0.5)'
+                }
               }}
             >
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: { xs: 'flex-start', sm: 'center' }, 
+                  mb: 3,
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 2, sm: 0 }
+                }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Assignment sx={{ color: '#6366f1' }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    <Assignment sx={{ color: '#00ff88', fontSize: { xs: 20, sm: 24 } }} />
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        fontWeight: 700,
+                        color: '#ffffff',
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}
+                    >
                       Recent Applications
                     </Typography>
                   </Box>
@@ -447,9 +495,18 @@ const CandidateDashboard = () => {
                     variant="outlined"
                     onClick={() => navigate('/applications')}
                     sx={{
-                      textTransform: 'none',
-                      borderRadius: '8px',
-                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      borderRadius: 0,
+                      fontWeight: 700,
+                      letterSpacing: '0.5px',
+                      borderColor: '#00ff88',
+                      color: '#00ff88',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        borderColor: '#00ff88',
+                        transform: 'scale(1.05)'
+                      },
+                      transition: 'all 0.3s ease'
                     }}
                   >
                     View All
@@ -457,15 +514,56 @@ const CandidateDashboard = () => {
                 </Box>
 
                 {applications.length > 0 ? (
-                  <TableContainer>
+                  <TableContainer sx={{ 
+                    background: 'rgba(0, 0, 0, 0.3)',
+                    borderRadius: 0,
+                    border: '1px solid rgba(0, 255, 136, 0.2)'
+                  }}>
                     <Table>
                       <TableHead>
-                        <TableRow>
-                          <TableCell sx={{ fontWeight: 600 }}>Job Title</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Company</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Applied</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Action</TableCell>
+                        <TableRow sx={{ 
+                          background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%)'
+                        }}>
+                          <TableCell sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Job Title</TableCell>
+                          <TableCell sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Company</TableCell>
+                          <TableCell sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Status</TableCell>
+                          <TableCell sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Applied</TableCell>
+                          <TableCell sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Action</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -477,33 +575,63 @@ const CandidateDashboard = () => {
                             transition={{ duration: 0.3, delay: index * 0.1 }}
                             component={TableRow}
                             sx={{
-                              '&:hover': { backgroundColor: 'grey.50' },
-                              transition: 'background-color 0.2s ease-in-out',
+                              background: 'rgba(0, 0, 0, 0.2)',
+                              '&:hover': { 
+                                background: 'rgba(0, 255, 136, 0.05)',
+                                transform: 'translateY(-1px)',
+                                transition: 'all 0.3s ease'
+                              },
+                              '& td': {
+                                borderBottom: '1px solid rgba(0, 255, 136, 0.1)',
+                                color: '#ffffff',
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                              }
                             }}
                           >
                             <TableCell>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                              <Typography variant="subtitle2" sx={{ 
+                                fontWeight: 600,
+                                color: '#ffffff',
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                              }}>
                                 {application.jobId?.title}
                               </Typography>
                             </TableCell>
                             <TableCell>
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography variant="body2" sx={{ 
+                                color: '#cccccc',
+                                fontSize: { xs: '0.75rem', sm: '0.8rem' }
+                              }}>
                                 {application.jobId?.company}
                               </Typography>
                             </TableCell>
                             <TableCell>
                               <Chip
                                 label={application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                                color={getStatusChipColor(application.status)}
-                                size="small"
                                 sx={{
-                                  fontWeight: 500,
-                                  borderRadius: '6px',
+                                  background: application.status === 'accepted' ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' :
+                                             application.status === 'rejected' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' :
+                                             application.status === 'interview' ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' :
+                                             'linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 0, 0, 0.3) 100%)',
+                                  color: '#ffffff',
+                                  fontWeight: 600,
+                                  borderRadius: 0,
+                                  border: application.status === 'accepted' ? '1px solid #22c55e' :
+                                          application.status === 'rejected' ? '1px solid #ef4444' :
+                                          application.status === 'interview' ? '1px solid #3b82f6' :
+                                          '1px solid rgba(0, 255, 136, 0.3)',
+                                  textTransform: 'uppercase',
+                                  fontSize: '0.75rem',
+                                  letterSpacing: '0.5px'
                                 }}
+                                size="small"
                               />
                             </TableCell>
                             <TableCell>
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography variant="body2" sx={{ 
+                                color: '#cccccc',
+                                fontSize: { xs: '0.75rem', sm: '0.8rem' }
+                              }}>
                                 {format(new Date(application.appliedAt), 'MMM dd, yyyy')}
                               </Typography>
                             </TableCell>
@@ -511,7 +639,19 @@ const CandidateDashboard = () => {
                               <IconButton
                                 size="small"
                                 onClick={() => navigate(`/jobs/${application.jobId?._id}`)}
-                                sx={{ color: '#6366f1' }}
+                                sx={{ 
+                                  color: '#00ff88',
+                                  background: 'rgba(0, 255, 136, 0.1)',
+                                  borderRadius: 0,
+                                  border: '1px solid rgba(0, 255, 136, 0.3)',
+                                  backdropFilter: 'blur(10px)',
+                                  '&:hover': {
+                                    background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                                    color: '#000000',
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '0 4px 20px rgba(0, 255, 136, 0.3)'
+                                  }
+                                }}
                               >
                                 <Visibility />
                               </IconButton>
@@ -558,17 +698,39 @@ const CandidateDashboard = () => {
           >
             <Card
               sx={{
-                borderRadius: '16px',
-                border: '1px solid',
-                borderColor: 'grey.200',
+                borderRadius: 0,
+                background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                border: '2px solid rgba(0, 255, 136, 0.3)',
+                backdropFilter: 'blur(10px)',
                 height: 'fit-content',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+                },
+                '&:hover': {
+                  borderColor: 'rgba(0, 255, 136, 0.5)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 25px rgba(0, 255, 136, 0.2)',
+                }
               }}
             >
-              <CardContent sx={{ p: 3 }}>
+              <CardContent sx={{ p: 3, position: 'relative', zIndex: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Star sx={{ color: '#f59e0b' }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    <Star sx={{ color: '#00ff88', filter: 'drop-shadow(0 0 5px rgba(0, 255, 136, 0.6))' }} />
+                    <Typography variant="h6" sx={{ 
+                      fontWeight: 700,
+                      color: '#ffffff',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
                       Latest Jobs
                     </Typography>
                   </Box>
@@ -577,8 +739,15 @@ const CandidateDashboard = () => {
                     onClick={() => navigate('/jobs')}
                     sx={{
                       textTransform: 'none',
-                      borderRadius: '8px',
+                      borderRadius: 0,
                       fontWeight: 500,
+                      borderColor: '#00ff88',
+                      color: '#00ff88',
+                      '&:hover': {
+                        borderColor: '#00ff88',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        transform: 'translateY(-1px)',
+                      }
                     }}
                   >
                     View All
@@ -618,17 +787,41 @@ const CandidateDashboard = () => {
           >
             <Card
               sx={{
-                borderRadius: 0, // Square edges
-                border: '1px solid',
-                borderColor: 'grey.300',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                borderRadius: 0,
+                background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                border: '2px solid rgba(0, 255, 136, 0.3)',
+                backdropFilter: 'blur(10px)',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+                },
+                '&:hover': {
+                  borderColor: 'rgba(0, 255, 136, 0.5)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 25px rgba(0, 255, 136, 0.2)',
+                }
               }}
             >
-              <CardContent sx={{ p: 3 }}>
+              <CardContent sx={{ p: 3, position: 'relative', zIndex: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Article sx={{ color: '#6366f1' }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    <Article sx={{ 
+                      color: '#00ff88',
+                      filter: 'drop-shadow(0 0 5px rgba(0, 255, 136, 0.6))'
+                    }} />
+                    <Typography variant="h6" sx={{ 
+                      fontWeight: 700,
+                      color: '#ffffff',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
                       My Posts
                     </Typography>
                   </Box>
@@ -637,15 +830,16 @@ const CandidateDashboard = () => {
                     onClick={() => navigate('/feed')}
                     sx={{
                       textTransform: 'none',
-                      borderRadius: 0, // Square edges
+                      borderRadius: 0,
                       fontWeight: 600,
                       px: 3,
                       py: 1,
-                      borderColor: 'grey.400',
-                      color: 'text.primary',
+                      borderColor: '#00ff88',
+                      color: '#00ff88',
                       '&:hover': {
-                        borderColor: 'primary.main',
-                        backgroundColor: 'primary.50'
+                        borderColor: '#00ff88',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        transform: 'translateY(-1px)',
                       }
                     }}
                   >
@@ -655,31 +849,45 @@ const CandidateDashboard = () => {
 
                 {postsLoading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                    <CircularProgress />
+                    <CircularProgress sx={{ color: '#00ff88' }} />
                   </Box>
                 ) : userPosts.length === 0 ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
-                    <Article sx={{ fontSize: 48, color: 'grey.300', mb: 2 }} />
-                    <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                    <Article sx={{ 
+                      fontSize: 48, 
+                      color: 'rgba(0, 255, 136, 0.3)', 
+                      mb: 2,
+                      filter: 'drop-shadow(0 0 10px rgba(0, 255, 136, 0.2))'
+                    }} />
+                    <Typography variant="h6" sx={{ 
+                      mb: 1,
+                      color: '#ffffff',
+                      fontWeight: 600
+                    }}>
                       No posts yet
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    <Typography variant="body2" sx={{ 
+                      mb: 3,
+                      color: '#cccccc'
+                    }}>
                       Share your professional updates with your network
                     </Typography>
                     <Button
                       variant="contained"
                       onClick={() => navigate('/feed')}
                       sx={{
-                        background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+                        background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
                         textTransform: 'none',
-                        borderRadius: 0, // Square edges
+                        borderRadius: 0,
                         fontWeight: 600,
                         px: 4,
                         py: 1.5,
-                        boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
+                        color: '#000000',
+                        boxShadow: '0 2px 8px rgba(0, 255, 136, 0.3)',
                         '&:hover': {
-                          background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
-                          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)',
+                          background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                          boxShadow: '0 4px 12px rgba(0, 255, 136, 0.4)',
+                          transform: 'translateY(-1px)',
                         }
                       }}
                     >
@@ -699,14 +907,15 @@ const CandidateDashboard = () => {
                           <Card
                             sx={{
                               mb: 3,
-                              border: '1px solid',
-                              borderColor: 'grey.300',
-                              borderRadius: 0, // Square edges
-                              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                              background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(26, 26, 26, 0.4) 100%)',
+                              border: '1px solid rgba(0, 255, 136, 0.2)',
+                              borderRadius: 0,
+                              backdropFilter: 'blur(5px)',
                               transition: 'all 0.2s ease-in-out',
                               '&:hover': {
-                                borderColor: 'grey.400',
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                                borderColor: 'rgba(0, 255, 136, 0.4)',
+                                boxShadow: '0 4px 12px rgba(0, 255, 136, 0.2)',
+                                transform: 'translateY(-1px)',
                               },
                             }}
                           >
@@ -714,9 +923,8 @@ const CandidateDashboard = () => {
                               {/* Header Section */}
                               <Box sx={{ 
                                 p: 3, 
-                                borderBottom: '1px solid',
-                                borderColor: 'grey.200',
-                                backgroundColor: 'grey.50'
+                                borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
+                                background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 0, 0, 0.3) 100%)'
                               }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -725,8 +933,10 @@ const CandidateDashboard = () => {
                                       sx={{ 
                                         width: 48, 
                                         height: 48,
-                                        border: '2px solid white',
-                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                                        border: '2px solid #00ff88',
+                                        boxShadow: '0 2px 8px rgba(0, 255, 136, 0.3)',
+                                        backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                                        color: '#00ff88'
                                       }}
                                     >
                                       {user?.profile?.firstName?.charAt(0)}
@@ -734,19 +944,19 @@ const CandidateDashboard = () => {
                                     <Box>
                                       <Typography variant="subtitle1" sx={{ 
                                         fontWeight: 600,
-                                        color: 'text.primary',
+                                        color: '#ffffff',
                                         mb: 0.5
                                       }}>
                                         {user?.profile?.firstName} {user?.profile?.lastName}
                                       </Typography>
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                         <Typography variant="caption" sx={{ 
-                                          color: 'text.secondary',
+                                          color: '#cccccc',
                                           fontWeight: 500
                                         }}>
                                           {formatTimeAgo(post.createdAt)}
                                         </Typography>
-                                        <Box sx={{ width: 1, height: 1, backgroundColor: 'grey.400', borderRadius: '50%' }} />
+                                        <Box sx={{ width: 1, height: 1, backgroundColor: '#00ff88', borderRadius: '50%' }} />
                                         <Chip 
                                           label={post.visibility} 
                                           size="small" 
@@ -757,7 +967,9 @@ const CandidateDashboard = () => {
                                             fontSize: '0.7rem',
                                             fontWeight: 500,
                                             borderRadius: 0,
-                                            backgroundColor: 'white'
+                                            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                                            borderColor: '#00ff88',
+                                            color: '#00ff88'
                                           }}
                                         />
                                       </Box>
@@ -774,7 +986,13 @@ const CandidateDashboard = () => {
                                           fontSize: '0.75rem',
                                           px: 1.5,
                                           py: 0.5,
-                                          fontWeight: 500
+                                          fontWeight: 500,
+                                          borderColor: '#00ff88',
+                                          color: '#00ff88',
+                                          '&:hover': {
+                                            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                                            borderColor: '#00ff88'
+                                          }
                                         }
                                       }}
                                     >
@@ -795,11 +1013,11 @@ const CandidateDashboard = () => {
                                       onClick={(e) => handleMenuClick(e, post)}
                                       size="small"
                                       sx={{ 
-                                        border: '1px solid',
-                                        borderColor: 'grey.300',
+                                        border: '1px solid #00ff88',
                                         borderRadius: 0,
+                                        color: '#00ff88',
                                         '&:hover': {
-                                          backgroundColor: 'grey.100'
+                                          backgroundColor: 'rgba(0, 255, 136, 0.1)'
                                         }
                                       }}
                                     >
@@ -814,7 +1032,7 @@ const CandidateDashboard = () => {
                                 <Typography variant="body1" sx={{ 
                                   mb: 2.5, 
                                   lineHeight: 1.7,
-                                  color: 'text.primary',
+                                  color: '#ffffff',
                                   fontSize: '0.95rem',
                                   whiteSpace: 'pre-wrap'
                                 }}>
@@ -831,14 +1049,13 @@ const CandidateDashboard = () => {
                                         <Box
                                           sx={{
                                             position: 'relative',
-                                            borderRadius: 0, // Square edges
+                                            borderRadius: 0,
                                             overflow: 'hidden',
                                             cursor: 'pointer',
-                                            border: '1px solid',
-                                            borderColor: 'grey.200',
+                                            border: '1px solid rgba(0, 255, 136, 0.3)',
                                             '&:hover': {
-                                              borderColor: 'grey.400',
-                                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                                              borderColor: '#00ff88',
+                                              boxShadow: '0 4px 12px rgba(0, 255, 136, 0.3)'
                                             }
                                           }}
                                         >
@@ -867,14 +1084,13 @@ const CandidateDashboard = () => {
                                         <Box
                                           sx={{
                                             position: 'relative',
-                                            borderRadius: 0, // Square edges
+                                            borderRadius: 0,
                                             overflow: 'hidden',
                                             cursor: 'pointer',
-                                            border: '1px solid',
-                                            borderColor: 'grey.200',
+                                            border: '1px solid rgba(0, 255, 136, 0.3)',
                                             '&:hover': {
-                                              borderColor: 'grey.400',
-                                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                                              borderColor: '#00ff88',
+                                              boxShadow: '0 4px 12px rgba(0, 255, 136, 0.3)'
                                             }
                                           }}
                                         >
@@ -908,26 +1124,25 @@ const CandidateDashboard = () => {
                                 justifyContent: 'space-between', 
                                 alignItems: 'center', 
                                 p: 3,
-                                borderTop: '1px solid', 
-                                borderColor: 'grey.200',
-                                backgroundColor: 'grey.50'
+                                borderTop: '1px solid rgba(0, 255, 136, 0.2)',
+                                background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 0, 0, 0.3) 100%)'
                               }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                                    <Favorite sx={{ fontSize: 18, color: 'error.main' }} />
-                                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                    <Favorite sx={{ fontSize: 18, color: '#00ff88' }} />
+                                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#ffffff' }}>
                                       {post.likes?.length || 0}
                                     </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                    <Typography variant="caption" sx={{ fontWeight: 500, color: '#cccccc' }}>
                                       likes
                                     </Typography>
                                   </Box>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                                    <ChatBubbleOutline sx={{ fontSize: 18, color: 'primary.main' }} />
-                                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                    <ChatBubbleOutline sx={{ fontSize: 18, color: '#00ff88' }} />
+                                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#ffffff' }}>
                                       {post.comments?.length || 0}
                                     </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                    <Typography variant="caption" sx={{ fontWeight: 500, color: '#cccccc' }}>
                                       comments
                                     </Typography>
                                   </Box>
@@ -988,11 +1203,20 @@ const CandidateDashboard = () => {
         maxWidth="md"
         fullWidth
         PaperProps={{
-          sx: { borderRadius: 0 } // Square edges
+          sx: { 
+            borderRadius: 0,
+            background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(0, 0, 0, 0.95) 100%)',
+            border: '2px solid rgba(0, 255, 136, 0.3)',
+            backdropFilter: 'blur(20px)'
+          }
         }}
       >
         <DialogTitle sx={{ pb: 1 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          <Typography variant="h6" sx={{ 
+            fontWeight: 600,
+            color: '#ffffff',
+            textAlign: 'center'
+          }}>
             Edit Post
           </Typography>
         </DialogTitle>

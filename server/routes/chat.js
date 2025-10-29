@@ -252,6 +252,34 @@ router.post('/:chatId/messages', authenticateToken, upload.single('file'), async
       global.socketService.sendMessageToChat(chatId, message);
     }
 
+    // Create notifications for all other chat participants
+    const otherParticipants = chat.participants.filter(participantId => 
+      participantId.toString() !== userId
+    );
+
+    console.log(`Creating message notifications for ${otherParticipants.length} participants via HTTP route`);
+
+    for (const participantId of otherParticipants) {
+      console.log(`Creating notification for participant: ${participantId}`);
+      try {
+        if (global.socketService) {
+          await global.socketService.createNotification({
+            recipient: participantId,
+            sender: userId,
+            type: 'message_received',
+            title: 'New Message',
+            message: `${req.user.profile.firstName} sent you a message`,
+            sourceId: chatId,
+            sourceModel: 'Chat',
+            actionUrl: `/messages?chatId=${chatId}`
+          });
+          console.log(`Notification created successfully for participant: ${participantId}`);
+        }
+      } catch (error) {
+        console.error(`Error creating notification for ${participantId}:`, error);
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: 'Message sent successfully',

@@ -150,11 +150,34 @@ const getMe = async (req, res, next) => {
 // @access  Private
 const updateProfile = async (req, res, next) => {
   try {
-    const { firstName, lastName, phone, location, skills, experience, education, bio } = req.body;
+    const { 
+      firstName, 
+      lastName, 
+      phone, 
+      location, 
+      skills, 
+      experience, 
+      education, 
+      bio,
+      jobTitle,
+      company,
+      website,
+      linkedin,
+      github,
+      twitter,
+      birthDate,
+      nationality,
+      maritalStatus,
+      educationDetails,
+      workExperience,
+      skillsDetailed,
+      certifications,
+      languages
+    } = req.body;
 
     const user = await User.findById(req.user.id);
 
-    // Update profile fields
+    // Update basic profile fields
     if (firstName) user.profile.firstName = firstName;
     if (lastName) user.profile.lastName = lastName;
     if (phone) user.profile.phone = phone;
@@ -163,6 +186,22 @@ const updateProfile = async (req, res, next) => {
     if (experience !== undefined) user.profile.experience = experience;
     if (education) user.profile.education = education;
     if (bio) user.profile.bio = bio;
+    if (jobTitle) user.profile.jobTitle = jobTitle;
+    if (company) user.profile.company = company;
+    if (website) user.profile.website = website;
+    if (linkedin) user.profile.linkedin = linkedin;
+    if (github) user.profile.github = github;
+    if (twitter) user.profile.twitter = twitter;
+    if (birthDate) user.profile.birthDate = birthDate;
+    if (nationality) user.profile.nationality = nationality;
+    if (maritalStatus) user.profile.maritalStatus = maritalStatus;
+
+    // Update detailed profile arrays
+    if (educationDetails) user.profile.educationDetails = educationDetails;
+    if (workExperience) user.profile.workExperience = workExperience;
+    if (skillsDetailed) user.profile.skillsDetailed = skillsDetailed;
+    if (certifications) user.profile.certifications = certifications;
+    if (languages) user.profile.languages = languages;
 
     await user.save();
 

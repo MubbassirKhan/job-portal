@@ -32,6 +32,29 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Mobile menu button style
+  const getMobileButtonStyle = (path) => ({
+    justifyContent: 'flex-start',
+    py: 2,
+    px: 3,
+    mx: 2,
+    my: 0.5,
+    color: isActive(path) ? '#00ff88' : 'rgba(255, 255, 255, 0.85)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    fontWeight: isActive(path) ? 700 : 600,
+    borderRadius: 0,
+    border: isActive(path) ? '1px solid rgba(0, 255, 136, 0.5)' : '1px solid transparent',
+    background: isActive(path) ? 'rgba(0, 255, 136, 0.15)' : 'transparent',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&:hover': {
+      background: 'rgba(0, 255, 136, 0.1)',
+      color: '#00ff88',
+      border: '1px solid rgba(0, 255, 136, 0.6)',
+      transform: 'translateX(4px)',
+    }
+  });
+
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -89,6 +112,41 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
+  const getNavButtonStyle = (path) => ({
+    color: isActive(path) ? '#00ff88' : 'rgba(255, 255, 255, 0.85)',
+    fontWeight: isActive(path) ? 700 : 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    px: 3,
+    py: 1.5,
+    borderRadius: 0,
+    position: 'relative',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    background: isActive(path) ? 'rgba(0, 255, 136, 0.15)' : 'transparent',
+    border: isActive(path) ? '1px solid rgba(0, 255, 136, 0.5)' : '1px solid transparent',
+    '&:hover': {
+      background: isActive(path) 
+        ? 'rgba(0, 255, 136, 0.2)' 
+        : 'rgba(0, 255, 136, 0.1)',
+      transform: 'translateY(-1px)',
+      color: '#00ff88',
+      border: '1px solid rgba(0, 255, 136, 0.6)',
+      boxShadow: '0 4px 15px rgba(0, 255, 136, 0.3)',
+    },
+    '&::after': isActive(path) ? {
+      content: '""',
+      position: 'absolute',
+      bottom: '-2px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '30px',
+      height: '3px',
+      background: 'linear-gradient(135deg, #00ff88 0%, #00e676 100%)',
+      borderRadius: 0,
+      boxShadow: '0 0 10px rgba(0, 255, 136, 0.6)',
+    } : {},
+  });
+
   return (
     <motion.div
       variants={navVariants}
@@ -99,15 +157,26 @@ const Navbar = () => {
         position="fixed" 
         elevation={0}
         sx={{
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(26, 26, 26, 0.95) 100%)',
           backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(99, 102, 241, 0.1)',
-          color: '#1e293b',
-          zIndex: 1100, // Ensure it stays on top
+          borderBottom: '2px solid rgba(0, 255, 136, 0.4)',
+          color: '#ffffff',
+          zIndex: 1300,
+          boxShadow: '0 4px 30px rgba(0, 255, 136, 0.2)',
+          transition: 'all 0.3s ease-in-out',
+          top: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
         }}
       >
-          <Container maxWidth="lg">
-            <Toolbar sx={{ py: 1 }}>
+          <Container maxWidth={false} sx={{ px: { xs: 1, sm: 2, md: 4 } }}>
+            <Toolbar sx={{ 
+              py: { xs: 0.5, sm: 1 },
+              minHeight: { xs: '64px', sm: '70px' },
+              height: { xs: '64px', sm: '70px' },
+              justifyContent: 'space-between'
+            }}>
               <motion.div
                 variants={logoVariants}
                 whileHover="hover"
@@ -116,33 +185,73 @@ const Navbar = () => {
               >
                 <Box
                   sx={{
-                    width: 40,
-                    height: 40,
-                    background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                    borderRadius: '12px',
+                    width: { xs: 45, sm: 50 },
+                    height: { xs: 45, sm: 50 },
+                    background: 'linear-gradient(135deg, #00ff88 0%, #00e676 100%)',
+                    borderRadius: 0,
+                    border: '2px solid rgba(0, 255, 136, 0.8)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    mr: 2,
-                    boxShadow: '0 4px 20px rgba(99, 102, 241, 0.3)',
+                    mr: { xs: 1, sm: 2 },
+                    boxShadow: '0 4px 20px rgba(0, 255, 136, 0.4)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%)',
+                      transform: 'translateX(-100%)',
+                      transition: 'transform 0.6s ease',
+                    },
+                    '&:hover': {
+                      transform: 'translateY(-2px) scale(1.05)',
+                      boxShadow: '0 8px 30px rgba(0, 255, 136, 0.6)',
+                      '&::before': {
+                        transform: 'translateX(100%)',
+                      }
+                    }
                   }}
                 >
-                  <Work sx={{ color: 'white', fontSize: 24 }} />
+                  <Work sx={{ color: 'white', fontSize: { xs: 20, sm: 24 } }} />
                 </Box>
                 <Typography
-                  variant="h6"
+                  variant="h4"
                   component="div"
                   sx={{
-                    fontWeight: 800,
-                    background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+                    fontWeight: 900,
+                    background: 'linear-gradient(135deg, #00ff88 0%, #ffffff 100%)',
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    fontSize: '1.5rem',
-                    display: { xs: 'none', sm: 'block' }
+                    fontSize: { xs: '1.2rem', sm: '1.6rem', md: '1.8rem' },
+                    display: { xs: 'none', sm: 'block' },
+                    letterSpacing: { xs: '1px', sm: '2px' },
+                    textTransform: 'uppercase',
+                    textShadow: '0 0 20px rgba(0, 255, 136, 0.5)',
+                    position: 'relative',
+                    transition: 'all 0.3s ease',
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: '-2px',
+                      left: 0,
+                      width: '0%',
+                      height: '2px',
+                      background: '#00ff88',
+                      transition: 'width 0.3s ease',
+                    },
+                    '&:hover::after': {
+                      width: '100%',
+                    }
                   }}
                 >
-                  JobPortal
+                  TalentHub
                 </Typography>
               </motion.div>
 
@@ -154,26 +263,7 @@ const Navbar = () => {
                   <Button
                     component={Link}
                     to="/jobs"
-                    sx={{
-                      color: isActive('/jobs') ? '#6366f1' : '#64748b',
-                      fontWeight: isActive('/jobs') ? 600 : 500,
-                      textTransform: 'none',
-                      px: 2,
-                      py: 1,
-                      borderRadius: '8px',
-                      position: 'relative',
-                      '&::after': isActive('/jobs') ? {
-                        content: '""',
-                        position: 'absolute',
-                        bottom: 0,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: '20px',
-                        height: '3px',
-                        background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                        borderRadius: '2px',
-                      } : {},
-                    }}
+                    sx={getNavButtonStyle('/jobs')}
                   >
                     Jobs
                   </Button>
@@ -186,26 +276,7 @@ const Navbar = () => {
                       <Button
                         component={Link}
                         to="/feed"
-                        sx={{
-                          color: isActive('/feed') ? '#6366f1' : '#64748b',
-                          fontWeight: isActive('/feed') ? 600 : 500,
-                          textTransform: 'none',
-                          px: 2,
-                          py: 1,
-                          borderRadius: '8px',
-                          position: 'relative',
-                          '&::after': isActive('/feed') ? {
-                            content: '""',
-                            position: 'absolute',
-                            bottom: 0,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: '20px',
-                            height: '3px',
-                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                            borderRadius: '2px',
-                          } : {},
-                        }}
+                        sx={getNavButtonStyle('/feed')}
                       >
                         Feed
                       </Button>
@@ -215,26 +286,7 @@ const Navbar = () => {
                       <Button
                         component={Link}
                         to="/connections"
-                        sx={{
-                          color: isActive('/connections') ? '#6366f1' : '#64748b',
-                          fontWeight: isActive('/connections') ? 600 : 500,
-                          textTransform: 'none',
-                          px: 2,
-                          py: 1,
-                          borderRadius: '8px',
-                          position: 'relative',
-                          '&::after': isActive('/connections') ? {
-                            content: '""',
-                            position: 'absolute',
-                            bottom: 0,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: '20px',
-                            height: '3px',
-                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                            borderRadius: '2px',
-                          } : {},
-                        }}
+                        sx={getNavButtonStyle('/connections')}
                       >
                         Network
                       </Button>
@@ -244,26 +296,7 @@ const Navbar = () => {
                       <Button
                         component={Link}
                         to="/messages"
-                        sx={{
-                          color: isActive('/messages') ? '#6366f1' : '#64748b',
-                          fontWeight: isActive('/messages') ? 600 : 500,
-                          textTransform: 'none',
-                          px: 2,
-                          py: 1,
-                          borderRadius: '8px',
-                          position: 'relative',
-                          '&::after': isActive('/messages') ? {
-                            content: '""',
-                            position: 'absolute',
-                            bottom: 0,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: '20px',
-                            height: '3px',
-                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                            borderRadius: '2px',
-                          } : {},
-                        }}
+                        sx={getNavButtonStyle('/messages')}
                       >
                         Messages
                       </Button>
@@ -276,26 +309,7 @@ const Navbar = () => {
                     <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                       <Button
                         onClick={handleDashboardClick}
-                        sx={{
-                          color: isActive('/dashboard') ? '#6366f1' : '#64748b',
-                          fontWeight: isActive('/dashboard') ? 600 : 500,
-                          textTransform: 'none',
-                          px: 2,
-                          py: 1,
-                          borderRadius: '8px',
-                          position: 'relative',
-                          '&::after': isActive('/dashboard') ? {
-                            content: '""',
-                            position: 'absolute',
-                            bottom: 0,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: '20px',
-                            height: '3px',
-                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                            borderRadius: '2px',
-                          } : {},
-                        }}
+                        sx={getNavButtonStyle('/dashboard')}
                       >
                         Dashboard
                       </Button>
@@ -306,16 +320,28 @@ const Navbar = () => {
                         label="Recruiter"
                         size="small"
                         sx={{
-                          background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+                          background: '#000000',
                           color: 'white',
-                          fontWeight: 600,
-                          border: 'none',
+                          fontWeight: 700,
+                          border: '1px solid #22c55e',
+                          fontSize: '0.75rem',
+                          height: '28px',
+                          borderRadius: '14px',
+                          boxShadow: '0 2px 10px rgba(34, 197, 94, 0.3)',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          '&:hover': {
+                            background: '#22c55e',
+                            transform: 'translateY(-1px) scale(1.02)',
+                            boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)',
+                          }
                         }}
                       />
                     )}
 
                     {/* Notification Center */}
-                    <NotificationCenter />
+                    <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                      <NotificationCenter />
+                    </Box>
 
                     <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                       <IconButton
@@ -325,19 +351,51 @@ const Navbar = () => {
                         aria-haspopup="true"
                         onClick={handleMenu}
                         sx={{
-                          ml: 1,
+                          ml: 2,
+                          p: 0.5,
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                           '&:hover': {
-                            background: 'rgba(99, 102, 241, 0.1)',
+                            background: 'rgba(0, 255, 136, 0.1)',
+                            transform: 'scale(1.05)',
                           }
                         }}
                       >
                         <Avatar 
                           sx={{ 
-                            width: 36, 
-                            height: 36,
-                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                            fontWeight: 600,
-                            border: '2px solid rgba(99, 102, 241, 0.2)',
+                            width: 45, 
+                            height: 45,
+                            borderRadius: 0,
+                            background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+                            color: '#00ff88',
+                            fontWeight: 800,
+                            border: '2px solid #00ff88',
+                            fontSize: '1.2rem',
+                            letterSpacing: '1px',
+                            textTransform: 'uppercase',
+                            boxShadow: '0 4px 15px rgba(0, 255, 136, 0.4)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            '&::before': {
+                              content: '""',
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              background: 'linear-gradient(45deg, transparent 30%, rgba(0, 255, 136, 0.1) 50%, transparent 70%)',
+                              transform: 'translateX(-100%)',
+                              transition: 'transform 0.6s ease',
+                            },
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #00ff88 0%, #00e676 100%)',
+                              color: '#000000',
+                              transform: 'scale(1.05)',
+                              boxShadow: '0 6px 25px rgba(0, 255, 136, 0.6)',
+                              '&::before': {
+                                transform: 'translateX(100%)',
+                              }
+                            }
                           }}
                         >
                           {user?.profile?.firstName?.charAt(0)?.toUpperCase() || 'U'}
@@ -361,11 +419,13 @@ const Navbar = () => {
                       onClose={handleClose}
                       sx={{
                         '& .MuiPaper-root': {
-                          borderRadius: '12px',
-                          border: '1px solid rgba(99, 102, 241, 0.1)',
-                          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                          borderRadius: 0,
+                          background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+                          border: '2px solid rgba(0, 255, 136, 0.4)',
+                          boxShadow: '0 20px 35px rgba(0, 255, 136, 0.3)',
                           mt: 1,
-                          minWidth: 200,
+                          minWidth: 220,
+                          backdropFilter: 'blur(10px)',
                         }
                       }}
                     >
@@ -374,12 +434,21 @@ const Navbar = () => {
                         sx={{ 
                           py: 1.5, 
                           px: 2,
+                          color: '#ffffff',
+                          background: 'transparent',
+                          borderRadius: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          fontWeight: 600,
+                          transition: 'all 0.3s ease',
                           '&:hover': {
-                            background: 'rgba(99, 102, 241, 0.05)',
+                            background: 'rgba(0, 255, 136, 0.1)',
+                            color: '#00ff88',
+                            transform: 'translateX(5px)',
                           }
                         }}
                       >
-                        <Person sx={{ mr: 2, color: '#6366f1' }} />
+                        <Person sx={{ mr: 2, color: '#00ff88' }} />
                         Profile
                       </MenuItem>
                       <MenuItem 
@@ -387,12 +456,21 @@ const Navbar = () => {
                         sx={{ 
                           py: 1.5, 
                           px: 2,
+                          color: '#ffffff',
+                          background: 'transparent',
+                          borderRadius: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          fontWeight: 600,
+                          transition: 'all 0.3s ease',
                           '&:hover': {
-                            background: 'rgba(99, 102, 241, 0.05)',
+                            background: 'rgba(0, 255, 136, 0.1)',
+                            color: '#00ff88',
+                            transform: 'translateX(5px)',
                           }
                         }}
                       >
-                        <DashboardIcon sx={{ mr: 2, color: '#6366f1' }} />
+                        <DashboardIcon sx={{ mr: 2, color: '#00ff88' }} />
                         Dashboard
                       </MenuItem>
                       <MenuItem 
@@ -400,13 +478,21 @@ const Navbar = () => {
                         sx={{ 
                           py: 1.5, 
                           px: 2,
+                          color: '#ffffff',
+                          background: 'transparent',
+                          borderRadius: 0,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          fontWeight: 600,
+                          transition: 'all 0.3s ease',
                           '&:hover': {
-                            background: 'rgba(239, 68, 68, 0.05)',
-                            color: '#ef4444',
+                            background: 'rgba(255, 0, 0, 0.1)',
+                            color: '#ff4444',
+                            transform: 'translateX(5px)',
                           }
                         }}
                       >
-                        <ExitToApp sx={{ mr: 2, color: '#ef4444' }} />
+                        <ExitToApp sx={{ mr: 2, color: '#ff4444' }} />
                         Logout
                       </MenuItem>
                     </Menu>
@@ -418,12 +504,23 @@ const Navbar = () => {
                         component={Link}
                         to="/login"
                         sx={{
-                          color: '#64748b',
-                          textTransform: 'none',
-                          px: 2,
-                          py: 1,
-                          borderRadius: '8px',
-                          fontWeight: 500,
+                          color: 'rgba(255, 255, 255, 0.85)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          px: 3,
+                          py: 1.5,
+                          borderRadius: 0,
+                          fontWeight: 700,
+                          border: '2px solid rgba(0, 255, 136, 0.3)',
+                          background: 'transparent',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          '&:hover': {
+                            background: 'rgba(0, 255, 136, 0.1)',
+                            color: '#00ff88',
+                            border: '2px solid rgba(0, 255, 136, 0.6)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 15px rgba(0, 255, 136, 0.3)',
+                          }
                         }}
                       >
                         Login
@@ -435,18 +532,39 @@ const Navbar = () => {
                         to="/register"
                         variant="contained"
                         sx={{
-                          background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                          color: 'white',
-                          textTransform: 'none',
-                          px: 3,
-                          py: 1,
-                          borderRadius: '8px',
-                          fontWeight: 600,
-                          boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)',
-                          border: 'none',
+                          background: 'linear-gradient(135deg, #00ff88 0%, #00e676 100%)',
+                          color: '#000000',
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                          px: 4,
+                          py: 1.5,
+                          borderRadius: 0,
+                          fontWeight: 800,
+                          border: '2px solid transparent',
+                          boxShadow: '0 4px 15px rgba(0, 255, 136, 0.4)',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%)',
+                            transform: 'translateX(-100%)',
+                            transition: 'transform 0.6s ease',
+                          },
                           '&:hover': {
-                            background: 'linear-gradient(135deg, #4f46e5 0%, #db2777 100%)',
-                            boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)',
+                            background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+                            color: '#00ff88',
+                            border: '2px solid #00ff88',
+                            boxShadow: '0 6px 25px rgba(0, 255, 136, 0.6)',
+                            transform: 'translateY(-2px) scale(1.02)',
+                            '&::before': {
+                              transform: 'translateX(100%)',
+                            }
                           }
                         }}
                       >
@@ -457,21 +575,42 @@ const Navbar = () => {
                 )}
               </Box>
 
-              {/* Mobile Menu Button */}
-              <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+              {/* Mobile Menu Button & Notification */}
+              <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1 }}>
+                {/* Mobile Notification Icon */}
+                {isAuthenticated && (
+                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                    <NotificationCenter />
+                  </motion.div>
+                )}
+                
+                {/* Mobile Menu Button */}
                 <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                   <IconButton
                     size="large"
                     aria-label="mobile menu"
                     onClick={handleMobileMenuToggle}
                     sx={{
-                      color: '#1e293b',
+                      color: '#ffffff',
+                      borderRadius: 0,
+                      border: '2px solid rgba(0, 255, 136, 0.4)',
+                      background: 'rgba(0, 255, 136, 0.15)',
+                      width: { xs: 48, sm: 54 },
+                      height: { xs: 48, sm: 54 },
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
-                        background: 'rgba(99, 102, 241, 0.1)',
+                        background: 'rgba(0, 255, 136, 0.25)',
+                        color: '#00ff88',
+                        border: '2px solid rgba(0, 255, 136, 0.7)',
+                        transform: 'scale(1.05)',
+                        boxShadow: '0 4px 15px rgba(0, 255, 136, 0.3)',
                       }
                     }}
                   >
-                    {mobileMenuOpen ? <Close /> : <MenuIcon />}
+                    {mobileMenuOpen ? 
+                      <Close sx={{ fontSize: { xs: 24, sm: 28 } }} /> : 
+                      <MenuIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                    }
                   </IconButton>
                 </motion.div>
               </Box>
@@ -487,20 +626,20 @@ const Navbar = () => {
                   transition={{ duration: 0.3 }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <Box sx={{ pb: 2, borderTop: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                  <Box sx={{ 
+                    pb: 2, 
+                    borderTop: '2px solid rgba(0, 255, 136, 0.4)',
+                    background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(26, 26, 26, 0.98) 100%)',
+                    backdropFilter: 'blur(20px)',
+                    position: 'relative',
+                    zIndex: 1200,
+                  }}>
                     <Button
                       component={Link}
                       to="/jobs"
                       fullWidth
                       onClick={() => setMobileMenuOpen(false)}
-                      sx={{
-                        justifyContent: 'flex-start',
-                        py: 1.5,
-                        px: 2,
-                        color: '#64748b',
-                        textTransform: 'none',
-                        fontWeight: 500,
-                      }}
+                      sx={getMobileButtonStyle('/jobs')}
                     >
                       Jobs
                     </Button>
@@ -513,14 +652,7 @@ const Navbar = () => {
                           to="/feed"
                           fullWidth
                           onClick={() => setMobileMenuOpen(false)}
-                          sx={{
-                            justifyContent: 'flex-start',
-                            py: 1.5,
-                            px: 2,
-                            color: '#64748b',
-                            textTransform: 'none',
-                            fontWeight: 500,
-                          }}
+                          sx={getMobileButtonStyle('/feed')}
                         >
                           Feed
                         </Button>
@@ -529,14 +661,7 @@ const Navbar = () => {
                           to="/connections"
                           fullWidth
                           onClick={() => setMobileMenuOpen(false)}
-                          sx={{
-                            justifyContent: 'flex-start',
-                            py: 1.5,
-                            px: 2,
-                            color: '#64748b',
-                            textTransform: 'none',
-                            fontWeight: 500,
-                          }}
+                          sx={getMobileButtonStyle('/connections')}
                         >
                           Network
                         </Button>
@@ -545,14 +670,7 @@ const Navbar = () => {
                           to="/messages"
                           fullWidth
                           onClick={() => setMobileMenuOpen(false)}
-                          sx={{
-                            justifyContent: 'flex-start',
-                            py: 1.5,
-                            px: 2,
-                            color: '#64748b',
-                            textTransform: 'none',
-                            fontWeight: 500,
-                          }}
+                          sx={getMobileButtonStyle('/messages')}
                         >
                           Messages
                         </Button>
@@ -560,28 +678,14 @@ const Navbar = () => {
                         <Button
                           onClick={handleDashboardClick}
                           fullWidth
-                          sx={{
-                            justifyContent: 'flex-start',
-                            py: 1.5,
-                            px: 2,
-                            color: '#64748b',
-                            textTransform: 'none',
-                            fontWeight: 500,
-                          }}
+                          sx={getMobileButtonStyle('/dashboard')}
                         >
                           Dashboard
                         </Button>
                         <Button
                           onClick={handleProfileClick}
                           fullWidth
-                          sx={{
-                            justifyContent: 'flex-start',
-                            py: 1.5,
-                            px: 2,
-                            color: '#64748b',
-                            textTransform: 'none',
-                            fontWeight: 500,
-                          }}
+                          sx={getMobileButtonStyle('/profile')}
                         >
                           Profile
                         </Button>
@@ -590,11 +694,24 @@ const Navbar = () => {
                           fullWidth
                           sx={{
                             justifyContent: 'flex-start',
-                            py: 1.5,
-                            px: 2,
+                            py: 2,
+                            px: 3,
+                            mx: 2,
+                            my: 0.5,
                             color: '#ef4444',
-                            textTransform: 'none',
-                            fontWeight: 500,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontWeight: 600,
+                            borderRadius: 0,
+                            border: '1px solid rgba(239, 68, 68, 0.5)',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            '&:hover': {
+                              background: 'rgba(239, 68, 68, 0.2)',
+                              color: '#ef4444',
+                              border: '1px solid rgba(239, 68, 68, 0.8)',
+                              transform: 'translateX(4px)',
+                            }
                           }}
                         >
                           Logout
@@ -607,14 +724,7 @@ const Navbar = () => {
                           to="/login"
                           fullWidth
                           onClick={() => setMobileMenuOpen(false)}
-                          sx={{
-                            justifyContent: 'flex-start',
-                            py: 1.5,
-                            px: 2,
-                            color: '#64748b',
-                            textTransform: 'none',
-                            fontWeight: 500,
-                          }}
+                          sx={getMobileButtonStyle('/login')}
                         >
                           Login
                         </Button>
@@ -627,10 +737,20 @@ const Navbar = () => {
                           sx={{
                             mx: 2,
                             mt: 1,
-                            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                            textTransform: 'none',
-                            fontWeight: 600,
-                            borderRadius: '8px',
+                            py: 2,
+                            background: 'linear-gradient(135deg, #00ff88 0%, #00e676 100%)',
+                            color: '#000000',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontWeight: 700,
+                            borderRadius: 0,
+                            border: '2px solid #00ff88',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            '&:hover': {
+                              background: 'transparent',
+                              color: '#00ff88',
+                              transform: 'translateX(4px)',
+                            }
                           }}
                         >
                           Get Started

@@ -10,10 +10,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import Home from './pages/Home';
+
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Jobs from './pages/Jobs';
@@ -27,7 +29,7 @@ import RecruiterApplications from './pages/RecruiterApplications';
 import SocialFeed from './pages/SocialFeed';
 import Connections from './pages/Connections';
 import Messages from './pages/Messages';
-// import UserProfile from './pages/UserProfile'; // Temporarily commented out
+import UserProfile from './pages/UserProfile';
 
 // Enhanced modern theme with professional color scheme
 const theme = createTheme({
@@ -231,6 +233,8 @@ const globalStyles = (
       body: {
         fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
         backgroundColor: '#f8fafc',
+        margin: 0,
+        padding: 0,
       },
       '.gradient-text': {
         background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
@@ -273,10 +277,24 @@ function App() {
       <AuthProvider>
         <SocketProvider>
           <Router>
-            <div className="App">
+            <Box 
+              sx={{ 
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                m: 0,
+                p: 0,
+              }}
+            >
               <Navbar />
-              {/* Spacer for fixed navbar */}
-              <Box sx={{ height: '80px' }} />
+              
+              {/* Main Content Area */}
+              <Box sx={{ 
+                flex: 1,
+                m: 0,
+                p: 0,
+                position: 'relative',
+              }}>
             <AnimatePresence mode="wait">
               <Routes>
                 {/* Public Routes */}
@@ -290,6 +308,7 @@ function App() {
                     <Home />
                   </motion.div>
                 } />
+
                 <Route path="/login" element={
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -456,7 +475,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                {/* <Route
+                <Route
                   path="/profile/:userId"
                   element={
                     <ProtectedRoute>
@@ -470,9 +489,15 @@ function App() {
                       </motion.div>
                     </ProtectedRoute>
                   }
-                /> */}
+                />
               </Routes>
             </AnimatePresence>
+              </Box>
+              
+              {/* Footer */}
+              <Footer />
+            </Box>
+            
             <ToastContainer
               position="top-right"
               autoClose={5000}
@@ -488,8 +513,7 @@ function App() {
                 boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.25)',
               }}
             />
-          </div>
-        </Router>
+          </Router>
         </SocketProvider>
       </AuthProvider>
     </ThemeProvider>
