@@ -63,8 +63,6 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 
 // Utility constants and functions
-const SERVER_BASE_URL = process.env.REACT_APP_SERVER_URL || 'http://localhost:5000';
-
 const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -73,40 +71,50 @@ const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
   >
     <Card
       sx={{
-        height: '140px', // Fixed height for consistency
-        borderRadius: '16px',
-        border: '1px solid',
-        borderColor: 'grey.200',
-        transition: 'all 0.3s ease-in-out',
+        height: { xs: '120px', sm: '140px' },
+        borderRadius: 0,
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(26, 26, 26, 0.9) 100%)',
+        backdropFilter: 'blur(20px)',
+        border: '2px solid rgba(0, 255, 136, 0.3)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
         '&::before': {
           content: '""',
           position: 'absolute',
           top: 0,
           left: 0,
           right: 0,
-          height: '3px',
-          background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
+          height: '4px',
+          background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
         },
         '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: '0 8px 25px rgba(99, 102, 241, 0.15)',
-          borderColor: 'rgba(99, 102, 241, 0.3)',
+          transform: 'translateY(-4px) scale(1.02)',
+          border: '2px solid #00ff88',
+          boxShadow: '0 12px 40px rgba(0, 255, 136, 0.2)',
+          background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.9) 100%)',
         },
       }}
     >
-      <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <CardContent sx={{ 
+        p: { xs: 2, sm: 3 }, 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'space-between' 
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <Box sx={{ flexGrow: 1 }}>
             <Typography 
               variant="h3" 
               sx={{ 
-                fontWeight: 700, 
-                color: '#1e293b', 
+                fontWeight: 800, 
+                color: '#ffffff', 
                 mb: 0.5,
-                fontSize: '2rem',
-                lineHeight: 1.2
+                fontSize: { xs: '1.5rem', sm: '2rem' },
+                lineHeight: 1.2,
+                textShadow: '0 2px 10px rgba(0, 255, 136, 0.3)'
               }}
             >
               {value}
@@ -114,9 +122,11 @@ const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
             <Typography 
               variant="body2" 
               sx={{ 
-                fontWeight: 500, 
-                color: 'text.secondary',
-                fontSize: '0.875rem'
+                fontWeight: 600, 
+                color: '#00ff88',
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}
             >
               {title}
@@ -124,29 +134,32 @@ const StatCard = ({ icon, title, value, trend, delay = 0 }) => (
           </Box>
           <Box
             sx={{
-              width: 48,
-              height: 48,
-              borderRadius: '12px',
-              background: 'rgba(99, 102, 241, 0.1)',
+              width: { xs: 40, sm: 48 },
+              height: { xs: 40, sm: 48 },
+              borderRadius: 0,
+              background: 'rgba(0, 255, 136, 0.2)',
+              border: '1px solid rgba(0, 255, 136, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#6366f1',
+              color: '#00ff88',
               flexShrink: 0,
+              backdropFilter: 'blur(10px)',
             }}
           >
-            {React.cloneElement(icon, { sx: { fontSize: 24 } })}
+            {React.cloneElement(icon, { sx: { fontSize: { xs: 20, sm: 24 } } })}
           </Box>
         </Box>
         {trend && (
           <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-            <TrendingUp sx={{ fontSize: 14, color: '#10b981', mr: 0.5 }} />
+            <TrendingUp sx={{ fontSize: 14, color: '#22c55e', mr: 0.5 }} />
             <Typography 
               variant="caption" 
               sx={{ 
-                color: '#10b981',
-                fontWeight: 500,
-                fontSize: '0.75rem'
+                color: '#22c55e',
+                fontWeight: 600,
+                fontSize: '0.75rem',
+                textTransform: 'uppercase'
               }}
             >
               {trend}
@@ -218,7 +231,7 @@ const RecruiterDashboard = () => {
         salaryRange: {
           min: data.salaryMin ? parseInt(data.salaryMin) : undefined,
           max: data.salaryMax ? parseInt(data.salaryMax) : undefined,
-          currency: data.currency || 'USD',
+          currency: data.currency || 'INR',
         },
       };
 
@@ -373,6 +386,12 @@ const RecruiterDashboard = () => {
 
   return (
     <>
+      <Box sx={{ 
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+        p: { xs: 2, sm: 3 },
+        pt: { xs: 4, sm: 5, md: 6 }
+      }}>
       {/* Stats Cards - Always visible */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
@@ -416,27 +435,43 @@ const RecruiterDashboard = () => {
       </Grid>
 
       {/* Tab Navigation */}
-      <Paper sx={{ mb: 3, borderRadius: 2 }}>
+      <Paper sx={{ 
+        mb: 3, 
+        borderRadius: 0,
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(26, 26, 26, 0.9) 100%)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(0, 255, 136, 0.2)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+      }}>
         <Tabs 
           value={tabValue} 
           onChange={handleTabChange}
           sx={{
             '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 600,
-              fontSize: '1rem',
-              minHeight: 60
+              textTransform: 'uppercase',
+              fontWeight: 700,
+              fontSize: { xs: '0.8rem', sm: '1rem' },
+              minHeight: 60,
+              color: '#cccccc',
+              letterSpacing: '0.5px',
+              '&.Mui-selected': {
+                color: '#00ff88'
+              }
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: '#00ff88',
+              height: '3px'
             }
           }}
         >
           <Tab 
-            icon={<Work />} 
+            icon={<Work sx={{ color: 'inherit' }} />} 
             label="Jobs & Applications" 
             iconPosition="start"
             sx={{ gap: 1 }}
           />
           <Tab 
-            icon={<PostAdd />} 
+            icon={<PostAdd sx={{ color: 'inherit' }} />} 
             label="Post Management" 
             iconPosition="start"
             sx={{ gap: 1 }}
@@ -451,14 +486,36 @@ const RecruiterDashboard = () => {
           <Grid item xs={12}>
             <Card
               sx={{
-                borderRadius: '16px',
-                border: '1px solid',
-                borderColor: 'grey.200',
+                borderRadius: 0,
+                background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                border: '2px solid rgba(0, 255, 136, 0.3)',
+                backdropFilter: 'blur(10px)',
                 mb: 3,
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+                },
+                '&:hover': {
+                  borderColor: 'rgba(0, 255, 136, 0.5)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 25px rgba(0, 255, 136, 0.2)',
+                }
               }}
             >
-              <CardContent>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+              <CardContent sx={{ position: 'relative', zIndex: 1 }}>
+                <Typography variant="h6" gutterBottom sx={{ 
+                  fontWeight: 700,
+                  color: '#ffffff',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
                   Quick Actions
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -467,14 +524,16 @@ const RecruiterDashboard = () => {
                     startIcon={<Add />}
                     onClick={() => setCreateJobDialog(true)}
                     sx={{
-                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
                       textTransform: 'none',
                       fontWeight: 600,
                       px: 3,
                       py: 1,
-                      borderRadius: '8px',
+                      borderRadius: 0,
+                      color: '#000000',
                       '&:hover': {
-                        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                        background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                        transform: 'translateY(-1px)',
                       }
                     }}
                   >
@@ -484,16 +543,17 @@ const RecruiterDashboard = () => {
                     variant="outlined"
                     onClick={() => navigate('/recruiter/jobs')}
                     sx={{
-                      borderColor: '#6366f1',
-                      color: '#6366f1',
+                      borderColor: '#00ff88',
+                      color: '#00ff88',
                       textTransform: 'none',
                       fontWeight: 600,
                       px: 3,
                       py: 1,
-                      borderRadius: '8px',
+                      borderRadius: 0,
                       '&:hover': {
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderColor: '#00ff88',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        transform: 'translateY(-1px)',
                       }
                     }}
                   >
@@ -503,16 +563,17 @@ const RecruiterDashboard = () => {
                     variant="outlined"
                     onClick={() => navigate('/recruiter/applications')}
                     sx={{
-                      borderColor: '#10b981',
-                      color: '#10b981',
+                      borderColor: '#00ff88',
+                      color: '#00ff88',
                       textTransform: 'none',
                       fontWeight: 600,
                       px: 3,
                       py: 1,
-                      borderRadius: '8px',
+                      borderRadius: 0,
                       '&:hover': {
-                        borderColor: '#059669',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: '#00ff88',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        transform: 'translateY(-1px)',
                       }
                     }}
                   >
@@ -525,49 +586,136 @@ const RecruiterDashboard = () => {
 
         {/* Recent Jobs */}
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
+          <Card sx={{
+            borderRadius: 0,
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(26, 26, 26, 0.9) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(0, 255, 136, 0.2)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">Recent Jobs</Typography>
-                <Button variant="outlined" size="small">
+                <Typography variant="h6" sx={{ 
+                  color: '#00ff88', 
+                  fontWeight: 700,
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Recent Jobs
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  size="small"
+                  onClick={() => navigate('/recruiter/jobs')}
+                  sx={{
+                    borderColor: '#00ff88',
+                    color: '#00ff88',
+                    borderRadius: 0,
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    background: 'rgba(0, 255, 136, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                      color: '#000000',
+                      borderColor: '#00ff88',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 20px rgba(0, 255, 136, 0.3)'
+                    }
+                  }}
+                >
                   View All
                 </Button>
               </Box>
 
               {jobs.length > 0 ? (
-                <TableContainer>
+                <TableContainer sx={{ 
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  borderRadius: 0,
+                  border: '1px solid rgba(0, 255, 136, 0.2)'
+                }}>
                   <Table size="small">
                     <TableHead>
-                      <TableRow>
-                        <TableCell>Title</TableCell>
-                        <TableCell align="center">Applications</TableCell>
-                        <TableCell align="center">Status</TableCell>
-                        <TableCell>Posted</TableCell>
+                      <TableRow sx={{ 
+                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%)'
+                      }}>
+                        <TableCell sx={{ 
+                          fontWeight: 700, 
+                          color: '#00ff88',
+                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                        }}>Title</TableCell>
+                        <TableCell align="center" sx={{ 
+                          fontWeight: 700, 
+                          color: '#00ff88',
+                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                        }}>Applications</TableCell>
+                        <TableCell align="center" sx={{ 
+                          fontWeight: 700, 
+                          color: '#00ff88',
+                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                        }}>Status</TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 700, 
+                          color: '#00ff88',
+                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                        }}>Posted</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {jobs.map((job) => (
-                        <TableRow key={job._id}>
-                          <TableCell>
-                            <Typography variant="subtitle2">
+                        <TableRow key={job._id} sx={{
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 255, 136, 0.05)',
+                          }
+                        }}>
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                            <Typography variant="subtitle2" sx={{ color: '#ffffff', fontWeight: 600 }}>
                               {job.title}
                             </Typography>
-                            <Typography variant="caption" color="textSecondary">
+                            <Typography variant="caption" sx={{ color: '#cccccc' }}>
                               {job.company}
                             </Typography>
                           </TableCell>
-                          <TableCell align="center">
-                            {job.applicationsCount || 0}
+                          <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                            <Typography variant="body2" sx={{ color: '#ffffff', fontWeight: 600 }}>
+                              {job.applicationsCount || 0}
+                            </Typography>
                           </TableCell>
-                          <TableCell align="center">
+                          <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
                             <Chip
                               label={job.isActive ? 'Active' : 'Inactive'}
                               color={job.isActive ? 'success' : 'default'}
                               size="small"
+                              sx={{
+                                borderRadius: 0,
+                                fontWeight: 600,
+                                fontSize: '0.75rem',
+                                backgroundColor: job.isActive ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                color: job.isActive ? '#00ff88' : '#cccccc',
+                                border: job.isActive ? '1px solid #00ff88' : '1px solid rgba(255, 255, 255, 0.3)'
+                              }}
                             />
                           </TableCell>
-                          <TableCell>
-                            {format(new Date(job.createdAt), 'MMM dd')}
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                            <Typography variant="body2" sx={{ color: '#cccccc' }}>
+                              {format(new Date(job.createdAt), 'MMM dd')}
+                            </Typography>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -576,7 +724,7 @@ const RecruiterDashboard = () => {
                 </TableContainer>
               ) : (
                 <Box textAlign="center" py={4}>
-                  <Typography color="textSecondary">
+                  <Typography sx={{ color: '#cccccc', fontWeight: 500 }}>
                     No jobs posted yet
                   </Typography>
                 </Box>
@@ -587,48 +735,122 @@ const RecruiterDashboard = () => {
 
         {/* Recent Applications */}
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
+          <Card sx={{
+            borderRadius: 0,
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(26, 26, 26, 0.9) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(0, 255, 136, 0.2)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">Recent Applications</Typography>
-                <Button variant="outlined" size="small">
+                <Typography variant="h6" sx={{ 
+                  color: '#00ff88', 
+                  fontWeight: 700,
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>Recent Applications</Typography>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  onClick={() => navigate('/recruiter/applications')}
+                  sx={{
+                    borderColor: '#00ff88',
+                    color: '#00ff88',
+                    borderRadius: 0,
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                      borderColor: '#00ff88',
+                      transform: 'translateY(-1px)',
+                    }
+                  }}>
                   View All
                 </Button>
               </Box>
 
               {applications.length > 0 ? (
-                <TableContainer>
+                <TableContainer sx={{ 
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  borderRadius: 0,
+                  border: '1px solid rgba(0, 255, 136, 0.2)'
+                }}>
                   <Table size="small">
                     <TableHead>
-                      <TableRow>
-                        <TableCell>Candidate</TableCell>
-                        <TableCell>Job</TableCell>
-                        <TableCell align="center">Status</TableCell>
-                        <TableCell>Applied</TableCell>
+                      <TableRow sx={{ 
+                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%)'
+                      }}>
+                        <TableCell sx={{ 
+                          fontWeight: 700, 
+                          color: '#00ff88',
+                          fontSize: '0.875rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                        }}>Candidate</TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 700, 
+                          color: '#00ff88',
+                          fontSize: '0.875rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                        }}>Job</TableCell>
+                        <TableCell align="center" sx={{ 
+                          fontWeight: 700, 
+                          color: '#00ff88',
+                          fontSize: '0.875rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                        }}>Status</TableCell>
+                        <TableCell sx={{ 
+                          fontWeight: 700, 
+                          color: '#00ff88',
+                          fontSize: '0.875rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                        }}>Applied</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {applications.map((application) => (
-                        <TableRow key={application._id}>
-                          <TableCell>
-                            <Typography variant="subtitle2">
+                        <TableRow key={application._id} sx={{
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 255, 136, 0.05)',
+                          }
+                        }}>
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                            <Typography variant="subtitle2" sx={{ color: '#ffffff', fontWeight: 600 }}>
                               {application.candidateId?.profile?.firstName} {application.candidateId?.profile?.lastName}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                            <Typography variant="body2" sx={{ color: '#cccccc' }}>
                               {application.jobId?.title}
                             </Typography>
                           </TableCell>
-                          <TableCell align="center">
+                          <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
                             <Chip
                               label={application.status}
                               color={getStatusColor(application.status)}
                               size="small"
+                              sx={{
+                                borderRadius: 0,
+                                fontWeight: 600,
+                                fontSize: '0.75rem'
+                              }}
                             />
                           </TableCell>
-                          <TableCell>
-                            {format(new Date(application.appliedAt), 'MMM dd')}
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                            <Typography variant="body2" sx={{ color: '#cccccc' }}>
+                              {format(new Date(application.appliedAt), 'MMM dd')}
+                            </Typography>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -637,7 +859,7 @@ const RecruiterDashboard = () => {
                 </TableContainer>
               ) : (
                 <Box textAlign="center" py={4}>
-                  <Typography color="textSecondary">
+                  <Typography sx={{ color: '#cccccc', fontWeight: 500 }}>
                     No applications yet
                   </Typography>
                 </Box>
@@ -654,24 +876,54 @@ const RecruiterDashboard = () => {
           <Grid item xs={12}>
             <Card
               sx={{
-                borderRadius: '16px',
-                border: '1px solid',
-                borderColor: 'grey.200',
+                borderRadius: 0,
+                background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                border: '2px solid rgba(0, 255, 136, 0.3)',
+                backdropFilter: 'blur(10px)',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+                },
+                '&:hover': {
+                  borderColor: 'rgba(0, 255, 136, 0.5)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 25px rgba(0, 255, 136, 0.2)',
+                }
               }}
             >
-              <CardContent>
+              <CardContent sx={{ position: 'relative', zIndex: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  <Typography variant="h6" sx={{ 
+                    fontWeight: 700,
+                    color: '#ffffff',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
                     📱 Post Management
                   </Typography>
                   <Button
                     variant="outlined"
                     onClick={fetchAllPosts}
                     disabled={postsLoading}
-                    startIcon={postsLoading ? <CircularProgress size={16} /> : null}
+                    startIcon={postsLoading ? <CircularProgress size={16} sx={{ color: '#00ff88' }} /> : null}
                     sx={{
+                      borderColor: '#00ff88',
+                      color: '#00ff88',
                       textTransform: 'none',
                       fontWeight: 600,
+                      borderRadius: 0,
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        borderColor: '#00ff88',
+                        transform: 'translateY(-1px)',
+                      }
                     }}
                   >
                     Refresh
@@ -680,7 +932,7 @@ const RecruiterDashboard = () => {
 
                 {postsLoading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                    <CircularProgress />
+                    <CircularProgress sx={{ color: '#00ff88' }} />
                   </Box>
                 ) : posts.length > 0 ? (
                   <Stack spacing={3}>
@@ -703,15 +955,17 @@ const RecruiterDashboard = () => {
                         <Paper 
                           elevation={4}
                           sx={{ 
-                            borderRadius: 0, // Square edges
+                            borderRadius: 0,
                             overflow: 'hidden',
-                            background: 'white',
-                            border: '1px solid rgba(0, 0, 0, 0.12)',
+                            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(26, 26, 26, 0.4) 100%)',
+                            border: '1px solid rgba(0, 255, 136, 0.2)',
+                            backdropFilter: 'blur(5px)',
                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                             position: 'relative',
                             '&:hover': {
-                              boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
-                              borderColor: 'rgba(0, 0, 0, 0.2)'
+                              boxShadow: '0 8px 25px rgba(0, 255, 136, 0.3)',
+                              borderColor: '#00ff88',
+                              background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(26, 26, 26, 0.6) 100%)',
                             }
                           }}
                         >
@@ -726,8 +980,8 @@ const RecruiterDashboard = () => {
                                     width: 12,
                                     height: 12,
                                     borderRadius: '50%',
-                                    backgroundColor: '#4caf50',
-                                    border: '2px solid white'
+                                    backgroundColor: '#00ff88',
+                                    border: '2px solid #000000'
                                   }} />
                                 }
                               >
@@ -737,9 +991,11 @@ const RecruiterDashboard = () => {
                                     width: 50,
                                     height: 50,
                                     mr: 2,
-                                    borderRadius: 1, // Slightly rounded square
-                                    border: '2px solid #e5e7eb',
-                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                                    borderRadius: 0,
+                                    border: '2px solid #00ff88',
+                                    boxShadow: '0 2px 8px rgba(0, 255, 136, 0.3)',
+                                    backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                                    color: '#00ff88'
                                   }}
                                 >
                                   {post.author?.profile?.firstName?.charAt(0) || 'U'}
@@ -750,7 +1006,7 @@ const RecruiterDashboard = () => {
                                   variant="subtitle1" 
                                   sx={{ 
                                     fontWeight: 700,
-                                    color: '#2c3e50',
+                                    color: '#ffffff',
                                     fontSize: '1.1rem'
                                   }}
                                 >
@@ -758,26 +1014,25 @@ const RecruiterDashboard = () => {
                                 </Typography>
                                 <Typography 
                                   variant="body2" 
-                                  color="text.secondary"
                                   sx={{ 
                                     fontWeight: 500,
-                                    fontSize: '0.875rem'
+                                    fontSize: '0.875rem',
+                                    color: '#cccccc'
                                   }}
                                 >
                                   {post.author?.profile?.headline || (post.author?.role === 'admin' ? 'Recruiter' : post.author?.role)}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                                  <Visibility sx={{ fontSize: 14, mr: 0.5, color: '#94a3b8' }} />
+                                  <Visibility sx={{ fontSize: 14, mr: 0.5, color: '#00ff88' }} />
                                   <Typography 
                                     variant="caption" 
-                                    color="text.secondary"
-                                    sx={{ fontSize: '0.75rem' }}
+                                    sx={{ fontSize: '0.75rem', color: '#cccccc' }}
                                   >
                                     {formatTimeAgo(post.createdAt)}
                                   </Typography>
                                   {post.visibility === 'public' && (
                                     <Tooltip title="Public post">
-                                      <Public sx={{ fontSize: 14, ml: 1, color: '#94a3b8' }} />
+                                      <Public sx={{ fontSize: 14, ml: 1, color: '#00ff88' }} />
                                     </Tooltip>
                                   )}
                                 </Box>
@@ -809,7 +1064,7 @@ const RecruiterDashboard = () => {
                                 mb: 2.5,
                                 lineHeight: 1.6,
                                 fontSize: '1rem',
-                                color: '#374151',
+                                color: '#ffffff',
                                 whiteSpace: 'pre-wrap' // Preserve line breaks and formatting
                               }}
                             >
@@ -823,11 +1078,12 @@ const RecruiterDashboard = () => {
                                 size="small"
                                 sx={{ 
                                   mb: 2,
-                                  background: '#1976d2',
-                                  color: 'white',
+                                  background: 'rgba(0, 255, 136, 0.2)',
+                                  color: '#00ff88',
+                                  border: '1px solid #00ff88',
                                   fontWeight: 600,
                                   fontSize: '0.75rem',
-                                  borderRadius: 0 // Square edges
+                                  borderRadius: 0
                                 }}
                               />
                             )}
@@ -976,6 +1232,7 @@ const RecruiterDashboard = () => {
           </Grid>
         </Grid>
         )}
+      </Box>
 
       {/* Action Menu for Posts */}
       <Menu
@@ -1019,10 +1276,35 @@ const RecruiterDashboard = () => {
       </Menu>
 
       {/* Create Job Dialog */}
-      <Dialog open={createJobDialog} onClose={() => setCreateJobDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Post New Job</DialogTitle>
+      <Dialog 
+        open={createJobDialog} 
+        onClose={() => setCreateJobDialog(false)} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 0,
+            background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%)',
+            border: '2px solid rgba(0, 255, 136, 0.3)',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 0 30px rgba(0, 255, 136, 0.2)'
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          color: '#ffffff',
+          textAlign: 'center',
+          fontWeight: 700,
+          fontSize: '1.5rem',
+          borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
+          background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%)'
+        }}>Post New Job</DialogTitle>
         <form onSubmit={handleSubmit(handleCreateJob)}>
-          <DialogContent>
+          <DialogContent sx={{ 
+            background: 'transparent',
+            color: '#ffffff',
+            pt: 3
+          }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -1031,6 +1313,31 @@ const RecruiterDashboard = () => {
                   label="Job Title"
                   error={!!errors.title}
                   helperText={errors.title?.message}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      color: '#ffffff',
+                      '& fieldset': {
+                        borderColor: 'rgba(0, 255, 136, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#cccccc',
+                      '&.Mui-focused': {
+                        color: '#00ff88',
+                      },
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#ff6b6b',
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -1040,6 +1347,31 @@ const RecruiterDashboard = () => {
                   label="Company"
                   error={!!errors.company}
                   helperText={errors.company?.message}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      color: '#ffffff',
+                      '& fieldset': {
+                        borderColor: 'rgba(0, 255, 136, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#cccccc',
+                      '&.Mui-focused': {
+                        color: '#00ff88',
+                      },
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#ff6b6b',
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -1049,15 +1381,85 @@ const RecruiterDashboard = () => {
                   label="Location"
                   error={!!errors.location}
                   helperText={errors.location?.message}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      color: '#ffffff',
+                      '& fieldset': {
+                        borderColor: 'rgba(0, 255, 136, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#cccccc',
+                      '&.Mui-focused': {
+                        color: '#00ff88',
+                      },
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#ff6b6b',
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    color: '#ffffff',
+                    '& fieldset': {
+                      borderColor: 'rgba(0, 255, 136, 0.3)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#00ff88',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#00ff88',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#cccccc',
+                    '&.Mui-focused': {
+                      color: '#00ff88',
+                    },
+                  },
+                  '& .MuiSelect-icon': {
+                    color: '#00ff88',
+                  },
+                }}>
                   <InputLabel>Job Type</InputLabel>
                   <Select
                     {...register('jobType', { required: 'Job type is required' })}
                     label="Job Type"
                     defaultValue="full-time"
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          borderRadius: 0,
+                          backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                          border: '1px solid rgba(0, 255, 136, 0.3)',
+                          '& .MuiMenuItem-root': {
+                            color: '#ffffff',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                            },
+                            '&.Mui-selected': {
+                              backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 255, 136, 0.3)',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    }}
                   >
                     <MenuItem value="full-time">Full Time</MenuItem>
                     <MenuItem value="part-time">Part Time</MenuItem>
@@ -1067,12 +1469,57 @@ const RecruiterDashboard = () => {
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    color: '#ffffff',
+                    '& fieldset': {
+                      borderColor: 'rgba(0, 255, 136, 0.3)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#00ff88',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#00ff88',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#cccccc',
+                    '&.Mui-focused': {
+                      color: '#00ff88',
+                    },
+                  },
+                  '& .MuiSelect-icon': {
+                    color: '#00ff88',
+                  },
+                }}>
                   <InputLabel>Experience Level</InputLabel>
                   <Select
                     {...register('experienceLevel', { required: 'Experience level is required' })}
                     label="Experience Level"
                     defaultValue="mid"
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          borderRadius: 0,
+                          backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                          border: '1px solid rgba(0, 255, 136, 0.3)',
+                          '& .MuiMenuItem-root': {
+                            color: '#ffffff',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                            },
+                            '&.Mui-selected': {
+                              backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 255, 136, 0.3)',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    }}
                   >
                     <MenuItem value="entry">Entry Level</MenuItem>
                     <MenuItem value="mid">Mid Level</MenuItem>
@@ -1083,13 +1530,49 @@ const RecruiterDashboard = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  {...register('applicationDeadline', { required: 'Application deadline is required' })}
+                  {...register('applicationDeadline', { 
+                    required: 'Application deadline is required',
+                    validate: (value) => {
+                      const selectedDate = new Date(value);
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      return selectedDate >= today || 'Application deadline cannot be in the past';
+                    }
+                  })}
                   fullWidth
                   label="Application Deadline"
                   type="date"
                   InputLabelProps={{ shrink: true }}
+                  inputProps={{ 
+                    min: new Date().toISOString().split('T')[0] 
+                  }}
                   error={!!errors.applicationDeadline}
                   helperText={errors.applicationDeadline?.message}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      color: '#ffffff',
+                      '& fieldset': {
+                        borderColor: 'rgba(0, 255, 136, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#cccccc',
+                      '&.Mui-focused': {
+                        color: '#00ff88',
+                      },
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#ff6b6b',
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -1098,6 +1581,28 @@ const RecruiterDashboard = () => {
                   fullWidth
                   label="Min Salary"
                   type="number"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      color: '#ffffff',
+                      '& fieldset': {
+                        borderColor: 'rgba(0, 255, 136, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#cccccc',
+                      '&.Mui-focused': {
+                        color: '#00ff88',
+                      },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -1106,19 +1611,83 @@ const RecruiterDashboard = () => {
                   fullWidth
                   label="Max Salary"
                   type="number"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      color: '#ffffff',
+                      '& fieldset': {
+                        borderColor: 'rgba(0, 255, 136, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#cccccc',
+                      '&.Mui-focused': {
+                        color: '#00ff88',
+                      },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    color: '#ffffff',
+                    '& fieldset': {
+                      borderColor: 'rgba(0, 255, 136, 0.3)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#00ff88',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#00ff88',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#cccccc',
+                    '&.Mui-focused': {
+                      color: '#00ff88',
+                    },
+                  },
+                  '& .MuiSelect-icon': {
+                    color: '#00ff88',
+                  },
+                }}>
                   <InputLabel>Currency</InputLabel>
                   <Select
                     {...register('currency')}
                     label="Currency"
-                    defaultValue="USD"
+                    defaultValue="INR"
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          borderRadius: 0,
+                          backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                          border: '1px solid rgba(0, 255, 136, 0.3)',
+                          '& .MuiMenuItem-root': {
+                            color: '#ffffff',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                            },
+                            '&.Mui-selected': {
+                              backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 255, 136, 0.3)',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    }}
                   >
-                    <MenuItem value="USD">USD</MenuItem>
-                    <MenuItem value="EUR">EUR</MenuItem>
-                    <MenuItem value="GBP">GBP</MenuItem>
                     <MenuItem value="INR">INR</MenuItem>
                   </Select>
                 </FormControl>
@@ -1132,6 +1701,31 @@ const RecruiterDashboard = () => {
                   rows={4}
                   error={!!errors.description}
                   helperText={errors.description?.message}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      color: '#ffffff',
+                      '& fieldset': {
+                        borderColor: 'rgba(0, 255, 136, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#cccccc',
+                      '&.Mui-focused': {
+                        color: '#00ff88',
+                      },
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#ff6b6b',
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -1142,6 +1736,30 @@ const RecruiterDashboard = () => {
                   multiline
                   rows={3}
                   helperText="Enter each requirement on a new line"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      '& fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#00ff88',
+                    },
+                    '& .MuiInputBase-input': {
+                      color: 'white',
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#888',
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -1150,13 +1768,60 @@ const RecruiterDashboard = () => {
                   fullWidth
                   label="Required Skills"
                   helperText="Separate skills with commas"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      '& fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff88',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#00ff88',
+                    },
+                    '& .MuiInputBase-input': {
+                      color: 'white',
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: '#888',
+                    },
+                  }}
                 />
               </Grid>
             </Grid>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setCreateJobDialog(false)}>Cancel</Button>
-            <Button type="submit" variant="contained">
+          <DialogActions sx={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', borderTop: '1px solid #00ff88' }}>
+            <Button 
+              onClick={() => setCreateJobDialog(false)}
+              sx={{
+                color: '#ff6b6b',
+                borderRadius: 0,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              variant="contained"
+              sx={{
+                backgroundColor: '#00ff88',
+                color: 'black',
+                borderRadius: 0,
+                fontWeight: 'bold',
+                '&:hover': {
+                  backgroundColor: '#00cc6a',
+                },
+              }}
+            >
               Post Job
             </Button>
           </DialogActions>

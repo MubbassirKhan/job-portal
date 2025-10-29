@@ -64,6 +64,7 @@ class SocketService {
 
       // Join user to their personal room for notifications
       socket.join(`user:${socket.userId}`);
+      console.log(`User ${socket.userId} joined notification room: user:${socket.userId}`);
 
       // Handle user events
       this.handleUserEvents(socket);
@@ -84,6 +85,13 @@ class SocketService {
   }
 
   handleUserEvents(socket) {
+    // Handle user join event (ensure user is in their notification room)
+    socket.on('user:join', (userId) => {
+      console.log(`User ${socket.userId} explicitly joining notification room`);
+      socket.join(`user:${socket.userId}`);
+      socket.emit('user:joined', { success: true });
+    });
+
     // User typing indicator (global)
     socket.on('user:typing', (data) => {
       socket.broadcast.emit('user:typing', {
@@ -155,23 +163,30 @@ class SocketService {
         // Send to all chat participants
         this.io.to(`chat:${chatId}`).emit('chat:new_message', message);
 
-        // Send notifications to offline users
-        const offlineParticipants = chat.participants.filter(participantId => 
-          participantId.toString() !== socket.userId && 
-          !this.connectedUsers.has(participantId.toString())
+        // Send notifications to all other participants (both online and offline)
+        const otherParticipants = chat.participants.filter(participantId => 
+          participantId.toString() !== socket.userId
         );
 
-        for (const participantId of offlineParticipants) {
-          await this.createNotification({
-            recipient: participantId,
-            sender: socket.userId,
-            type: 'message_received',
-            title: 'New Message',
-            message: `${socket.user.profile.firstName} sent you a message`,
-            sourceId: chatId,
-            sourceModel: 'Chat',
-            actionUrl: `/chat?chatId=${chatId}`
-          });
+        console.log(`Creating message notifications for ${otherParticipants.length} participants`);
+
+        for (const participantId of otherParticipants) {
+          console.log(`Creating notification for participant: ${participantId}`);
+          try {
+            const notification = await this.createNotification({
+              recipient: participantId,
+              sender: socket.userId,
+              type: 'message_received',
+              title: 'New Message',
+              message: `${socket.user.profile.firstName} sent you a message`,
+              sourceId: chatId,
+              sourceModel: 'Chat',
+              actionUrl: `/messages?chatId=${chatId}`
+            });
+            console.log(`Notification created successfully:`, notification._id);
+          } catch (error) {
+            console.error(`Error creating notification for ${participantId}:`, error);
+          }
         }
 
       } catch (error) {
@@ -277,9 +292,16 @@ class SocketService {
 
   async createNotification(data) {
     try {
+      console.log('Creating notification with data:', data);
       const notification = await Notification.createNotification(data);
+      console.log('Notification created, now populating...');
+      
+      // Populate sender information for real-time notification
+      await notification.populate('sender', 'profile.firstName profile.lastName profile.profileImage role');
+      console.log('Populated notification:', notification);
       
       // Send real-time notification
+      console.log(`Sending notification to user:${data.recipient}`);
       this.io.to(`user:${data.recipient}`).emit('notification:new', notification);
       
       return notification;

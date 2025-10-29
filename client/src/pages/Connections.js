@@ -238,72 +238,116 @@ const Connections = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, boxShadow: '0 8px 25px rgba(0,0,0,0.15)' }}
-      transition={{ duration: 0.3 }}
+      whileHover={{ 
+        y: -8, 
+        boxShadow: '0 12px 40px rgba(0, 255, 136, 0.2)',
+        borderColor: '#00ff88' 
+      }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <Card 
         sx={{ 
           mb: 3, 
-          borderRadius: 3, 
+          borderRadius: 0, 
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-          border: '1px solid rgba(0,0,0,0.08)',
+          background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+          border: '2px solid rgba(0, 255, 136, 0.3)',
+          backdropFilter: 'blur(10px)',
+          cursor: 'pointer',
           '&:hover': {
-            borderColor: 'primary.main',
-            transform: 'translateY(-2px)',
-            transition: 'all 0.3s ease'
+            borderColor: '#00ff88',
+            transform: 'translateY(-4px)',
+            boxShadow: '0 12px 40px rgba(0, 255, 136, 0.2)',
+            transition: 'all 0.4s ease'
+          },
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '3px',
+            background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
           }
         }}
       >
-        <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
-            {/* Profile Image with Status Indicator */}
-            <Box sx={{ position: 'relative' }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 }, position: 'relative' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: { xs: 'center', sm: 'flex-start' }, 
+            gap: { xs: 1.5, sm: 2, md: 3 },
+            flexDirection: { xs: 'column', sm: 'row' },
+            textAlign: { xs: 'center', sm: 'left' }
+          }}>
+            {/* Professional Dark Profile Image with Status */}
+            <Box sx={{ 
+              position: 'relative',
+              alignSelf: { xs: 'center', sm: 'flex-start' }
+            }}>
               <Avatar
                 src={user.profile.profileImage}
                 sx={{ 
-                  width: 80, 
-                  height: 80,
-                  border: '3px solid',
-                  borderColor: 'primary.main',
-                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)'
+                  width: { xs: 60, sm: 70, md: 80 }, 
+                  height: { xs: 60, sm: 70, md: 80 },
+                  border: '3px solid #00ff88',
+                  boxShadow: '0 8px 24px rgba(0, 255, 136, 0.3)',
+                  background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 12px 32px rgba(0, 255, 136, 0.4)'
+                  },
+                  transition: 'all 0.3s ease'
                 }}
               >
-                <Typography variant="h4" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: '#000000', fontSize: '2rem' }}>
                   {user.profile.firstName.charAt(0)}
                 </Typography>
               </Avatar>
-              {/* Online status indicator */}
+              {/* Professional Online Status */}
               <Box
                 sx={{
                   position: 'absolute',
                   bottom: 4,
                   right: 4,
-                  width: 16,
-                  height: 16,
-                  borderRadius: '50%',
-                  backgroundColor: '#10b981',
-                  border: '3px solid white',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  width: 18,
+                  height: 18,
+                  borderRadius: 0,
+                  backgroundColor: '#00ff88',
+                  border: '2px solid #000000',
+                  boxShadow: '0 0 10px rgba(0, 255, 136, 0.6)',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: 0,
+                    backgroundColor: '#000000',
+                  }
                 }}
               />
             </Box>
             
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              {/* Name and Title */}
+              {/* Professional Dark Name and Title */}
               <Box sx={{ mb: 2 }}>
                 <Typography 
                   variant="h6" 
                   sx={{ 
                     fontWeight: 700, 
                     mb: 0.5,
-                    background: 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
+                    color: '#ffffff',
                     cursor: 'pointer',
+                    textTransform: 'uppercase',
+                    letterSpacing: { xs: '0.3px', sm: '0.5px' },
+                    fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                    textAlign: { xs: 'center', sm: 'left' },
                     '&:hover': {
-                      textDecoration: 'underline'
+                      color: '#00ff88',
+                      transform: 'translateX(4px)',
+                      transition: 'all 0.3s ease'
                     }
                   }}
                   onClick={() => openUserProfile(user)}
@@ -315,10 +359,11 @@ const Connections = () => {
                   <Typography 
                     variant="body1" 
                     sx={{ 
-                      color: 'text.secondary', 
+                      color: 'rgba(255, 255, 255, 0.8)', 
                       fontWeight: 500,
                       mb: 1,
-                      lineHeight: 1.4
+                      lineHeight: 1.4,
+                      fontSize: '0.95rem'
                     }}
                   >
                     {user.profile.headline}
@@ -326,19 +371,39 @@ const Connections = () => {
                 )}
               </Box>
               
-              {/* Company and Location Info */}
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+              {/* Professional Dark Company and Location Info */}
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: { xs: 1, sm: 2 }, 
+                mb: 2,
+                justifyContent: { xs: 'center', sm: 'flex-start' }
+              }}>
                 {user.profile.company && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 1,
+                    p: 1,
+                    borderRadius: 0,
+                    background: 'rgba(0, 255, 136, 0.1)',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    '&:hover': {
+                      background: 'rgba(0, 255, 136, 0.2)',
+                      borderColor: '#00ff88'
+                    },
+                    transition: 'all 0.3s ease'
+                  }}>
                     <BusinessCenter 
                       fontSize="small" 
-                      sx={{ color: 'primary.main' }}
+                      sx={{ color: '#00ff88' }}
                     />
                     <Typography 
                       variant="body2" 
                       sx={{ 
-                        color: 'text.primary',
-                        fontWeight: 500
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        fontWeight: 600,
+                        fontSize: '0.8rem'
                       }}
                     >
                       {user.profile.company}
@@ -347,16 +412,30 @@ const Connections = () => {
                 )}
                 
                 {user.profile.location && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 1,
+                    p: 1,
+                    borderRadius: 0,
+                    background: 'rgba(0, 255, 136, 0.1)',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    '&:hover': {
+                      background: 'rgba(0, 255, 136, 0.2)',
+                      borderColor: '#00ff88'
+                    },
+                    transition: 'all 0.3s ease'
+                  }}>
                     <LocationOn 
                       fontSize="small" 
-                      sx={{ color: 'secondary.main' }}
+                      sx={{ color: '#22c55e' }}
                     />
                     <Typography 
                       variant="body2" 
                       sx={{ 
-                        color: 'text.primary',
-                        fontWeight: 500
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        fontWeight: 600,
+                        fontSize: '0.8rem'
                       }}
                     >
                       {user.profile.location}
@@ -365,33 +444,44 @@ const Connections = () => {
                 )}
               </Box>
               
-              {/* Tags and Connection Count */}
+              {/* Professional Dark Tags and Stats */}
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
                 <Chip 
                   label={user.role === 'admin' ? 'Recruiter' : user.role} 
                   size="small" 
                   sx={{
-                    backgroundColor: (user.role === 'recruiter' || user.role === 'admin') ? 'primary.main' : 'secondary.main',
-                    color: 'white',
-                    fontWeight: 600,
-                    textTransform: 'capitalize',
+                    backgroundColor: (user.role === 'recruiter' || user.role === 'admin') ? '#00ff88' : '#22c55e',
+                    color: '#000000',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderRadius: 0,
+                    fontSize: '0.7rem',
                     '&:hover': {
-                      backgroundColor: (user.role === 'recruiter' || user.role === 'admin') ? 'primary.dark' : 'secondary.dark',
-                    }
+                      backgroundColor: (user.role === 'recruiter' || user.role === 'admin') ? '#22c55e' : '#16a34a',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 12px rgba(0, 255, 136, 0.3)'
+                    },
+                    transition: 'all 0.3s ease'
                   }}
                 />
                 {user.connectionCount && (
                   <Chip 
                     label={`${user.connectionCount} connections`} 
                     size="small" 
-                    variant="outlined"
                     sx={{
-                      borderColor: 'divider',
-                      color: 'text.secondary',
-                      fontWeight: 500,
+                      borderRadius: 0,
+                      background: 'rgba(0, 255, 136, 0.1)',
+                      border: '1px solid rgba(0, 255, 136, 0.3)',
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      fontWeight: 600,
+                      fontSize: '0.7rem',
                       '&:hover': {
-                        backgroundColor: 'action.hover',
-                      }
+                        backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                        borderColor: '#00ff88',
+                        transform: 'translateY(-1px)'
+                      },
+                      transition: 'all 0.3s ease'
                     }}
                   />
                 )}
@@ -399,63 +489,86 @@ const Connections = () => {
                   <Chip 
                     label={`${user.profile.skills.length} skills`} 
                     size="small" 
-                    variant="outlined"
                     sx={{
-                      borderColor: 'success.main',
-                      color: 'success.main',
-                      fontWeight: 500,
+                      borderRadius: 0,
+                      background: 'rgba(34, 197, 94, 0.1)',
+                      border: '1px solid rgba(34, 197, 94, 0.3)',
+                      color: '#22c55e',
+                      fontWeight: 600,
+                      fontSize: '0.7rem',
                       '&:hover': {
-                        backgroundColor: 'success.light',
-                        color: 'success.dark'
-                      }
+                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                        borderColor: '#22c55e',
+                        color: '#16a34a',
+                        transform: 'translateY(-1px)'
+                      },
+                      transition: 'all 0.3s ease'
                     }}
                   />
                 )}
               </Box>
               
-              {/* Action Buttons */}
+              {/* Professional Dark Action Buttons */}
               {showActions && (
-                <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: { xs: 1, sm: 1.5 },
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  width: { xs: '100%', sm: 'auto' },
+                  mt: { xs: 2, sm: 0 }
+                }}>
                   {isRequest ? (
                     <>
                       <Button
-                        size="medium"
+                        size="small"
                         variant="contained"
                         startIcon={<Check />}
                         onClick={() => handleAcceptRequest(requestId)}
                         sx={{ 
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          borderRadius: 2,
-                          px: 3,
-                          py: 1,
-                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          textTransform: 'uppercase',
+                          fontWeight: 700,
+                          borderRadius: 0,
+                          px: { xs: 2, sm: 3 },
+                          py: { xs: 0.5, sm: 1 },
+                          fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                          letterSpacing: { xs: '0.3px', sm: '0.5px' },
+                          width: { xs: '100%', sm: 'auto' },
+                          background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                          color: '#000000',
                           '&:hover': {
-                            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
-                          }
+                            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                            transform: 'translateY(-2px) scale(1.02)',
+                            boxShadow: '0 8px 24px rgba(0, 255, 136, 0.4)'
+                          },
+                          transition: 'all 0.3s ease'
                         }}
                       >
                         Accept
                       </Button>
                       <Button
-                        size="medium"
+                        size="small"
                         variant="outlined"
                         startIcon={<Close />}
                         onClick={() => handleDeclineRequest(requestId)}
                         sx={{ 
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          borderRadius: 2,
-                          px: 3,
-                          py: 1,
+                          textTransform: 'uppercase',
+                          fontWeight: 700,
+                          borderRadius: 0,
+                          px: { xs: 2, sm: 3 },
+                          py: { xs: 0.5, sm: 1 },
+                          fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                          letterSpacing: { xs: '0.3px', sm: '0.5px' },
+                          width: { xs: '100%', sm: 'auto' },
                           borderWidth: 2,
+                          borderColor: '#ef4444',
+                          color: '#ef4444',
                           '&:hover': {
                             borderWidth: 2,
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)'
-                          }
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            transform: 'translateY(-2px) scale(1.02)',
+                            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
+                          },
+                          transition: 'all 0.3s ease'
                         }}
                       >
                         Decline
@@ -464,44 +577,58 @@ const Connections = () => {
                   ) : activeTab === 0 ? (
                     <>
                       <Button
-                        size="medium"
+                        size="small"
                         variant="outlined"
                         startIcon={<Visibility />}
                         onClick={() => openUserProfile(user)}
                         sx={{ 
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          borderRadius: 2,
-                          px: 3,
-                          py: 1,
+                          textTransform: 'uppercase',
+                          fontWeight: 700,
+                          borderRadius: 0,
+                          px: { xs: 2, sm: 3 },
+                          py: { xs: 0.5, sm: 1 },
+                          fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                          letterSpacing: { xs: '0.3px', sm: '0.5px' },
+                          width: { xs: '100%', sm: 'auto' },
                           borderWidth: 2,
+                          borderColor: '#00ff88',
+                          color: '#00ff88',
                           '&:hover': {
                             borderWidth: 2,
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)'
-                          }
+                            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                            transform: 'translateY(-2px) scale(1.02)',
+                            boxShadow: '0 8px 24px rgba(0, 255, 136, 0.3)'
+                          },
+                          transition: 'all 0.3s ease'
                         }}
                       >
                         View Profile
                       </Button>
                       <Button
-                        size="medium"
+                        size="small"
                         variant="outlined"
                         color="error"
                         startIcon={<PersonRemove />}
                         onClick={() => handleRemoveConnection(connectionId || user._id)}
                         sx={{ 
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          borderRadius: 2,
-                          px: 3,
-                          py: 1,
+                          textTransform: 'uppercase',
+                          fontWeight: 700,
+                          borderRadius: 0,
+                          px: { xs: 2, sm: 3 },
+                          py: { xs: 0.5, sm: 1 },
+                          fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                          letterSpacing: { xs: '0.3px', sm: '0.5px' },
+                          width: { xs: '100%', sm: 'auto' },
                           borderWidth: 2,
+                          borderColor: '#ef4444',
+                          color: '#ef4444',
                           '&:hover': {
                             borderWidth: 2,
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)'
-                          }
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            transform: 'translateY(-2px) scale(1.02)',
+                            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
+                          },
+                          transition: 'all 0.3s ease'
                         }}
                       >
                         Remove
@@ -509,40 +636,44 @@ const Connections = () => {
                     </>
                   ) : (
                     <Button
-                      size="medium"
+                      size="small"
                       variant={sentRequests.has(user._id) ? "outlined" : "contained"}
                       startIcon={sentRequests.has(user._id) ? <Send /> : <PersonAdd />}
                       onClick={sentRequests.has(user._id) ? undefined : () => handleSendRequest(user._id)}
                       disabled={sentRequests.has(user._id)}
                       sx={{ 
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        px: 3,
-                        py: 1,
+                        textTransform: 'uppercase',
+                        fontWeight: 700,
+                        borderRadius: 0,
+                        px: { xs: 2, sm: 3 },
+                        py: { xs: 0.5, sm: 1 },
+                        fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                        letterSpacing: { xs: '0.3px', sm: '0.5px' },
+                        width: { xs: '100%', sm: 'auto' },
                         background: sentRequests.has(user._id) 
                           ? 'transparent' 
-                          : 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
-                        borderColor: sentRequests.has(user._id) ? 'success.main' : 'transparent',
-                        color: sentRequests.has(user._id) ? 'success.main' : 'white',
+                          : 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                        borderColor: sentRequests.has(user._id) ? '#22c55e' : 'transparent',
+                        color: sentRequests.has(user._id) ? '#22c55e' : '#000000',
                         borderWidth: sentRequests.has(user._id) ? 2 : 0,
                         '&:hover': {
                           background: sentRequests.has(user._id) 
-                            ? 'success.light' 
-                            : 'linear-gradient(135deg, #4338ca 0%, #3730a3 100%)',
-                          transform: sentRequests.has(user._id) ? 'none' : 'translateY(-1px)',
+                            ? 'rgba(34, 197, 94, 0.1)' 
+                            : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                          transform: sentRequests.has(user._id) ? 'none' : 'translateY(-2px) scale(1.02)',
                           boxShadow: sentRequests.has(user._id) 
-                            ? 'none' 
-                            : '0 4px 12px rgba(99, 102, 241, 0.4)',
+                            ? '0 4px 12px rgba(34, 197, 94, 0.2)' 
+                            : '0 8px 24px rgba(0, 255, 136, 0.4)',
                           borderWidth: sentRequests.has(user._id) ? 2 : 0,
-                          color: sentRequests.has(user._id) ? 'success.dark' : 'white',
+                          color: sentRequests.has(user._id) ? '#16a34a' : '#000000',
                         },
                         '&.Mui-disabled': {
                           backgroundColor: 'transparent',
-                          color: 'success.main',
-                          borderColor: 'success.main',
+                          color: '#22c55e',
+                          borderColor: '#22c55e',
                           opacity: 0.8
-                        }
+                        },
+                        transition: 'all 0.3s ease'
                       }}
                     >
                       {sentRequests.has(user._id) ? 'Sent' : 'Connect'}
@@ -558,195 +689,332 @@ const Connections = () => {
   );
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Professional Header Section */}
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ 
-          background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
-          borderRadius: 4,
-          p: 4,
-          color: 'white',
-          position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(255,255,255,0.1)',
-            backdropFilter: 'blur(10px)',
-          }
-        }}>
-          <Box sx={{ position: 'relative', zIndex: 1 }}>
-            <Typography 
-              variant="h3" 
-              sx={{ 
-                fontWeight: 800, 
-                mb: 1,
-                background: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              My Professional Network
-            </Typography>
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                fontWeight: 400,
-                opacity: 0.9,
-                maxWidth: '600px'
-              }}
-            >
-              Build meaningful connections with professionals worldwide. Grow your network and discover new opportunities.
-            </Typography>
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+      pt: { xs: 10, sm: 12 },
+      pb: 4, 
+      px: { xs: 1, sm: 2, md: 4 }
+    }}>
+      <Container maxWidth="xl">
+        {/* Professional Dark Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ 
+              background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(26, 26, 26, 0.8) 100%)',
+              borderRadius: 0,
+              p: { xs: 2, sm: 3, md: 4 },
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              border: '2px solid rgba(0, 255, 136, 0.4)',
+              backdropFilter: 'blur(20px)',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0, 255, 136, 0.05)',
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '4px',
+                background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+              }
+            }}>
+              <Box sx={{ position: 'relative', zIndex: 1 }}>
+                <Typography 
+                  variant="h3" 
+                  sx={{ 
+                    fontWeight: 800, 
+                    mb: 1,
+                    color: '#ffffff',
+                    textTransform: 'uppercase',
+                    letterSpacing: { xs: '1px', md: '2px' },
+                    fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem', lg: '3rem' }
+                  }}
+                >
+                  Professional <span style={{ color: '#00ff88' }}>Network</span>
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    fontWeight: 400,
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    maxWidth: { xs: '100%', sm: '500px', md: '600px' },
+                    letterSpacing: '0.5px',
+                    fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                  }}
+                >
+                  Build meaningful connections with professionals worldwide. Grow your network and discover new opportunities.
+                </Typography>
+              </Box>
+            </Box>
           </Box>
-        </Box>
-      </Box>
+        </motion.div>
 
-      {/* Enhanced Search Bar */}
-      <Card sx={{ 
-        mb: 4, 
-        borderRadius: 3,
-        border: '1px solid rgba(0,0,0,0.08)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-      }}>
-        <CardContent sx={{ p: 3 }}>
-          <TextField
-            fullWidth
-            placeholder="Search professionals by name, company, skills, or location..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search sx={{ color: 'primary.main', fontSize: 24 }} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ 
-              borderRadius: 3,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 3,
-                backgroundColor: 'rgba(99, 102, 241, 0.04)',
-                '&:hover': {
-                  backgroundColor: 'rgba(99, 102, 241, 0.08)',
+        {/* Professional Dark Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Card sx={{ 
+            mb: 4, 
+            borderRadius: 0,
+            background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+            border: '2px solid rgba(0, 255, 136, 0.3)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0, 255, 136, 0.1)'
+          }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <TextField
+                fullWidth
+                placeholder="Search professionals..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search sx={{ color: '#00ff88', fontSize: 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 0,
+                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                    color: '#ffffff',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 255, 136, 0.15)',
+                      borderColor: 'rgba(0, 255, 136, 0.5)',
+                    },
+                    '&.Mui-focused': {
+                      backgroundColor: 'rgba(0, 255, 136, 0.15)',
+                      borderColor: '#00ff88',
+                      boxShadow: '0 0 0 2px rgba(0, 255, 136, 0.2)'
+                    },
+                    '& fieldset': {
+                      border: 'none',
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: '#ffffff',
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    padding: { xs: '12px 14px', sm: '16px 14px' },
+                    '&::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.6)',
+                      opacity: 1
+                    }
+                  }
+                }}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Professional Dark Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <Paper sx={{ 
+            mb: 4, 
+            borderRadius: 0,
+            overflow: 'hidden',
+            background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+            border: '2px solid rgba(0, 255, 136, 0.3)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0, 255, 136, 0.1)'
+          }}>
+            <Tabs
+              value={activeTab}
+              onChange={(e, newValue) => setActiveTab(newValue)}
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
+              sx={{
+                '& .MuiTab-root': {
+                  textTransform: 'uppercase',
+                  fontWeight: 700,
+                  fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' },
+                  py: { xs: 1.5, sm: 2, md: 2.5 },
+                  px: { xs: 1, sm: 2 },
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  letterSpacing: { xs: '0.3px', sm: '0.5px' },
+                  border: '1px solid rgba(0, 255, 136, 0.2)',
+                  borderBottom: 'none',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                    color: '#ffffff',
+                    borderColor: 'rgba(0, 255, 136, 0.4)',
+                  },
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                    color: '#000000',
+                    borderColor: '#00ff88',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                    }
+                  }
                 },
-                '&.Mui-focused': {
-                  backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                '& .MuiTabs-indicator': {
+                  display: 'none'
                 }
-              }
-            }}
-          />
-        </CardContent>
-      </Card>
+              }}
+            >
+              <Tab 
+                label={
+                  <Typography variant="body1" sx={{ 
+                    fontWeight: 'inherit', 
+                    letterSpacing: 'inherit',
+                    fontSize: { xs: '0.65rem', sm: '0.8rem', md: '0.9rem' }
+                  }}>
+                    {/* Mobile: shorter text, Desktop: full text */}
+                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>My Connections</Box>
+                    <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>Connected</Box>
+                  </Typography>
+                }
+              />
+              <Tab 
+                label={
+                  <Typography variant="body1" sx={{ 
+                    fontWeight: 'inherit', 
+                    letterSpacing: 'inherit',
+                    fontSize: { xs: '0.65rem', sm: '0.8rem', md: '0.9rem' }
+                  }}>
+                    Requests
+                  </Typography>
+                }
+              />
+              <Tab 
+                label={
+                  <Typography variant="body1" sx={{ 
+                    fontWeight: 'inherit', 
+                    letterSpacing: 'inherit',
+                    fontSize: { xs: '0.65rem', sm: '0.8rem', md: '0.9rem' }
+                  }}>
+                    Suggestions
+                  </Typography>
+                }
+              />
+              <Tab 
+                label={
+                  <Typography variant="body1" sx={{ 
+                    fontWeight: 'inherit', 
+                    letterSpacing: 'inherit',
+                    fontSize: { xs: '0.65rem', sm: '0.8rem', md: '0.9rem' }
+                  }}>
+                    Discover
+                  </Typography>
+                }
+              />
+            </Tabs>
+          </Paper>
+        </motion.div>
 
-      {/* Modern Tabs */}
-      <Paper sx={{ 
-        mb: 4, 
-        borderRadius: 3,
-        overflow: 'hidden',
-        border: '1px solid rgba(0,0,0,0.08)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-      }}>
-        <Tabs
-          value={activeTab}
-          onChange={(e, newValue) => setActiveTab(newValue)}
-          variant="fullWidth"
-          sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 600,
-              fontSize: '1rem',
-              py: 2.5,
-              '&.Mui-selected': {
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                color: 'white',
-              }
-            },
-            '& .MuiTabs-indicator': {
-              display: 'none'
-            }
-          }}
-        >
-          <Tab 
-            label={
-              <Typography variant="body1" sx={{ fontWeight: 'inherit' }}>
-                My Connections
-              </Typography>
-            }
-          />
-          <Tab 
-            label={
-              <Typography variant="body1" sx={{ fontWeight: 'inherit' }}>
-                Requests
-              </Typography>
-            }
-          />
-          <Tab 
-            label={
-              <Typography variant="body1" sx={{ fontWeight: 'inherit' }}>
-                Suggestions
-              </Typography>
-            }
-          />
-          <Tab 
-            label={
-              <Typography variant="body1" sx={{ fontWeight: 'inherit' }}>
-                Discover
-              </Typography>
-            }
-          />
-        </Tabs>
-      </Paper>
+        {/* Professional Dark Error Alert */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 4,
+                borderRadius: 0,
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
+                border: '2px solid rgba(239, 68, 68, 0.3)',
+                color: '#ffffff',
+                '& .MuiAlert-message': {
+                  fontWeight: 600,
+                  color: '#ffffff'
+                },
+                '& .MuiAlert-icon': {
+                  color: '#ef4444'
+                },
+                backdropFilter: 'blur(10px)'
+              }} 
+              onClose={() => setError('')}
+            >
+              {error}
+            </Alert>
+          </motion.div>
+        )}
 
-      {/* Error Alert */}
-      {error && (
-        <Alert 
-          severity="error" 
-          sx={{ 
-            mb: 4,
-            borderRadius: 3,
-            '& .MuiAlert-message': {
-              fontWeight: 500
-            }
-          }} 
-          onClose={() => setError('')}
-        >
-          {error}
-        </Alert>
-      )}
-
-      {/* Loading State */}
-      {loading && (
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center', 
-          py: 8,
-          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-          borderRadius: 4,
-          border: '1px solid rgba(0,0,0,0.08)'
-        }}>
-          <CircularProgress 
-            size={60}
-            thickness={4}
-            sx={{ 
-              color: 'primary.main',
-              mb: 3
-            }}
-          />
-          <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
-            Loading your network...
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Please wait while we fetch your connections
-          </Typography>
-        </Box>
-      )}
+        {/* Professional Dark Loading State */}
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              alignItems: 'center', 
+              py: { xs: 4, sm: 6, md: 8 },
+              px: { xs: 2, sm: 3, md: 4 },
+              mx: { xs: 1, sm: 0 },
+              background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+              borderRadius: 0,
+              border: '2px solid rgba(0, 255, 136, 0.3)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <CircularProgress 
+                size={50}
+                thickness={4}
+                sx={{ 
+                  color: '#00ff88',
+                  mb: { xs: 2, sm: 3 },
+                  width: { xs: '40px', sm: '50px', md: '60px' },
+                  height: { xs: '40px', sm: '50px', md: '60px' }
+                }}
+              />
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 700, 
+                  color: '#ffffff', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: { xs: '0.5px', sm: '1px' },
+                  fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' },
+                  mb: { xs: 1, sm: 1.5 },
+                  textAlign: 'center'
+                }}
+              >
+                Loading your network...
+              </Typography>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                  maxWidth: { xs: '280px', sm: '350px', md: 'none' },
+                  lineHeight: 1.4,
+                  textAlign: 'center'
+                }}
+              >
+                Please wait while we fetch your connections
+              </Typography>
+            </Box>
+          </motion.div>
+        )}
 
       {/* Content */}
       {!loading && (
@@ -754,41 +1022,53 @@ const Connections = () => {
           {activeTab === 0 && (
             <Box>
               {getFilteredData().length === 0 ? (
-                <Paper sx={{ 
-                  p: 6, 
-                  textAlign: 'center',
-                  borderRadius: 4,
-                  background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-                  border: '1px solid rgba(0,0,0,0.08)'
-                }}>
-                  <Box sx={{ mb: 3 }}>
-                    <PersonAdd sx={{ fontSize: 80, color: 'primary.main', opacity: 0.6 }} />
-                  </Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
-                    No connections yet
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: '400px', mx: 'auto' }}>
-                    Start building your professional network by connecting with colleagues, industry professionals, and potential collaborators.
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    onClick={() => setActiveTab(2)}
-                    sx={{
-                      borderRadius: 3,
-                      px: 4,
-                      py: 1.5,
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #4338ca 0%, #7c3aed 100%)',
-                      }
-                    }}
-                  >
-                    Browse Suggestions
-                  </Button>
-                </Paper>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Paper sx={{ 
+                    p: 6, 
+                    textAlign: 'center',
+                    borderRadius: 0,
+                    background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                    border: '2px solid rgba(0, 255, 136, 0.3)',
+                    backdropFilter: 'blur(10px)'
+                  }}>
+                    <Box sx={{ mb: 3 }}>
+                      <PersonAdd sx={{ fontSize: 80, color: '#00ff88', opacity: 0.8 }} />
+                    </Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      No connections yet
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 3, maxWidth: '400px', mx: 'auto' }}>
+                      Start building your professional network by connecting with colleagues, industry professionals, and potential collaborators.
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      onClick={() => setActiveTab(2)}
+                      sx={{
+                        borderRadius: 0,
+                        px: 4,
+                        py: 1.5,
+                        textTransform: 'uppercase',
+                        fontWeight: 700,
+                        letterSpacing: '0.5px',
+                        background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                        color: '#000000',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                          transform: 'scale(1.05)',
+                          boxShadow: '0 8px 24px rgba(0, 255, 136, 0.4)'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Browse Suggestions
+                    </Button>
+                  </Paper>
+                </motion.div>
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {getFilteredData().map((connection) => (
@@ -806,23 +1086,30 @@ const Connections = () => {
           {activeTab === 1 && (
             <Box>
               {getFilteredData().length === 0 ? (
-                <Paper sx={{ 
-                  p: 6, 
-                  textAlign: 'center',
-                  borderRadius: 4,
-                  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                  border: '1px solid rgba(245, 158, 11, 0.2)'
-                }}>
-                  <Box sx={{ mb: 3 }}>
-                    <Check sx={{ fontSize: 80, color: 'warning.main', opacity: 0.6 }} />
-                  </Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
-                    No pending requests
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: '400px', mx: 'auto' }}>
-                    You're all caught up! New connection requests will appear here when they arrive.
-                  </Typography>
-                </Paper>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Paper sx={{ 
+                    p: 6, 
+                    textAlign: 'center',
+                    borderRadius: 0,
+                    background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                    border: '2px solid rgba(34, 197, 94, 0.3)',
+                    backdropFilter: 'blur(10px)'
+                  }}>
+                    <Box sx={{ mb: 3 }}>
+                      <Check sx={{ fontSize: 80, color: '#22c55e', opacity: 0.8 }} />
+                    </Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      No pending requests
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 3, maxWidth: '400px', mx: 'auto' }}>
+                      You're all caught up! New connection requests will appear here when they arrive.
+                    </Typography>
+                  </Paper>
+                </motion.div>
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {getFilteredData().map((request) => (
@@ -841,45 +1128,57 @@ const Connections = () => {
           {activeTab === 2 && (
             <Box>
               {getFilteredData().length === 0 ? (
-                <Paper sx={{ 
-                  p: 6, 
-                  textAlign: 'center',
-                  borderRadius: 4,
-                  background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
-                  border: '1px solid rgba(34, 197, 94, 0.2)'
-                }}>
-                  <Box sx={{ mb: 3 }}>
-                    <Search sx={{ fontSize: 80, color: 'success.main', opacity: 0.6 }} />
-                  </Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
-                    No suggestions available
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: '400px', mx: 'auto' }}>
-                    We're working on finding the perfect connections for you. Check back later for personalized suggestions.
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    onClick={() => setActiveTab(3)}
-                    sx={{
-                      borderRadius: 3,
-                      px: 4,
-                      py: 1.5,
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                      }
-                    }}
-                  >
-                    Discover People
-                  </Button>
-                </Paper>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Paper sx={{ 
+                    p: { xs: 3, sm: 4, md: 6 }, 
+                    textAlign: 'center',
+                    borderRadius: 0,
+                    background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                    border: '2px solid rgba(0, 255, 136, 0.3)',
+                    backdropFilter: 'blur(10px)'
+                  }}>
+                    <Box sx={{ mb: 3 }}>
+                      <Search sx={{ fontSize: 80, color: '#00ff88', opacity: 0.8 }} />
+                    </Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      No suggestions available
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 3, maxWidth: '400px', mx: 'auto' }}>
+                      We're working on finding the perfect connections for you. Check back later for personalized suggestions.
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      onClick={() => setActiveTab(3)}
+                      sx={{
+                        borderRadius: 0,
+                        px: 4,
+                        py: 1.5,
+                        textTransform: 'uppercase',
+                        fontWeight: 700,
+                        letterSpacing: '0.5px',
+                        background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                        color: '#000000',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                          transform: 'scale(1.05)',
+                          boxShadow: '0 8px 24px rgba(0, 255, 136, 0.4)'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Discover People
+                    </Button>
+                  </Paper>
+                </motion.div>
               ) : (
-                <Grid container spacing={3}>
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
                   {getFilteredData().map((suggestion) => (
-                    <Grid item xs={12} md={6} key={suggestion._id}>
+                    <Grid item xs={12} sm={6} lg={4} xl={3} key={suggestion._id}>
                       <ConnectionCard
                         user={suggestion}
                       />
@@ -893,27 +1192,34 @@ const Connections = () => {
           {activeTab === 3 && (
             <Box>
               {getFilteredData().length === 0 ? (
-                <Paper sx={{ 
-                  p: 6, 
-                  textAlign: 'center',
-                  borderRadius: 4,
-                  background: 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%)',
-                  border: '1px solid rgba(245, 158, 11, 0.2)'
-                }}>
-                  <Box sx={{ mb: 3 }}>
-                    <PersonAdd sx={{ fontSize: 80, color: 'warning.main', opacity: 0.6 }} />
-                  </Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>
-                    No users found
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: '400px', mx: 'auto' }}>
-                    Try adjusting your search criteria or check back later as our community grows.
-                  </Typography>
-                </Paper>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Paper sx={{ 
+                    p: { xs: 3, sm: 4, md: 6 }, 
+                    textAlign: 'center',
+                    borderRadius: 0,
+                    background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                    border: '2px solid rgba(245, 158, 11, 0.3)',
+                    backdropFilter: 'blur(10px)'
+                  }}>
+                    <Box sx={{ mb: 3 }}>
+                      <PersonAdd sx={{ fontSize: 80, color: '#f59e0b', opacity: 0.8 }} />
+                    </Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      No users found
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 3, maxWidth: '400px', mx: 'auto' }}>
+                      Try adjusting your search criteria or check back later as our community grows.
+                    </Typography>
+                  </Paper>
+                </motion.div>
               ) : (
-                <Grid container spacing={3}>
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
                   {getFilteredData().map((user) => (
-                    <Grid item xs={12} md={6} key={user._id}>
+                    <Grid item xs={12} sm={6} lg={4} xl={3} key={user._id}>
                       <ConnectionCard
                         user={user}
                       />
@@ -925,7 +1231,8 @@ const Connections = () => {
           )}
         </Box>
       )}
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

@@ -1,6 +1,12 @@
-# Job Portal - Full Stack Application
+# TalentHub - Full Stack Job Portal Application
 
 A comprehensive job portal application built with React.js, Node.js, Express, and MongoDB. This platform connects job seekers with employers, featuring separate dashboards for candidates and recruiters.
+
+**Developer:** Mubbassir Khan  
+**Location:** Dharwad, Karnataka, India  
+**Contact:** +91 7619175596  
+**LinkedIn:** [linkedin.com/in/mubbassir-khan-jahagirdar-081715271](https://linkedin.com/in/mubbassir-khan-jahagirdar-081715271)  
+**Instagram:** [@mubbassir_khan](https://www.instagram.com/mubbassir_khan/)
 
 ## Features
 
@@ -183,4 +189,12 @@ This project is licensed under the MIT License.
 
 ## Support
 
-For support and questions, please open an issue in the repository.
+For support and questions, please contact:
+
+**Mubbassir Khan**  
+📞 +91 7619175596 (WhatsApp available)  
+📧 mubbassir.khan@talenthub.com  
+🔗 [LinkedIn](https://linkedin.com/in/mubbassir-khan-jahagirdar-081715271)  
+📍 Dharwad, Karnataka, India
+
+Or open an issue in the repository.

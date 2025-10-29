@@ -9,7 +9,6 @@ require('dotenv').config();
 // Import socket service
 const socketService = require('./services/socketService');
 
-
 // Import routes
 const authRoutes = require('./routes/auth');
 const jobRoutes = require('./routes/jobs');

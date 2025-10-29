@@ -109,7 +109,7 @@ connectionSchema.statics.getUserConnections = async function(userId, options = {
     .skip((page - 1) * limit);
     
   if (populate) {
-    connections = connections.populate('requester recipient', 'profile.firstName profile.lastName profile.profileImage profile.headline role');
+    connections = connections.populate('requester recipient', 'email profile.firstName profile.lastName profile.profileImage profile.headline role');
   }
   
   return await connections;

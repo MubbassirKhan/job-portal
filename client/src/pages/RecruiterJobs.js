@@ -96,7 +96,7 @@ const RecruiterJobs = () => {
         salaryRange: {
           min: data.salaryMin ? parseInt(data.salaryMin) : undefined,
           max: data.salaryMax ? parseInt(data.salaryMax) : undefined,
-          currency: data.currency || 'USD',
+          currency: data.currency || 'INR',
         },
         // Convert isActive boolean to proper format
         isActive: data.isActive === true || data.isActive === 'true'
@@ -121,7 +121,7 @@ const RecruiterJobs = () => {
         salaryRange: {
           min: data.salaryMin ? parseInt(data.salaryMin) : undefined,
           max: data.salaryMax ? parseInt(data.salaryMax) : undefined,
-          currency: data.currency || 'USD',
+          currency: data.currency || 'INR',
         },
         // Convert isActive boolean to proper format
         isActive: data.isActive === true || data.isActive === 'true'
@@ -161,20 +161,10 @@ const RecruiterJobs = () => {
     setValue('jobType', job.jobType);
     setValue('salaryMin', job.salaryRange?.min || '');
     setValue('salaryMax', job.salaryRange?.max || '');
-    setValue('currency', job.salaryRange?.currency || 'USD');
+    setValue('currency', job.salaryRange?.currency || 'INR');
     setValue('applicationDeadline', job.applicationDeadline ? job.applicationDeadline.split('T')[0] : '');
     setValue('isActive', job.isActive);
     setEditJobDialog(true);
-  };
-
-  const getJobTypeColor = (type) => {
-    const colors = {
-      'full-time': '#10b981',
-      'part-time': '#f59e0b',
-      'contract': '#6366f1',
-      'internship': '#ec4899',
-    };
-    return colors[type] || '#64748b';
   };
 
   const StatsCard = ({ icon, title, value, trend, index }) => (
@@ -182,16 +172,19 @@ const RecruiterJobs = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
+      whileHover={{ scale: 1.01 }}
     >
       <Card
         sx={{
-          height: '140px', // Fixed height for consistency
-          borderRadius: '16px',
-          border: '1px solid',
-          borderColor: 'grey.200',
+          height: '140px',
+          borderRadius: 0,
+          border: '2px solid rgba(0, 255, 136, 0.4)',
+          background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
           transition: 'all 0.3s ease-in-out',
           position: 'relative',
           overflow: 'hidden',
+          backdropFilter: 'blur(10px)',
+          cursor: 'pointer',
           '&::before': {
             content: '""',
             position: 'absolute',
@@ -199,12 +192,29 @@ const RecruiterJobs = () => {
             left: 0,
             right: 0,
             height: '3px',
-            background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
+            background: 'linear-gradient(90deg, #00ff88 0%, #00e676 100%)',
+          },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: '-150%',
+            left: '-150%',
+            width: '300%',
+            height: '300%',
+            background: 'linear-gradient(45deg, transparent 20%, rgba(0, 255, 136, 0.25) 40%, rgba(0, 255, 136, 0.3) 50%, rgba(0, 255, 136, 0.25) 60%, transparent 80%)',
+            transition: 'all 0.6s ease-in-out',
+            transform: 'rotate(45deg)',
+            opacity: 0,
           },
           '&:hover': {
             transform: 'translateY(-2px)',
-            boxShadow: '0 8px 25px rgba(99, 102, 241, 0.15)',
-            borderColor: 'rgba(99, 102, 241, 0.3)',
+            boxShadow: '0 8px 25px rgba(0, 255, 136, 0.2)',
+            borderColor: '#00ff88',
+            '&::after': {
+              bottom: '150%',
+              left: '150%',
+              opacity: 1,
+            },
           },
         }}
       >
@@ -215,7 +225,10 @@ const RecruiterJobs = () => {
                 variant="h3" 
                 sx={{ 
                   fontWeight: 700, 
-                  color: '#1e293b', 
+                  background: 'linear-gradient(135deg, #00ff88 0%, #00e676 50%, #ffffff 100%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   mb: 0.5,
                   fontSize: '2rem',
                   lineHeight: 1.2
@@ -227,7 +240,7 @@ const RecruiterJobs = () => {
                 variant="body2" 
                 sx={{ 
                   fontWeight: 500, 
-                  color: 'text.secondary',
+                  color: 'rgba(255, 255, 255, 0.8)',
                   fontSize: '0.875rem'
                 }}
               >
@@ -238,12 +251,13 @@ const RecruiterJobs = () => {
               sx={{
                 width: 48,
                 height: 48,
-                borderRadius: '12px',
-                background: 'rgba(99, 102, 241, 0.1)',
+                borderRadius: 0,
+                background: 'rgba(0, 255, 136, 0.2)',
+                border: '1px solid rgba(0, 255, 136, 0.6)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#6366f1',
+                color: '#00ff88',
                 flexShrink: 0,
               }}
             >
@@ -252,11 +266,11 @@ const RecruiterJobs = () => {
           </Box>
           {trend && (
             <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-              <TrendingUp sx={{ fontSize: 14, color: '#10b981', mr: 0.5 }} />
+              <TrendingUp sx={{ fontSize: 14, color: '#00ff88', mr: 0.5 }} />
               <Typography 
                 variant="caption" 
                 sx={{ 
-                  color: '#10b981',
+                  color: '#00ff88',
                   fontWeight: 500,
                   fontSize: '0.75rem'
                 }}
@@ -271,20 +285,30 @@ const RecruiterJobs = () => {
   );
 
   const LoadingSkeleton = () => (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Skeleton variant="text" width="300px" height={48} sx={{ mb: 2 }} />
-      <Skeleton variant="text" width="200px" height={24} sx={{ mb: 4 }} />
-      
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {[...Array(3)].map((_, index) => (
-          <Grid item xs={12} sm={4} key={index}>
-            <Skeleton variant="rounded" height={120} />
-          </Grid>
-        ))}
-      </Grid>
-      
-      <Skeleton variant="rounded" height={400} />
-    </Container>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)',
+      pt: { xs: 10, sm: 12, md: 14 },
+      pb: 4,
+      width: '100%',
+      margin: 0,
+      padding: 0,
+    }}>
+      <Container maxWidth={false} sx={{ px: { xs: 1, sm: 2, md: 4 }, width: '100%' }}>
+        <Skeleton variant="text" width="300px" height={48} sx={{ mb: 2, bgcolor: 'rgba(0, 255, 136, 0.1)' }} />
+        <Skeleton variant="text" width="200px" height={24} sx={{ mb: 4, bgcolor: 'rgba(0, 255, 136, 0.1)' }} />
+        
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {[...Array(4)].map((_, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <Skeleton variant="rounded" height={120} sx={{ bgcolor: 'rgba(0, 255, 136, 0.1)' }} />
+            </Grid>
+          ))}
+        </Grid>
+        
+        <Skeleton variant="rounded" height={400} sx={{ bgcolor: 'rgba(0, 255, 136, 0.1)' }} />
+      </Container>
+    </Box>
   );
 
   const formatJobType = (type) => {
@@ -304,6 +328,31 @@ const RecruiterJobs = () => {
             fullWidth
             error={!!errors.title}
             helperText={errors.title?.message}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#ff6b6b',
+              },
+            }}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -313,6 +362,31 @@ const RecruiterJobs = () => {
             fullWidth
             error={!!errors.company}
             helperText={errors.company?.message}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#ff6b6b',
+              },
+            }}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -322,15 +396,85 @@ const RecruiterJobs = () => {
             fullWidth
             error={!!errors.location}
             helperText={errors.location?.message}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#ff6b6b',
+              },
+            }}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              color: '#ffffff',
+              '& fieldset': {
+                borderColor: 'rgba(0, 255, 136, 0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: '#00ff88',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#00ff88',
+              },
+            },
+            '& .MuiInputLabel-root': {
+              color: '#00ff88',
+              '&.Mui-focused': {
+                color: '#00ff88',
+              },
+            },
+            '& .MuiSelect-icon': {
+              color: '#00ff88',
+            },
+          }}>
             <InputLabel>Job Type</InputLabel>
             <Select
               {...register('jobType', { required: 'Job type is required' })}
               label="Job Type"
               error={!!errors.jobType}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    borderRadius: 0,
+                    backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    '& .MuiMenuItem-root': {
+                      color: '#ffffff',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 255, 136, 0.3)',
+                        },
+                      },
+                    },
+                  },
+                },
+              }}
             >
               <MenuItem value="full-time">Full Time</MenuItem>
               <MenuItem value="part-time">Part Time</MenuItem>
@@ -340,12 +484,57 @@ const RecruiterJobs = () => {
           </FormControl>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              color: '#ffffff',
+              '& fieldset': {
+                borderColor: 'rgba(0, 255, 136, 0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: '#00ff88',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#00ff88',
+              },
+            },
+            '& .MuiInputLabel-root': {
+              color: '#00ff88',
+              '&.Mui-focused': {
+                color: '#00ff88',
+              },
+            },
+            '& .MuiSelect-icon': {
+              color: '#00ff88',
+            },
+          }}>
             <InputLabel>Status</InputLabel>
             <Select
               {...register('isActive')}
               label="Status"
               defaultValue={true}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    borderRadius: 0,
+                    backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    '& .MuiMenuItem-root': {
+                      color: '#ffffff',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 255, 136, 0.3)',
+                        },
+                      },
+                    },
+                  },
+                },
+              }}
             >
               <MenuItem value={true}>Active</MenuItem>
               <MenuItem value={false}>Inactive</MenuItem>
@@ -361,6 +550,31 @@ const RecruiterJobs = () => {
             fullWidth
             error={!!errors.description}
             helperText={errors.description?.message}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#ff6b6b',
+              },
+            }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -371,6 +585,31 @@ const RecruiterJobs = () => {
             rows={3}
             fullWidth
             helperText="Enter each requirement on a new line"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#888',
+              },
+            }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -379,6 +618,31 @@ const RecruiterJobs = () => {
             label="Required Skills (comma separated)"
             fullWidth
             helperText="e.g., JavaScript, React, Node.js"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#888',
+              },
+            }}
           />
         </Grid>
         <Grid item xs={4}>
@@ -387,6 +651,28 @@ const RecruiterJobs = () => {
             label="Min Salary"
             type="number"
             fullWidth
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+            }}
           />
         </Grid>
         <Grid item xs={4}>
@@ -395,19 +681,83 @@ const RecruiterJobs = () => {
             label="Max Salary"
             type="number"
             fullWidth
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+            }}
           />
         </Grid>
         <Grid item xs={4}>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              color: '#ffffff',
+              '& fieldset': {
+                borderColor: 'rgba(0, 255, 136, 0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: '#00ff88',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#00ff88',
+              },
+            },
+            '& .MuiInputLabel-root': {
+              color: '#00ff88',
+              '&.Mui-focused': {
+                color: '#00ff88',
+              },
+            },
+            '& .MuiSelect-icon': {
+              color: '#00ff88',
+            },
+          }}>
             <InputLabel>Currency</InputLabel>
             <Select
               {...register('currency')}
               label="Currency"
-              defaultValue="USD"
+              defaultValue="INR"
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    borderRadius: 0,
+                    backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    '& .MuiMenuItem-root': {
+                      color: '#ffffff',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 255, 136, 0.3)',
+                        },
+                      },
+                    },
+                  },
+                },
+              }}
             >
-              <MenuItem value="USD">USD</MenuItem>
-              <MenuItem value="EUR">EUR</MenuItem>
-              <MenuItem value="GBP">GBP</MenuItem>
               <MenuItem value="INR">INR</MenuItem>
             </Select>
           </FormControl>
@@ -421,8 +771,36 @@ const RecruiterJobs = () => {
             InputLabelProps={{
               shrink: true,
             }}
+            inputProps={{ 
+              min: new Date().toISOString().split('T')[0] 
+            }}
             error={!!errors.applicationDeadline}
             helperText={errors.applicationDeadline?.message}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                '& fieldset': {
+                  borderColor: 'rgba(0, 255, 136, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00ff88',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff88',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff88',
+                '&.Mui-focused': {
+                  color: '#00ff88',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: '#ff6b6b',
+              },
+            }}
           />
         </Grid>
       </Grid>
@@ -434,33 +812,42 @@ const RecruiterJobs = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <Box sx={{ mb: 6 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-            <Box>
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 800,
-                  background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  mb: 1,
-                }}
-              >
-                Job Management
-              </Typography>
-              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
-                Create, edit, and manage your job postings with advanced analytics
-              </Typography>
-            </Box>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)',
+      pt: { xs: 10, sm: 12, md: 14 },
+      pb: 4,
+      width: '100%',
+      margin: 0,
+      padding: 0,
+    }}>
+      <Container maxWidth={false} sx={{ px: { xs: 1, sm: 2, md: 4 }, width: '100%' }}>
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Box sx={{ mb: 6 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+              <Box>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 800,
+                    background: 'linear-gradient(135deg, #00ff88 0%, #00e676 50%, #ffffff 100%)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    mb: 1,
+                  }}
+                >
+                  Job Management
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 400, color: 'rgba(255, 255, 255, 0.8)' }}>
+                  Create, edit, and manage your job postings with advanced analytics
+                </Typography>
+              </Box>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -471,16 +858,19 @@ const RecruiterJobs = () => {
                 startIcon={<Add />}
                 onClick={() => setCreateJobDialog(true)}
                 sx={{
-                  background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                  borderRadius: '12px',
+                  background: '#00ff88',
+                  color: '#000000',
+                  borderRadius: 0,
                   px: 3,
                   py: 1.5,
                   fontSize: '1rem',
                   fontWeight: 600,
-                  boxShadow: '0 8px 30px rgba(99, 102, 241, 0.3)',
+                  border: '2px solid #00ff88',
+                  boxShadow: '0 8px 30px rgba(0, 255, 136, 0.3)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #4f46e5 0%, #db2777 100%)',
-                    boxShadow: '0 12px 40px rgba(99, 102, 241, 0.4)',
+                    background: 'transparent',
+                    color: '#00ff88',
+                    boxShadow: '0 12px 40px rgba(0, 255, 136, 0.4)',
                   }
                 }}
               >
@@ -538,21 +928,37 @@ const RecruiterJobs = () => {
       >
         <Card
           sx={{
-            borderRadius: '20px',
-            border: '1px solid',
-            borderColor: 'grey.200',
+            borderRadius: 0,
+            border: '2px solid rgba(0, 255, 136, 0.4)',
             overflow: 'hidden',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+            backdropFilter: 'blur(10px)',
+            position: 'relative',
+            transition: 'all 0.3s ease-in-out',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+            },
+            '&:hover': {
+              transform: 'translateY(-1px)',
+              boxShadow: '0 4px 15px rgba(0, 255, 136, 0.15)',
+              borderColor: '#00ff88',
+            },
           }}
         >
           <CardContent sx={{ p: 0 }}>
-            <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'grey.200' }}>
+            <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 255, 136, 0.4)' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 1, color: '#ffffff' }}>
                     All Job Postings
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                     Manage and track all your job listings
                   </Typography>
                 </Box>
@@ -560,9 +966,14 @@ const RecruiterJobs = () => {
                   <Tooltip title="Filter Jobs">
                     <IconButton
                       sx={{
-                        background: 'rgba(99, 102, 241, 0.1)',
-                        color: '#6366f1',
-                        '&:hover': { background: 'rgba(99, 102, 241, 0.2)' }
+                        background: 'rgba(0, 255, 136, 0.1)',
+                        color: '#00ff88',
+                        borderRadius: 0,
+                        border: '1px solid rgba(0, 255, 136, 0.3)',
+                        '&:hover': { 
+                          background: 'rgba(0, 255, 136, 0.2)',
+                          borderColor: '#00ff88'
+                        }
                       }}
                     >
                       <FilterList />
@@ -571,9 +982,14 @@ const RecruiterJobs = () => {
                   <Tooltip title="Export Data">
                     <IconButton
                       sx={{
-                        background: 'rgba(16, 185, 129, 0.1)',
-                        color: '#10b981',
-                        '&:hover': { background: 'rgba(16, 185, 129, 0.2)' }
+                        background: 'rgba(0, 255, 136, 0.1)',
+                        color: '#00ff88',
+                        borderRadius: 0,
+                        border: '1px solid rgba(0, 255, 136, 0.3)',
+                        '&:hover': { 
+                          background: 'rgba(0, 255, 136, 0.2)',
+                          borderColor: '#00ff88'
+                        }
                       }}
                     >
                       <Download />
@@ -587,13 +1003,13 @@ const RecruiterJobs = () => {
               <TableContainer>
                 <Table>
                   <TableHead>
-                    <TableRow sx={{ backgroundColor: 'rgba(99, 102, 241, 0.05)' }}>
-                      <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Job Details</TableCell>
-                      <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Location & Type</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600, color: '#1e293b' }}>Applications</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600, color: '#1e293b' }}>Status</TableCell>
-                      <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Posted</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600, color: '#1e293b' }}>Actions</TableCell>
+                    <TableRow sx={{ backgroundColor: 'rgba(0, 255, 136, 0.1)' }}>
+                      <TableCell sx={{ fontWeight: 600, color: '#00ff88', borderBottom: '1px solid rgba(0, 255, 136, 0.3)' }}>Job Details</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: '#00ff88', borderBottom: '1px solid rgba(0, 255, 136, 0.3)' }}>Location & Type</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600, color: '#00ff88', borderBottom: '1px solid rgba(0, 255, 136, 0.3)' }}>Applications</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600, color: '#00ff88', borderBottom: '1px solid rgba(0, 255, 136, 0.3)' }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: '#00ff88', borderBottom: '1px solid rgba(0, 255, 136, 0.3)' }}>Posted</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600, color: '#00ff88', borderBottom: '1px solid rgba(0, 255, 136, 0.3)' }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -606,99 +1022,131 @@ const RecruiterJobs = () => {
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
                           transition={{ duration: 0.3, delay: index * 0.05 }}
+                          whileHover={{ x: 4 }}
                           sx={{
+                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                            borderBottom: '1px solid rgba(0, 255, 136, 0.2)',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            '&::before': {
+                              content: '""',
+                              position: 'absolute',
+                              left: 0,
+                              top: 0,
+                              bottom: 0,
+                              width: '0px',
+                              background: 'linear-gradient(90deg, #00ff88, rgba(0, 255, 136, 0.5))',
+                              transition: 'width 0.3s ease-in-out',
+                            },
                             '&:hover': {
-                              backgroundColor: 'rgba(99, 102, 241, 0.02)',
-                              transform: 'translateX(4px)',
-                              transition: 'all 0.2s ease-in-out',
+                              backgroundColor: 'rgba(0, 255, 136, 0.15)',
+                              boxShadow: '0 4px 20px rgba(0, 255, 136, 0.2)',
+                              borderColor: 'rgba(0, 255, 136, 0.4)',
+                              transition: 'all 0.3s ease-in-out',
+                              '&::before': {
+                                width: '4px',
+                              }
                             }
                           }}
                         >
-                          <TableCell>
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.2)' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                               <Avatar
                                 sx={{
                                   width: 48,
                                   height: 48,
-                                  background: `linear-gradient(135deg, ${getJobTypeColor(job.jobType)} 0%, ${getJobTypeColor(job.jobType)}80 100%)`,
+                                  background: 'rgba(0, 255, 136, 0.2)',
+                                  border: '1px solid rgba(0, 255, 136, 0.6)',
+                                  borderRadius: 0,
                                   fontWeight: 600,
+                                  color: '#00ff88',
                                 }}
                               >
                                 <Work />
                               </Avatar>
                               <Box>
-                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5, color: '#ffffff' }}>
                                   {job.title}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                  <Business sx={{ fontSize: 16, color: 'text.secondary' }} />
-                                  <Typography variant="body2" color="text.secondary">
+                                  <Business sx={{ fontSize: 16, color: '#00ff88' }} />
+                                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                                     {job.company}
                                   </Typography>
                                 </Box>
                               </Box>
                             </Box>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.2)' }}>
                             <Box>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-                                <LocationOn sx={{ fontSize: 16, color: 'text.secondary' }} />
-                                <Typography variant="body2">{job.location}</Typography>
+                                <LocationOn sx={{ fontSize: 16, color: '#00ff88' }} />
+                                <Typography variant="body2" sx={{ color: '#ffffff' }}>{job.location}</Typography>
                               </Box>
                               <Chip
                                 label={formatJobType(job.jobType)}
                                 size="small"
                                 sx={{
-                                  backgroundColor: `${getJobTypeColor(job.jobType)}15`,
-                                  color: getJobTypeColor(job.jobType),
+                                  backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                                  color: '#00ff88',
                                   fontWeight: 500,
-                                  border: `1px solid ${getJobTypeColor(job.jobType)}30`,
+                                  border: '1px solid rgba(0, 255, 136, 0.6)',
+                                  borderRadius: 0,
                                 }}
                               />
                             </Box>
                           </TableCell>
-                          <TableCell align="center">
+                          <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.2)' }}>
                             <Badge
                               badgeContent={job.applicationsCount || 0}
                               color="primary"
                               sx={{
                                 '& .MuiBadge-badge': {
-                                  background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+                                  background: '#00ff88',
+                                  color: '#000000',
                                   fontWeight: 600,
+                                  borderRadius: 0,
                                 }
                               }}
                             >
-                              <Person sx={{ color: 'text.secondary' }} />
+                              <Person sx={{ color: '#00ff88' }} />
                             </Badge>
                           </TableCell>
-                          <TableCell align="center">
+                          <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.2)' }}>
                             <Chip
                               label={job.isActive ? 'Active' : 'Inactive'}
-                              color={job.isActive ? 'success' : 'error'}
                               size="small"
                               sx={{
                                 fontWeight: 500,
-                                borderRadius: '8px',
+                                borderRadius: 0,
+                                backgroundColor: job.isActive ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 107, 107, 0.2)',
+                                color: job.isActive ? '#00ff88' : '#ff6b6b',
+                                border: `1px solid ${job.isActive ? 'rgba(0, 255, 136, 0.6)' : 'rgba(255, 107, 107, 0.6)'}`,
                               }}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.2)' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <Schedule sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography variant="body2" color="text.secondary">
+                              <Schedule sx={{ fontSize: 16, color: '#00ff88' }} />
+                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                                 {format(new Date(job.createdAt), 'MMM dd, yyyy')}
                               </Typography>
                             </Box>
                           </TableCell>
-                          <TableCell align="center">
+                          <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.2)' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
                               <Tooltip title="View Job">
                                 <IconButton
                                   size="small"
                                   onClick={() => navigate(`/jobs/${job._id}`)}
                                   sx={{
-                                    color: '#6366f1',
-                                    '&:hover': { backgroundColor: 'rgba(99, 102, 241, 0.1)' }
+                                    color: '#00ff88',
+                                    borderRadius: 0,
+                                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                                    '&:hover': { 
+                                      backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                                      borderColor: '#00ff88'
+                                    }
                                   }}
                                 >
                                   <Visibility />
@@ -709,8 +1157,13 @@ const RecruiterJobs = () => {
                                   size="small"
                                   onClick={() => openEditDialog(job)}
                                   sx={{
-                                    color: '#10b981',
-                                    '&:hover': { backgroundColor: 'rgba(16, 185, 129, 0.1)' }
+                                    color: '#00ff88',
+                                    borderRadius: 0,
+                                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                                    '&:hover': { 
+                                      backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                                      borderColor: '#00ff88'
+                                    }
                                   }}
                                 >
                                   <Edit />
@@ -719,13 +1172,18 @@ const RecruiterJobs = () => {
                               <Tooltip title="Delete Job">
                                 <IconButton
                                   size="small"
-                                  color="error"
                                   onClick={() => {
                                     setSelectedJob(job);
                                     setDeleteJobDialog(true);
                                   }}
                                   sx={{
-                                    '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.1)' }
+                                    color: '#ff6b6b',
+                                    borderRadius: 0,
+                                    border: '1px solid rgba(255, 107, 107, 0.3)',
+                                    '&:hover': { 
+                                      backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                                      borderColor: '#ff6b6b'
+                                    }
                                   }}
                                 >
                                   <Delete />
@@ -741,11 +1199,11 @@ const RecruiterJobs = () => {
               </TableContainer>
             ) : (
               <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Work sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
-                <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                <Work sx={{ fontSize: 80, color: 'rgba(0, 255, 136, 0.3)', mb: 2 }} />
+                <Typography variant="h6" sx={{ mb: 1, color: '#ffffff' }}>
                   No jobs posted yet
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                <Typography variant="body2" sx={{ mb: 3, color: 'rgba(255, 255, 255, 0.8)' }}>
                   Create your first job posting to get started
                 </Typography>
                 <Button
@@ -753,8 +1211,15 @@ const RecruiterJobs = () => {
                   startIcon={<Add />}
                   onClick={() => setCreateJobDialog(true)}
                   sx={{
-                    background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-                    borderRadius: '12px',
+                    background: '#00ff88',
+                    color: '#000000',
+                    borderRadius: 0,
+                    border: '2px solid #00ff88',
+                    fontWeight: 600,
+                    '&:hover': {
+                      background: 'transparent',
+                      color: '#00ff88',
+                    }
                   }}
                 >
                   Post Your First Job
@@ -773,41 +1238,59 @@ const RecruiterJobs = () => {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: '20px',
-            border: '1px solid',
-            borderColor: 'grey.200',
+            borderRadius: 0,
+            border: '2px solid rgba(0, 255, 136, 0.6)',
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(15px)',
+            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.5)',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+            }
           }
         }}
       >
         <DialogTitle
           sx={{
-            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
-            color: 'white',
-            borderRadius: '20px 20px 0 0',
+            background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%)',
+            color: '#ffffff',
+            borderRadius: 0,
             p: 3,
+            borderBottom: '1px solid rgba(0, 255, 136, 0.4)',
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Add />
-            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            <Add sx={{ color: '#00ff88' }} />
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#00ff88' }}>
               Create New Job Posting
             </Typography>
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
+        <DialogContent sx={{ p: 3, backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
           <Box sx={{ mt: 2 }}>
             <JobForm onSubmit={handleCreateJob} />
           </Box>
         </DialogContent>
-        <DialogActions sx={{ p: 3, gap: 2 }}>
+        <DialogActions sx={{ p: 3, gap: 2, backgroundColor: 'rgba(0, 0, 0, 0.8)', borderTop: '1px solid rgba(0, 255, 136, 0.4)' }}>
           <Button
             onClick={() => setCreateJobDialog(false)}
             sx={{
               px: 3,
               py: 1,
-              borderRadius: '8px',
+              borderRadius: 0,
               textTransform: 'none',
               fontWeight: 500,
+              color: '#ff6b6b',
+              border: '1px solid rgba(255, 107, 107, 0.4)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                borderColor: '#ff6b6b',
+              }
             }}
           >
             Cancel
@@ -816,14 +1299,17 @@ const RecruiterJobs = () => {
             onClick={handleSubmit(handleCreateJob)}
             variant="contained"
             sx={{
-              background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+              background: '#00ff88',
+              color: '#000000',
               px: 3,
               py: 1,
-              borderRadius: '8px',
+              borderRadius: 0,
               textTransform: 'none',
               fontWeight: 600,
+              border: '2px solid #00ff88',
               '&:hover': {
-                background: 'linear-gradient(135deg, #4f46e5 0%, #db2777 100%)',
+                background: 'transparent',
+                color: '#00ff88',
               }
             }}
           >
@@ -840,41 +1326,59 @@ const RecruiterJobs = () => {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: '20px',
-            border: '1px solid',
-            borderColor: 'grey.200',
+            borderRadius: 0,
+            border: '2px solid rgba(0, 255, 136, 0.6)',
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(15px)',
+            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.5)',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+            }
           }
         }}
       >
         <DialogTitle
           sx={{
-            background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
-            color: 'white',
-            borderRadius: '20px 20px 0 0',
+            background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%)',
+            color: '#ffffff',
+            borderRadius: 0,
             p: 3,
+            borderBottom: '1px solid rgba(0, 255, 136, 0.4)',
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Edit />
-            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            <Edit sx={{ color: '#00ff88' }} />
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#00ff88' }}>
               Edit Job Posting
             </Typography>
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
+        <DialogContent sx={{ p: 3, backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
           <Box sx={{ mt: 2 }}>
             <JobForm onSubmit={handleEditJob} isEdit />
           </Box>
         </DialogContent>
-        <DialogActions sx={{ p: 3, gap: 2 }}>
+        <DialogActions sx={{ p: 3, gap: 2, backgroundColor: 'rgba(0, 0, 0, 0.8)', borderTop: '1px solid rgba(0, 255, 136, 0.4)' }}>
           <Button
             onClick={() => setEditJobDialog(false)}
             sx={{
               px: 3,
               py: 1,
-              borderRadius: '8px',
+              borderRadius: 0,
               textTransform: 'none',
               fontWeight: 500,
+              color: '#ff6b6b',
+              border: '1px solid rgba(255, 107, 107, 0.4)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                borderColor: '#ff6b6b',
+              }
             }}
           >
             Cancel
@@ -883,14 +1387,17 @@ const RecruiterJobs = () => {
             onClick={handleSubmit(handleEditJob)}
             variant="contained"
             sx={{
-              background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+              background: '#00ff88',
+              color: '#000000',
               px: 3,
               py: 1,
-              borderRadius: '8px',
+              borderRadius: 0,
               textTransform: 'none',
               fontWeight: 600,
+              border: '2px solid #00ff88',
               '&:hover': {
-                background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                background: 'transparent',
+                color: '#00ff88',
               }
             }}
           >
@@ -905,42 +1412,60 @@ const RecruiterJobs = () => {
         onClose={() => setDeleteJobDialog(false)}
         PaperProps={{
           sx: {
-            borderRadius: '20px',
-            border: '1px solid',
-            borderColor: 'grey.200',
+            borderRadius: 0,
+            border: '2px solid rgba(255, 107, 107, 0.6)',
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(15px)',
+            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.5)',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: 'linear-gradient(90deg, #ff6b6b 0%, #ff5252 100%)',
+            }
           }
         }}
       >
         <DialogTitle
           sx={{
-            background: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
-            color: 'white',
-            borderRadius: '20px 20px 0 0',
+            background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%)',
+            color: '#ffffff',
+            borderRadius: 0,
             p: 3,
+            borderBottom: '1px solid rgba(255, 107, 107, 0.4)',
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Delete />
-            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            <Delete sx={{ color: '#ff6b6b' }} />
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#ff6b6b' }}>
               Delete Job Posting
             </Typography>
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
-          <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
-            Are you sure you want to delete <strong>"{selectedJob?.title}"</strong>? 
+        <DialogContent sx={{ p: 3, backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+          <Typography variant="body1" sx={{ lineHeight: 1.6, color: '#ffffff' }}>
+            Are you sure you want to delete <strong style={{ color: '#00ff88' }}>"{selectedJob?.title}"</strong>? 
             This action cannot be undone and will permanently remove all associated applications.
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ p: 3, gap: 2 }}>
+        <DialogActions sx={{ p: 3, gap: 2, backgroundColor: 'rgba(0, 0, 0, 0.8)', borderTop: '1px solid rgba(255, 107, 107, 0.4)' }}>
           <Button
             onClick={() => setDeleteJobDialog(false)}
             sx={{
               px: 3,
               py: 1,
-              borderRadius: '8px',
+              borderRadius: 0,
               textTransform: 'none',
               fontWeight: 500,
+              color: '#ffffff',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: '#ffffff',
+              }
             }}
           >
             Cancel
@@ -949,14 +1474,17 @@ const RecruiterJobs = () => {
             onClick={handleDeleteJob}
             variant="contained"
             sx={{
-              background: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
+              background: '#ff6b6b',
+              color: '#000000',
               px: 3,
               py: 1,
-              borderRadius: '8px',
+              borderRadius: 0,
               textTransform: 'none',
               fontWeight: 600,
+              border: '2px solid #ff6b6b',
               '&:hover': {
-                background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+                background: 'transparent',
+                color: '#ff6b6b',
               }
             }}
           >
@@ -964,7 +1492,8 @@ const RecruiterJobs = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

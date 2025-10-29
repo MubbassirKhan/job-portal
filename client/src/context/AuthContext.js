@@ -142,13 +142,17 @@ export const AuthProvider = ({ children }) => {
   // Update profile function
   const updateProfile = async (profileData) => {
     try {
+      console.log('Sending profile data to API:', profileData);
       const response = await authAPI.updateProfile(profileData);
+      console.log('API response:', response.data);
       dispatch({
         type: 'UPDATE_USER',
         payload: response.data.user,
       });
       return { success: true };
     } catch (error) {
+      console.error('Profile update error:', error);
+      console.error('Error response:', error.response?.data);
       const message = error.response?.data?.message || 'Profile update failed';
       return { success: false, message };
     }
