@@ -250,6 +250,22 @@ router.post('/:chatId/messages', authenticateToken, upload.single('file'), async
     // Send real-time message via socket
     if (global.socketService) {
       global.socketService.sendMessageToChat(chatId, message);
+      
+      // Send unread count update to other participants
+      const otherParticipants = chat.participants.filter(participantId => 
+        participantId.toString() !== userId
+      );
+      
+      for (const participantId of otherParticipants) {
+        // Get updated unread count for this participant
+        Message.getUnreadCount(chatId, participantId).then(unreadCount => {
+          global.socketService.io.to(`user:${participantId}`).emit('chat:unread_count_update', {
+            chatId: chatId,
+            userId: userId, // sender's userId for frontend mapping
+            unreadCount: unreadCount
+          });
+        }).catch(err => console.error('Error getting unread count:', err));
+      }
     }
 
     // Create notifications for all other chat participants
@@ -370,6 +386,22 @@ router.put('/:chatId/mark-all-read', authenticateToken, async (req, res) => {
         }
       }
     );
+
+    // Send real-time unread count update via socket
+    if (global.socketService) {
+      // Find the sender (other participant) to reset their count
+      const otherParticipants = chat.participants.filter(participantId => 
+        participantId.toString() !== userId
+      );
+      
+      for (const participantId of otherParticipants) {
+        global.socketService.io.to(`user:${userId}`).emit('chat:unread_count_update', {
+          chatId: chatId,
+          userId: participantId.toString(), // other participant's userId for frontend mapping
+          unreadCount: 0 // reset to 0 since messages are now read
+        });
+      }
+    }
 
     res.json({
       success: true,

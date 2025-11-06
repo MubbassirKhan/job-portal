@@ -220,6 +220,46 @@ class SocketService {
         console.error('Error marking messages as read:', error);
       }
     });
+
+    // Mark all messages in a chat as read
+    socket.on('chat:mark_all_read', async (data) => {
+      try {
+        const { chatId } = data;
+        
+        // Verify user is part of this chat
+        const chat = await Chat.findById(chatId);
+        if (!chat || !chat.participants.includes(socket.userId)) {
+          socket.emit('error', { message: 'Unauthorized to mark messages as read' });
+          return;
+        }
+        
+        await this.markChatMessagesAsRead(chatId, socket.userId);
+        
+        // Send real-time unread count update to the user who marked as read
+        const otherParticipants = chat.participants.filter(participantId => 
+          participantId.toString() !== socket.userId
+        );
+        
+        for (const participantId of otherParticipants) {
+          this.io.to(`user:${socket.userId}`).emit('chat:unread_count_update', {
+            chatId: chatId,
+            userId: participantId.toString(), // other participant's userId for frontend mapping
+            unreadCount: 0 // reset to 0 since messages are now read
+          });
+        }
+        
+        // Notify other participants that messages were read
+        socket.to(`chat:${chatId}`).emit('chat:messages_read', {
+          userId: socket.userId,
+          chatId
+        });
+        
+        console.log(`✅ Marked all messages as read in chat ${chatId} for user ${socket.userId} via socket`);
+      } catch (error) {
+        console.error('Error marking all messages as read:', error);
+        socket.emit('error', { message: 'Failed to mark messages as read' });
+      }
+    });
   }
 
   handleNotificationEvents(socket) {

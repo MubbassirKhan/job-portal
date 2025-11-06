@@ -1,0 +1,2051 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+  Container,
+  Typography,
+  Box,
+  CardContent,
+  Avatar,
+  IconButton,
+  Button,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Chip,
+  Divider,
+  Grid,
+  CircularProgress,
+  Alert,
+  Paper,
+  Skeleton,
+  Fab,
+  Stack,
+  Badge,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+  ToggleButton,
+  ToggleButtonGroup,
+  Card,
+  CardMedia,
+  Snackbar
+} from '@mui/material';
+import {
+  FavoriteOutlined,
+  Favorite,
+  ChatBubbleOutline,
+  Share,
+  MoreVert,
+  Add,
+  Send,
+  Close,
+  Visibility,
+  Public,
+  Group,
+  TrendingUp,
+  PhotoCamera,
+  GridView,
+  ViewCarousel,
+  Delete
+} from '@mui/icons-material';
+import { motion, AnimatePresence } from 'framer-motion';
+import { socialAPI } from '../utils/socialAPI';
+import { useSocketEvent } from '../hooks/useSocket';
+import { SERVER_BASE_URL } from '../config/api';
+
+const SocialFeed = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+  
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [createPostOpen, setCreatePostOpen] = useState(false);
+  const [newPost, setNewPost] = useState({
+    content: '',
+    visibility: 'public',
+    media: [],
+    mediaBase64: [],
+    imageLayout: 'grid' // 'grid' or 'carousel'
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [commentDialogs, setCommentDialogs] = useState({});
+  const [commentInputs, setCommentInputs] = useState({});
+  const [likeDialogs, setLikeDialogs] = useState({});
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+  const [quickComments] = useState([
+    "Great post! 👍",
+    "Thanks for sharing!",
+    "Very informative 💡",
+    "Congratulations! 🎉",
+    "Inspiring work!",
+    "Well said! 💯",
+    "Love this! ❤️",
+    "So true!",
+    "Amazing! 🔥",
+    "Keep it up! 💪"
+  ]);
+
+  const showNotification = useCallback((message, severity = 'info') => {
+    setNotification({ open: true, message, severity });
+  }, [setNotification]);
+
+  const handleNotificationClose = useCallback((_event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setNotification(prev => ({ ...prev, open: false }));
+  }, [setNotification]);
+
+  // Load feed posts
+  const loadFeed = useCallback(async (pageNum = 1, reset = false) => {
+    try {
+      setLoading(pageNum === 1);
+      const response = await socialAPI.getFeed(pageNum, 10);
+      
+      // Ensure all posts have consistent structure with proper counts and isLiked state
+      const processedPosts = response.data.map(post => {
+        const isLiked = post.isLiked === true || (post.likes && Array.isArray(post.likes) && post.likes.some(like => {
+          const likeUserId = like.user?._id || like.user;
+          const currentUserId = localStorage.getItem('userId');
+          return likeUserId?.toString() === currentUserId;
+        }));
+
+        return {
+          ...post,
+          likeCount: post.likeCount ?? post.likes?.length ?? 0,
+          commentCount: post.commentCount ?? post.comments?.length ?? 0,
+          shareCount: post.shareCount ?? post.shares?.length ?? 0,
+          isLiked: isLiked
+        };
+      });
+      
+      if (reset) {
+        setPosts(removeDuplicatePosts(processedPosts));
+      } else {
+        setPosts(prev => removeDuplicatePosts([...prev, ...processedPosts]));
+      }
+      
+      setHasMore(response.pagination.hasMore);
+      setPage(pageNum);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadFeed();
+  }, [loadFeed]);
+
+  // Effect to clean up duplicates whenever posts change
+  useEffect(() => {
+    setPosts(prev => removeDuplicatePosts(prev));
+  }, []);
+
+  // Check for success message after page refresh
+  useEffect(() => {
+    const showSuccess = localStorage.getItem('showPostSuccess');
+    if (showSuccess === 'true') {
+      // Remove the flag first
+      localStorage.removeItem('showPostSuccess');
+      
+  // Show short success notification after a brief delay
+      setTimeout(() => {
+        showNotification('Post published successfully!', 'success');
+      }, 1000); // Show notification 1 second after page load
+    }
+  }, []);
+
+  // Helper function to remove duplicates from posts array
+  const removeDuplicatePosts = (posts) => {
+    const seen = new Set();
+    return posts.filter(post => {
+      if (seen.has(post._id)) {
+        return false;
+      }
+      seen.add(post._id);
+      return true;
+    });
+  };
+
+  // Socket event handlers for real-time updates
+  useSocketEvent('post:updated', (data) => {
+    if (data.type === 'new_post') {
+      // Check if post already exists to prevent duplicates
+      setPosts(prev => {
+        const postExists = prev.some(post => post._id === data.post._id);
+        if (!postExists) {
+          // Ensure new post has proper structure with counts
+          const newPost = {
+            ...data.post,
+            likeCount: data.post.likes?.length || 0,
+            commentCount: data.post.comments?.length || 0,
+            shareCount: data.post.shares?.length || 0,
+            isLiked: false // New posts are not liked by current user
+          };
+          const newPosts = [newPost, ...prev];
+          return removeDuplicatePosts(newPosts);
+        }
+        return prev;
+      });
+    } else if (data.type === 'post_liked' || data.type === 'post_unliked') {
+      // Handle like updates from other users
+      setPosts(prev => prev.map(post => 
+        post._id === data.postId 
+          ? { 
+              ...post, 
+              likeCount: data.likeCount,
+              likes: data.likes || post.likes
+            }
+          : post
+      ));
+    } else if (data.type === 'post_commented') {
+      // Handle comment updates from other users
+      setPosts(prev => prev.map(post => 
+        post._id === data.postId 
+          ? { 
+              ...post, 
+              commentCount: data.commentCount,
+              comments: data.comments || post.comments
+            }
+          : post
+      ));
+    }
+  });
+
+  // Handle post interactions
+  const handleLike = async (postId) => {
+    try {
+      // Optimistic update
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { 
+              ...post, 
+              isLiked: !post.isLiked,
+              likeCount: post.isLiked ? (post.likeCount || 0) - 1 : (post.likeCount || 0) + 1
+            }
+          : post
+      ));
+
+  const response = await socialAPI.toggleLike(postId);
+      
+      // Update with server response to ensure consistency
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { 
+              ...post, 
+              isLiked: response.data.isLiked === true,
+              likeCount: response.data.likeCount || 0,
+              likes: response.data.likes || post.likes // Preserve existing likes if response doesn't include them
+            }
+          : post
+      ));
+    } catch (error) {
+      console.error('Error liking post:', error);
+      // Revert optimistic update on error
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { 
+              ...post, 
+              isLiked: !post.isLiked,
+              likeCount: post.isLiked ? (post.likeCount || 0) + 1 : (post.likeCount || 0) - 1
+            }
+          : post
+      ));
+    }
+  };
+
+  const handleComment = async (postId, content) => {
+    if (!content.trim()) return;
+
+    try {
+      // Optimistic update
+      const tempComment = {
+        _id: `temp-${Date.now()}`,
+        content: content.trim(),
+        user: {
+          profile: {
+            firstName: 'Posting...',
+            lastName: ''
+          }
+        },
+        createdAt: new Date().toISOString()
+      };
+
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { 
+              ...post, 
+              comments: [...(post.comments || []), tempComment],
+              commentCount: (post.commentCount || 0) + 1
+            }
+          : post
+      ));
+
+      const response = await socialAPI.addComment(postId, content);
+      
+      // Update with server response
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { 
+              ...post, 
+              comments: response.data.comments || [...(post.comments || []).filter(c => !c._id.startsWith('temp-')), response.data.comment],
+              commentCount: response.data.commentCount || (post.commentCount || 0)
+            }
+          : post
+      ));
+      
+      // Clear the comment input
+      setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      // Revert optimistic update on error
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { 
+              ...post, 
+              comments: (post.comments || []).filter(c => !c._id.startsWith('temp-')),
+              commentCount: Math.max(0, (post.commentCount || 0) - 1)
+            }
+          : post
+      ));
+    }
+  };
+
+  const handleShare = async (postId) => {
+    try {
+      const postUrl = `${window.location.origin}/feed/post/${postId}`;
+      await navigator.clipboard.writeText(postUrl);
+      showNotification('Post link copied to clipboard!', 'success');
+      
+      // Optimistic update
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { 
+              ...post, 
+              shareCount: (post.shareCount || 0) + 1
+            }
+          : post
+      ));
+      
+    } catch (error) {
+      console.error('Share copy failed:', error);
+      showNotification('Failed to copy link. Please try again.', 'error');
+      
+      // Revert optimistic update on error
+      setPosts(prev => prev.map(post => 
+        post._id === postId 
+          ? { 
+              ...post, 
+              shareCount: Math.max(0, (post.shareCount || 0) - 1)
+            }
+          : post
+      ));
+    }
+  };
+
+  const handleQuickComment = async (postId, comment) => {
+    await handleComment(postId, comment);
+  };
+
+  const toggleCommentDialog = async (postId) => {
+    const isOpening = !commentDialogs[postId];
+    
+    setCommentDialogs(prev => ({ 
+      ...prev, 
+      [postId]: isOpening
+    }));
+    
+    // Fetch fresh data when opening comment dialog to ensure user data is populated
+    if (isOpening) {
+      try {
+        const response = await socialAPI.getPost(postId);
+        
+        setPosts(prev => prev.map(post => 
+          post._id === postId 
+            ? { 
+                ...post, 
+                comments: response.data.comments || post.comments,
+                likes: response.data.likes || post.likes,
+                likeCount: response.data.likeCount ?? post.likeCount,
+                commentCount: response.data.commentCount ?? post.commentCount,
+                shareCount: response.data.shareCount ?? post.shareCount
+              }
+            : post
+        ));
+      } catch (error) {
+        console.error('Error fetching post data for comments:', error);
+      }
+    }
+  };
+
+  const toggleLikeDialog = async (postId) => {
+    const isOpening = !likeDialogs[postId];
+    
+    setLikeDialogs(prev => ({ 
+      ...prev, 
+      [postId]: isOpening
+    }));
+    
+    // Always fetch fresh data when opening dialog to ensure user data is populated
+    if (isOpening) {
+      try {
+  const response = await socialAPI.getPost(postId);
+        
+        setPosts(prev => prev.map(post => 
+          post._id === postId 
+            ? { 
+                ...post, 
+                likes: response.data.likes || post.likes,
+                comments: response.data.comments || post.comments,
+                likeCount: response.data.likeCount ?? post.likeCount,
+                commentCount: response.data.commentCount ?? post.commentCount,
+                shareCount: response.data.shareCount ?? post.shareCount
+              }
+            : post
+        ));
+      } catch (error) {
+        console.error('Error fetching post data:', error);
+      }
+    }
+  };
+
+  const handleCommentInputChange = (postId, value) => {
+    setCommentInputs(prev => ({ 
+      ...prev, 
+      [postId]: value 
+    }));
+  };
+
+  // Handle post creation
+  const handleCreatePost = async () => {
+    if (!newPost.content.trim()) return;
+
+    setSubmitting(true);
+    setError(''); // Clear any previous errors
+    
+    try {
+      await socialAPI.createPost(newPost);
+      // Don't add to posts here and don't reload feed - let socket handle it to prevent duplicates
+      setNewPost({ content: '', visibility: 'public', media: [], mediaBase64: [], imageLayout: 'grid' });
+      setCreatePostOpen(false);
+      
+      // Set flag for success message after refresh
+      localStorage.setItem('showPostSuccess', 'true');
+      
+      // Refresh the page immediately to show the new post
+      setTimeout(() => {
+        window.location.reload();
+      }, 500); // Quick refresh after 0.5 seconds
+    } catch (error) {
+      setError(error.message);
+      showNotification(error.message || 'Failed to publish post', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleMediaChange = (event) => {
+    const files = Array.from(event.target.files);
+    
+    // Convert files to Base64
+    const processFiles = async () => {
+      const base64Files = [];
+      
+      for (const file of files) {
+        if (file.type.startsWith('image/')) {
+          try {
+            const base64 = await convertFileToBase64(file);
+            base64Files.push(base64);
+          } catch (error) {
+            console.error('Error converting file to base64:', error);
+          }
+        }
+      }
+      
+      setNewPost(prev => ({ 
+        ...prev, 
+        media: files, // Keep original files for fallback
+        mediaBase64: base64Files // Add base64 data
+      }));
+    };
+    
+    processFiles();
+  };
+
+  // Helper function to convert file to Base64
+  const convertFileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const formatTimeAgo = (date) => {
+    if (!date) return 'Unknown time';
+    
+    const now = new Date();
+    const postDate = new Date(date);
+    
+    // Check if the date is valid
+    if (isNaN(postDate.getTime())) {
+      return 'Unknown time';
+    }
+    
+    const diffMs = now - postDate;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return postDate.toLocaleDateString();
+  };
+
+  return (
+    <>
+      <Box sx={{ 
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)',
+        pt: { xs: 10, sm: 11, md: 12 },
+        pb: { xs: 1, md: 2 },
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.15) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }
+      }}>
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          px: { xs: 1, sm: 2, md: 3 },
+          position: 'relative',
+          zIndex: 1
+        }}
+      >
+        {/* Professional Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Paper
+            elevation={0}
+            sx={{
+              background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+              color: '#ffffff',
+              p: { xs: 2, md: 3 },
+              mb: 2,
+              borderRadius: 0,
+              textAlign: 'center',
+              border: '2px solid rgba(0, 255, 136, 0.4)',
+              backdropFilter: 'blur(10px)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '4px',
+                background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+              }
+            }}
+          >
+            <Typography 
+              variant={isMobile ? "h6" : "h5"} 
+              sx={{ 
+                fontWeight: 800, 
+                mb: 1,
+                color: '#ffffff',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontSize: { xs: '1.2rem', md: '1.5rem' }
+              }}
+            >
+              Professional Feed
+            </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'rgba(255, 255, 255, 0.8)',
+                fontSize: { xs: '0.85rem', md: '0.95rem' },
+                fontWeight: 500
+              }}
+            >
+              Connect, share, and grow with your professional network
+            </Typography>
+          </Paper>
+        </motion.div>
+
+        <Grid container spacing={2}>
+          {/* Left Sidebar - Professional Dark */}
+          {!isMobile && (
+            <Grid item lg={2.5} md={3}>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: 2, 
+                    borderRadius: 0,
+                    background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                    position: 'sticky',
+                    top: 20,
+                    border: '2px solid rgba(0, 255, 136, 0.4)',
+                    backdropFilter: 'blur(10px)',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '4px',
+                      background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+                    }
+                  }}
+                >
+                  <Typography 
+                    variant="subtitle1" 
+                    sx={{ 
+                      fontWeight: 700, 
+                      mb: 1.5, 
+                      color: '#ffffff',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    Quick Stats
+                  </Typography>
+                  <Stack spacing={1.5}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1, 
+                      p: 1.5, 
+                      background: 'rgba(0, 255, 136, 0.05)', 
+                      borderRadius: 0,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        background: 'rgba(0, 255, 136, 0.1)',
+                        transform: 'translateX(2px)'
+                      }
+                    }}>
+                      <TrendingUp sx={{ color: '#00ff88', fontSize: 18 }} />
+                      <Typography variant="body2" sx={{ fontWeight: 500, color: 'rgba(255, 255, 255, 0.9)' }}>
+                        {posts.length} Posts Today
+                      </Typography>
+                    </Box>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1, 
+                      p: 1.5, 
+                      background: 'rgba(0, 255, 136, 0.05)', 
+                      borderRadius: 0,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        background: 'rgba(0, 255, 136, 0.1)',
+                        transform: 'translateX(2px)'
+                      }
+                    }}>
+                      <Group sx={{ color: '#00ff88', fontSize: 18 }} />
+                      <Typography variant="body2" sx={{ fontWeight: 500, color: 'rgba(255, 255, 255, 0.9)' }}>
+                        Professional Network
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Paper>
+              </motion.div>
+            </Grid>
+          )}
+
+          {/* Main Content - Professional Dark */}
+          <Grid item xs={12} md={isMobile ? 12 : 6} lg={7}>
+            {/* Professional Create Post Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <Paper 
+                elevation={0}
+                sx={{ 
+                  mb: 2,
+                  borderRadius: 0,
+                  overflow: 'hidden',
+                  background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                  border: '2px solid rgba(0, 255, 136, 0.4)',
+                  backdropFilter: 'blur(10px)',
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '4px',
+                    background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+                  }
+                }}
+              >
+                <CardContent sx={{ p: 2 }}>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      startIcon={<Add />}
+                      onClick={() => setCreatePostOpen(true)}
+                      sx={{
+                        py: 1.5,
+                        textTransform: 'uppercase',
+                        fontSize: { xs: '0.85rem', md: '0.9rem' },
+                        borderRadius: 0,
+                        fontWeight: 700,
+                        letterSpacing: '0.5px',
+                        background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                        color: '#000000',
+                        border: '2px solid #00ff88',
+                        boxShadow: '0 4px 20px rgba(0, 255, 136, 0.3)',
+                        '&:hover': {
+                          background: 'transparent',
+                          color: '#00ff88',
+                          border: '2px solid #00ff88',
+                          boxShadow: '0 6px 25px rgba(0, 255, 136, 0.4)',
+                          transform: 'translateY(-2px)'
+                        },
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                      }}
+                    >
+                      Share an update with your network
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Paper>
+            </motion.div>
+
+            {/* Professional Error Alert */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert 
+                    severity="error" 
+                    sx={{ 
+                      mb: 2,
+                      borderRadius: 0,
+                      background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)',
+                      border: '2px solid rgba(239, 68, 68, 0.4)',
+                      color: '#ffffff',
+                      backdropFilter: 'blur(10px)',
+                      '& .MuiAlert-icon': {
+                        fontSize: '1.2rem',
+                        color: '#ef4444'
+                      }
+                    }} 
+                    onClose={() => setError('')}
+                  >
+                    {error}
+                  </Alert>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Compact Loading Skeletons */}
+            {loading && posts.length === 0 && (
+              <Stack spacing={2}>
+                {[1, 2, 3].map((item) => (
+                  <Paper key={item} elevation={1} sx={{ p: 2, borderRadius: 0, border: '1px solid rgba(0,0,0,0.08)' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                      <Skeleton variant="circular" width={40} height={40} />
+                      <Box sx={{ ml: 1.5, flex: 1 }}>
+                        <Skeleton variant="text" width="50%" height={20} />
+                        <Skeleton variant="text" width="30%" height={16} />
+                      </Box>
+                    </Box>
+                    <Skeleton variant="text" width="100%" height={16} />
+                    <Skeleton variant="text" width="70%" height={16} />
+                    <Skeleton variant="rectangular" width="100%" height={150} sx={{ mt: 1.5, borderRadius: 0 }} />
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
+            {/* Posts Feed - Compact and Professional */}
+            <Stack spacing={2}>
+              <AnimatePresence>
+        {posts.map((post, index) => {
+          // Validate post structure - ONLY LOG ERRORS
+          if (!post._id) {
+            console.error('❌ Post missing _id:', post);
+            return null;
+          }
+          if (!post.author) {
+            console.error('❌ Post missing author:', post);
+            return null;
+          }
+          if (post.author && !post.author.profile) {
+            console.error('❌ Post author missing profile:', post.author);
+            return null;
+          }
+          if (!motion || !motion.div) {
+            console.error('❌ Framer Motion not available');
+            return null;
+          }
+          
+          try {
+            return (
+          <motion.div
+            key={post._id}
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ 
+              delay: index * 0.05,
+              duration: 0.4,
+              type: "spring",
+              stiffness: 100
+            }}
+            whileHover={{ 
+              scale: 1.02,
+              transition: { duration: 0.2 }
+            }}
+          >
+            <Paper 
+              elevation={0}
+              sx={{ 
+                borderRadius: 0,
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                border: '2px solid rgba(0, 255, 136, 0.4)',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative',
+                '&:hover': {
+                  boxShadow: '0 20px 40px rgba(0, 255, 136, 0.3)',
+                  borderColor: '#00ff88',
+                  transform: 'translateY(-2px)',
+                  '&::before': {
+                    opacity: 1
+                  }
+                },
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '4px',
+                  background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+                  opacity: 0.7,
+                  transition: 'opacity 0.3s ease'
+                }
+              }}
+            >
+              {/* Compact Post Header */}
+              <CardContent sx={{ p: 2, pb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Badge
+                    overlap="circular"
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    badgeContent={
+                      <Box sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        backgroundColor: '#22c55e',
+                        border: '2px solid white'
+                      }} />
+                    }
+                  >
+                    <Avatar
+                      component={post.author?._id ? RouterLink : 'div'}
+                      to={post.author?._id ? `/profile/${post.author._id}` : undefined}
+                      src={post.author.profile.profileImage}
+                      sx={{ 
+                        width: 40,
+                        height: 40,
+                        mr: 1.5,
+                        border: '2px solid rgba(0, 255, 136, 0.5)',
+                        borderRadius: 0,
+                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%)',
+                        color: '#00ff88',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'scale(1.1)',
+                          borderColor: '#00ff88',
+                          boxShadow: '0 4px 12px rgba(0, 255, 136, 0.4)'
+                        }
+                      }}
+                    >
+                      {post.author.profile.firstName?.charAt(0)}
+                    </Avatar>
+                  </Badge>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography 
+                      variant="subtitle2" 
+                      component={post.author?._id ? RouterLink : 'span'}
+                      to={post.author?._id ? `/profile/${post.author._id}` : undefined}
+                      sx={{ 
+                        fontWeight: 700,
+                        color: '#ffffff',
+                        fontSize: '0.95rem',
+                        lineHeight: 1.2,
+                        cursor: post.author?._id ? 'pointer' : 'default',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          color: '#00ff88',
+                          transform: post.author?._id ? 'translateX(2px)' : 'none'
+                        }
+                      }}
+                    >
+                      {post.author.profile.firstName} {post.author.profile.lastName}
+                    </Typography>
+                    <Typography 
+                      variant="caption" 
+                      sx={{ 
+                        fontWeight: 500,
+                        fontSize: '0.8rem',
+                        display: 'block',
+                        color: '#00ff88'
+                      }}
+                    >
+                      {post.author.profile.headline || (post.author.role === 'admin' ? 'Recruiter' : post.author.role)}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.2 }}>
+                      <Visibility sx={{ fontSize: 12, mr: 0.5, color: 'rgba(0, 255, 136, 0.7)' }} />
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          fontSize: '0.7rem',
+                          color: 'rgba(255, 255, 255, 0.7)'
+                        }}
+                      >
+                        {formatTimeAgo(post.createdAt)}
+                      </Typography>
+                      {post.visibility === 'public' && (
+                        <Tooltip title="Public post">
+                          <Public sx={{ fontSize: 12, ml: 0.5, color: 'rgba(0, 255, 136, 0.7)' }} />
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </Box>
+                  <Tooltip title="More options">
+                    <IconButton 
+                      size="small"
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                          color: '#00ff88'
+                        }
+                      }}
+                    >
+                      <MoreVert sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+
+                {/* Professional Post Content */}
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    mb: 1.5,
+                    lineHeight: 1.6,
+                    fontSize: '0.9rem',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    fontFamily: 'inherit'
+                  }}
+                >
+                  {post.content}
+                </Typography>
+
+                {/* Professional Post Type Indicator */}
+                {post.postType !== 'text' && (
+                  <Chip
+                    label={post.postType.replace('_', ' ').toUpperCase()}
+                    size="small"
+                    sx={{ 
+                      mb: 1.5,
+                      background: 'rgba(0, 255, 136, 0.15)',
+                      color: '#00ff88',
+                      border: '1px solid rgba(0, 255, 136, 0.4)',
+                      fontWeight: 600,
+                      fontSize: '0.7rem',
+                      height: 24,
+                      borderRadius: 0,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}
+                  />
+                )}
+
+                {/* Compact Media Display */}
+                {((post.mediaUrls && post.mediaUrls.length > 0) || (post.mediaBase64 && post.mediaBase64.length > 0)) && (
+                  <Box sx={{ mb: 1.5 }}>
+                    <Grid container spacing={0.5}>
+                      {/* Display base64 images if available */}
+                      {post.mediaBase64 && post.mediaBase64.length > 0 && post.mediaBase64.map((media, idx) => (
+                        <Grid item xs={post.mediaBase64.length === 1 ? 12 : 6} key={`base64-${idx}`}>
+                          <Box
+                            sx={{
+                              position: 'relative',
+                              borderRadius: 0, // Square edges
+                              overflow: 'hidden',
+                              border: '1px solid rgba(0,0,0,0.08)',
+                              backgroundColor: '#f8fafc', // Light background for contrast
+                              '&:hover img': {
+                                transform: 'scale(1.02)'
+                              }
+                            }}
+                          >
+                            <img
+                              src={`data:${media.mimeType};base64,${media.data}`}
+                              alt="Post media"
+                              style={{
+                                width: '100%',
+                                height: 'auto', // Auto height to maintain aspect ratio
+                                maxHeight: post.mediaBase64.length === 1 ? '400px' : '300px', // Max height constraint
+                                objectFit: 'contain', // Show full image without cropping
+                                transition: 'transform 0.3s ease',
+                                display: 'block'
+                              }}
+                              onError={(e) => {
+                                console.warn('Base64 image failed to load for post:', post._id);
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          </Box>
+                        </Grid>
+                      ))}
+                      
+                      {/* Fallback to URL-based images if no base64 images */}
+                      {(!post.mediaBase64 || post.mediaBase64.length === 0) && post.mediaUrls && post.mediaUrls.map((url, idx) => (
+                        <Grid item xs={post.mediaUrls.length === 1 ? 12 : 6} key={`url-${idx}`}>
+                          <Box
+                            sx={{
+                              position: 'relative',
+                              borderRadius: 0, // Square edges
+                              overflow: 'hidden',
+                              border: '1px solid rgba(0,0,0,0.08)',
+                              backgroundColor: '#f8fafc', // Light background for contrast
+                              '&:hover img': {
+                                transform: 'scale(1.02)'
+                              }
+                            }}
+                          >
+                            <img
+                              src={url.startsWith('http') ? url : `${SERVER_BASE_URL}${url}`}
+                              alt="Post media"
+                              style={{
+                                width: '100%',
+                                height: 'auto', // Auto height to maintain aspect ratio
+                                maxHeight: post.mediaUrls.length === 1 ? '400px' : '300px', // Max height constraint
+                                objectFit: 'contain', // Show full image without cropping
+                                transition: 'transform 0.3s ease',
+                                display: 'block'
+                              }}
+                              onError={(e) => {
+                                console.warn('Legacy image URL failed to load:', url);
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                )}
+
+                {/* Professional Engagement Stats */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  mb: 1,
+                  pt: 1.5,
+                  borderTop: '2px solid rgba(0, 255, 136, 0.2)'
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    {/* Professional Like Button */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.8,
+                        cursor: 'pointer',
+                        p: 0.8,
+                        borderRadius: 0,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: post.isLiked ? 'rgba(239, 68, 68, 0.2)' : 'rgba(0, 255, 136, 0.1)',
+                          transform: 'scale(1.05)'
+                        }
+                      }}
+                      onClick={() => handleLike(post._id)}
+                    >
+                      {post.isLiked ? (
+                        <Favorite sx={{ color: '#ef4444', fontSize: 18 }} />
+                      ) : (
+                        <FavoriteOutlined sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 18 }} />
+                      )}
+                      <Typography 
+                        variant="caption" 
+                        color={post.isLiked ? '#ef4444' : 'rgba(255, 255, 255, 0.8)'}
+                        sx={{ fontWeight: 600, fontSize: '0.8rem' }}
+                      >
+                        {post.likeCount || 0}
+                      </Typography>
+                    </Box>
+
+                    {/* Professional Comment Button */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.8,
+                        cursor: 'pointer',
+                        p: 0.8,
+                        borderRadius: 0,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                          color: '#00ff88',
+                          transform: 'scale(1.05)'
+                        }
+                      }}
+                      onClick={() => toggleCommentDialog(post._id)}
+                    >
+                      <ChatBubbleOutline sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 20 }} />
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 500,
+                          color: 'rgba(255, 255, 255, 0.8)'
+                        }}
+                      >
+                        {post.commentCount || 0} Comment{(post.commentCount || 0) !== 1 ? 's' : ''}
+                      </Typography>
+                    </Box>
+
+                    {/* Professional Share Button */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        cursor: 'pointer',
+                        p: 1,
+                        borderRadius: 0,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                          color: '#00ff88',
+                          transform: 'scale(1.05)'
+                        }
+                      }}
+                      onClick={() => handleShare(post._id)}
+                    >
+                      <Share sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 20 }} />
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 500,
+                          color: 'rgba(255, 255, 255, 0.8)'
+                        }}
+                      >
+                        {post.shareCount || 0} Share{(post.shareCount || 0) !== 1 ? 's' : ''}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Professional like counter */}
+                  {(post.likeCount || 0) > 0 && (
+                    <Typography 
+                      variant="caption" 
+                      sx={{
+                        cursor: 'pointer',
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        '&:hover': {
+                          color: '#00ff88',
+                          textDecoration: 'underline'
+                        }
+                      }}
+                      onClick={() => toggleLikeDialog(post._id)}
+                    >
+                      {post.likeCount} {post.likeCount === 1 ? 'person likes' : 'people like'} this
+                    </Typography>
+                  )}
+                </Box>
+              </CardContent>
+
+              <Divider sx={{ borderColor: 'rgba(0, 255, 136, 0.3)', opacity: 0.8 }} />
+
+              {/* Comments Section */}
+              {commentDialogs[post._id] && (
+                <CardContent sx={{ pt: 1, pb: 2 }}>
+                  <Divider sx={{ mb: 2, borderColor: 'rgba(0, 255, 136, 0.2)' }} />
+                  
+                  {/* Quick Comment Options */}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, color: 'rgba(255, 255, 255, 0.8)', fontWeight: 600 }}>
+                      Quick replies:
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {quickComments.slice(0, 5).map((comment, idx) => (
+                        <Chip
+                          key={idx}
+                          label={comment}
+                          size="small"
+                          variant="outlined"
+                          onClick={() => handleQuickComment(post._id, comment)}
+                          sx={{ 
+                            fontSize: '0.75rem',
+                            borderColor: 'rgba(0, 255, 136, 0.4)',
+                            color: 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: 0,
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 255, 136, 0.15)',
+                              borderColor: '#00ff88',
+                              color: '#ffffff'
+                            }
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+
+                  {/* Custom Comment Input */}
+                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                    <TextField
+                      size="small"
+                      placeholder="Write a comment..."
+                      fullWidth
+                      value={commentInputs[post._id] || ''}
+                      onChange={(e) => handleCommentInputChange(post._id, e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && commentInputs[post._id]?.trim()) {
+                          handleComment(post._id, commentInputs[post._id]);
+                        }
+                      }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 0,
+                          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                          color: '#ffffff',
+                          '& fieldset': {
+                            borderColor: 'rgba(0, 255, 136, 0.3)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(0, 255, 136, 0.5)',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#00ff88',
+                          },
+                          '& input': {
+                            color: '#ffffff',
+                            '&::placeholder': {
+                              color: 'rgba(255, 255, 255, 0.5)',
+                              opacity: 1
+                            }
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="contained"
+                      size="small"
+                      disabled={!commentInputs[post._id]?.trim()}
+                      onClick={() => handleComment(post._id, commentInputs[post._id])}
+                      sx={{ 
+                        minWidth: 'auto', 
+                        px: 2,
+                        borderRadius: 0,
+                        background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                        color: '#000000',
+                        fontWeight: 700,
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                        },
+                        '&.Mui-disabled': {
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                      }}
+                    >
+                      Post
+                    </Button>
+                  </Box>
+
+                  {/* Existing Comments */}
+                  {post.comments && post.comments.length > 0 && (
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ mb: 1, color: 'rgba(255, 255, 255, 0.8)', fontWeight: 600 }}>
+                        Comments ({post.comments.length}):
+                      </Typography>
+                      {post.comments.slice(-5).map((comment) => (
+                        <Box key={comment._id} sx={{ 
+                          mb: 1, 
+                          p: 1.5, 
+                          background: 'rgba(0, 255, 136, 0.05)', 
+                          border: '1px solid rgba(0, 255, 136, 0.2)',
+                          borderRadius: 0
+                        }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                            <Avatar sx={{ 
+                              width: 24, 
+                              height: 24,
+                              background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                              color: '#000000',
+                              fontSize: '0.75rem',
+                              fontWeight: 700
+                            }}>
+                              {comment.user?.profile?.firstName?.charAt(0) || comment.user?.email?.charAt(0) || 'U'}
+                            </Avatar>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#ffffff' }}>
+                              {comment.user?.profile?.firstName && comment.user?.profile?.lastName 
+                                ? `${comment.user.profile.firstName} ${comment.user.profile.lastName}`
+                                : comment.user?.email || 'Anonymous User'
+                              }
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                              {formatTimeAgo(comment.createdAt)}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" sx={{ ml: 4, color: 'rgba(255, 255, 255, 0.9)' }}>
+                            {comment.content}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </CardContent>
+              )}
+
+              {/* Old Comments Section for existing posts */}
+              {!commentDialogs[post._id] && post.comments && post.comments.length > 0 && (
+                <CardContent sx={{ pt: 0 }}>
+                  <Divider sx={{ mb: 2, borderColor: 'rgba(0, 255, 136, 0.2)' }} />
+                  {post.comments.slice(-3).map((comment) => (
+                    <Box key={comment._id} sx={{ mb: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Avatar size="small" sx={{ 
+                          width: 24, 
+                          height: 24,
+                          background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+                          color: '#000000',
+                          fontSize: '0.75rem',
+                          fontWeight: 700
+                        }}>
+                          {comment.user?.profile?.firstName?.charAt(0) || comment.user?.email?.charAt(0) || 'U'}
+                        </Avatar>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#ffffff' }}>
+                          {comment.user?.profile?.firstName && comment.user?.profile?.lastName 
+                            ? `${comment.user.profile.firstName} ${comment.user.profile.lastName}`
+                            : comment.user?.email || 'Anonymous User'
+                          }
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                          {formatTimeAgo(comment.createdAt)}
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" sx={{ ml: 4, color: 'rgba(255, 255, 255, 0.8)' }}>
+                        {comment.content}
+                      </Typography>
+                    </Box>
+                  ))}
+                </CardContent>
+              )}
+            </Paper>
+          </motion.div>
+          );
+          } catch (renderError) {
+            console.error('❌ Error rendering post:', {
+              postId: post._id,
+              error: renderError,
+              errorStack: renderError.stack
+            });
+            return null; // Skip rendering this post if there's an error
+          }
+        })}
+              </AnimatePresence>
+            </Stack>
+
+            {/* Compact Load More Button */}
+            {hasMore && !loading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button
+                  variant="contained"
+                  onClick={() => loadFeed(page + 1)}
+                  sx={{ 
+                    textTransform: 'none',
+                    borderRadius: 0, // Square edges
+                    px: 4,
+                    py: 1,
+                    background: 'linear-gradient(45deg, #1e293b, #334155)',
+                    color: 'white',
+                    fontWeight: 600,
+                    '&:hover': {
+                      background: 'linear-gradient(45deg, #0f172a, #1e293b)',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 6px 20px rgba(30, 41, 59, 0.3)'
+                    },
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  Load More Posts
+                </Button>
+              </Box>
+            )}
+          </Grid>
+
+          {/* Right Sidebar - Professional Dark */}
+          {!isTablet && (
+            <Grid item lg={2.5}>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: 2, 
+                    borderRadius: 0,
+                    background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
+                    position: 'sticky',
+                    top: 20,
+                    border: '2px solid rgba(0, 255, 136, 0.4)',
+                    backdropFilter: 'blur(10px)',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '4px',
+                      background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+                    }
+                  }}
+                >
+                  <Typography 
+                    variant="subtitle1" 
+                    sx={{ 
+                      fontWeight: 700, 
+                      mb: 1.5, 
+                      color: '#ffffff',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    Trending Topics
+                  </Typography>
+                  <Stack spacing={1}>
+                    {['#JobOpportunities', '#Networking', '#ProfessionalGrowth', '#CareerTips'].map((tag) => (
+                      <Chip
+                        key={tag}
+                        label={tag}
+                        size="small"
+                        sx={{
+                          justifyContent: 'flex-start',
+                          borderRadius: 0,
+                          background: 'rgba(0, 255, 136, 0.05)',
+                          color: 'rgba(255, 255, 255, 0.9)',
+                          fontSize: '0.75rem',
+                          height: 28,
+                          fontWeight: 600,
+                          '&:hover': {
+                            backgroundColor: 'rgba(0, 255, 136, 0.15)',
+                            color: '#00ff88',
+                            transform: 'translateX(2px)'
+                          },
+                          transition: 'all 0.3s ease'
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                  
+                  {/* Professional Activity Section */}
+                  <Box sx={{ mt: 3 }}>
+                    <Typography 
+                      variant="subtitle1" 
+                      sx={{ 
+                        fontWeight: 700, 
+                        mb: 1.5, 
+                        color: '#ffffff',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      Activity
+                    </Typography>
+                    <Stack spacing={1}>
+                      <Box 
+                        sx={{ 
+                          p: 1.5, 
+                          background: 'rgba(0, 255, 136, 0.05)', 
+                          borderRadius: 0,
+                          cursor: 'pointer',
+                          '&:hover': {
+                            background: 'rgba(0, 255, 136, 0.1)',
+                            transform: 'translateY(-2px)'
+                          },
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Posts Today
+                        </Typography>
+                        <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 700, fontSize: '1.5rem' }}>
+                          {posts.length}
+                        </Typography>
+                      </Box>
+                      <Box 
+                        sx={{ 
+                          p: 1.5, 
+                          background: 'rgba(0, 255, 136, 0.05)', 
+                          borderRadius: 0,
+                          cursor: 'pointer',
+                          '&:hover': {
+                            background: 'rgba(0, 255, 136, 0.1)',
+                            transform: 'translateY(-2px)'
+                          },
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Active Users
+                        </Typography>
+                        <Typography variant="h6" sx={{ color: '#00ff88', fontWeight: 700, fontSize: '1.5rem' }}>
+                          {Math.floor(posts.length * 1.5)}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Box>
+                </Paper>
+              </motion.div>
+            </Grid>
+          )}
+        </Grid>
+      </Container>
+
+      {/* Professional Floating Action Button for mobile */}
+      {isMobile && (
+        <Fab
+          color="primary"
+          aria-label="create post"
+          onClick={() => setCreatePostOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            right: 20,
+            borderRadius: 0,
+            background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
+            color: '#000000',
+            width: 56,
+            height: 56,
+            border: '2px solid rgba(0, 255, 136, 0.6)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+              transform: 'scale(1.1) rotate(90deg)',
+              boxShadow: '0 12px 32px rgba(0, 255, 136, 0.4)'
+            },
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: '0 8px 24px rgba(0, 255, 136, 0.3)'
+          }}
+        >
+          <Add sx={{ fontSize: 32, fontWeight: 700 }} />
+        </Fab>
+      )}
+    </Box>
+
+      {/* Like Dialog - Professional Dark Theme */}
+      <Dialog
+        open={Object.keys(likeDialogs).some(key => likeDialogs[key])}
+        onClose={() => setLikeDialogs({})}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 0,
+            background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '2px solid rgba(0, 255, 136, 0.4)',
+            boxShadow: '0 12px 40px rgba(0, 255, 136, 0.2)',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '4px',
+              background: 'linear-gradient(90deg, #00ff88 0%, #22c55e 100%)',
+            }
+          }
+        }}
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Favorite sx={{ color: '#00ff88', fontSize: 20 }} />
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 700, 
+                  color: '#ffffff',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}
+              >
+                People who liked this
+              </Typography>
+            </Box>
+            <IconButton 
+              onClick={() => setLikeDialogs({})}
+              sx={{ 
+                color: 'rgba(255, 255, 255, 0.7)',
+                '&:hover': { 
+                  backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                  color: '#00ff88',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ py: 1 }}>
+          {posts
+            .filter(post => likeDialogs[post._id])
+            .map(post => (
+              <Box key={post._id}>
+                {post.likes && post.likes.length > 0 ? (
+                  post.likes.map((like, index) => (
+                    <Box 
+                      key={like._id || like.user?._id || index} 
+                      sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 2, 
+                        py: 1.5,
+                        px: 1,
+                        borderRadius: 0,
+                        background: 'rgba(0, 255, 136, 0.05)',
+                        mb: 1,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                          transform: 'translateX(4px)'
+                        }
+                      }}
+                    >
+                      <Avatar 
+                        sx={{ 
+                          width: 40, 
+                          height: 40
+                        }}
+                        src={like.user?.profile?.profileImage}
+                      >
+                        {like.user?.profile?.firstName?.charAt(0) || like.user?.email?.charAt(0) || 'U'}
+                      </Avatar>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          {(() => {
+                            const user = like.user;
+                            if (!user) {
+                              console.error('❌ Like has no user data:', like);
+                              return 'Anonymous User';
+                            }
+                            if (user.profile?.firstName && user.profile?.lastName) {
+                              return `${user.profile.firstName} ${user.profile.lastName}`;
+                            }
+                            if (user.profile?.firstName) {
+                              return user.profile.firstName;
+                            }
+                            if (user.email) {
+                              const emailName = user.email.split('@')[0];
+                              return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+                            }
+                            if (user._id) {
+                              return `User ${user._id.slice(-4)}`;
+                            }
+                            return `User ${index + 1}`;
+                          })()}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {like.user?.profile?.headline || (like.user?.role === 'admin' ? 'Recruiter' : like.user?.role) || like.user?.email || 'User'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))
+                ) : (
+                  <Box sx={{ textAlign: 'center', py: 3 }}>
+                    <Typography color="text.secondary" variant="body2">
+                      No likes yet
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            ))}
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Post Dialog */}
+      <Dialog
+        open={createPostOpen}
+        onClose={() => setCreatePostOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
+          }
+        }}
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              ✨ Create Post
+            </Typography>
+            <IconButton onClick={() => setCreatePostOpen(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
+          <TextField
+            multiline
+            rows={6}
+            fullWidth
+            placeholder="What's on your mind? Share something inspiring...
+
+💡 Tip: Your text formatting (line breaks, spacing) will be preserved in your post!"
+            value={newPost.content}
+            onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
+            variant="outlined"
+            sx={{ 
+              mb: 2,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+                fontFamily: 'inherit',
+                lineHeight: 1.6
+              },
+              '& .MuiInputBase-input': {
+                fontSize: '0.95rem',
+                whiteSpace: 'pre-wrap', // Preserve whitespace and line breaks
+                fontFamily: 'inherit'
+              }
+            }}
+            inputProps={{
+              style: {
+                whiteSpace: 'pre-wrap', // Important for preserving formatting
+                fontFamily: 'inherit'
+              }
+            }}
+          />
+
+          {/* Live Preview Section */}
+          {newPost.content.trim() && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: '#6366f1' }}>
+                📝 Live Preview
+              </Typography>
+              <Paper
+                sx={{
+                  p: 2,
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: 2,
+                  border: '1px solid #e0e0e0'
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    lineHeight: 1.6,
+                    fontSize: '0.95rem',
+                    color: '#374151',
+                    whiteSpace: 'pre-wrap', // Same formatting as actual posts
+                    wordBreak: 'break-word',
+                    fontFamily: 'inherit'
+                  }}
+                >
+                  {newPost.content}
+                </Typography>
+              </Paper>
+            </Box>
+          )}
+          
+          <Stack direction="row" spacing={2} alignItems="center">
+            <input
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              onChange={handleMediaChange}
+              style={{ display: 'none' }}
+              id="media-upload"
+            />
+            <label htmlFor="media-upload">
+              <Button
+                component="span"
+                startIcon={<PhotoCamera />}
+                variant="outlined"
+                sx={{ 
+                  textTransform: 'none',
+                  borderRadius: 2,
+                  '&:hover': {
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)'
+                  }
+                }}
+              >
+                Add Photos
+              </Button>
+            </label>
+
+            <Chip
+              icon={<Public />}
+              label="Public"
+              variant="outlined"
+              size="small"
+              sx={{ borderRadius: 2 }}
+            />
+          </Stack>
+
+          {/* Image Preview Section */}
+          {newPost.mediaBase64.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              {/* Layout Options */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  📸 Image Preview ({newPost.mediaBase64.length} image{newPost.mediaBase64.length > 1 ? 's' : ''})
+                </Typography>
+                
+                <ToggleButtonGroup
+                  value={newPost.imageLayout}
+                  exclusive
+                  onChange={(e, newLayout) => {
+                    if (newLayout) {
+                      setNewPost(prev => ({ ...prev, imageLayout: newLayout }));
+                    }
+                  }}
+                  size="small"
+                  sx={{
+                    '& .MuiToggleButton-root': {
+                      borderRadius: 1.5,
+                      textTransform: 'none',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5
+                    }
+                  }}
+                >
+                  <ToggleButton value="grid">
+                    <GridView sx={{ fontSize: 16, mr: 0.5 }} />
+                    Grid
+                  </ToggleButton>
+                  <ToggleButton value="carousel">
+                    <ViewCarousel sx={{ fontSize: 16, mr: 0.5 }} />
+                    Carousel
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+
+              {/* Image Preview Display */}
+              <Box sx={{ 
+                p: 2, 
+                backgroundColor: '#f8f9fa', 
+                borderRadius: 2,
+                border: '1px solid #e0e0e0'
+              }}>
+                {newPost.imageLayout === 'grid' ? (
+                  // Grid Layout Preview
+                  <Grid container spacing={1}>
+                    {newPost.mediaBase64.map((base64, index) => (
+                      <Grid 
+                        item 
+                        xs={newPost.mediaBase64.length === 1 ? 12 : 6} 
+                        key={index}
+                      >
+                        <Box sx={{ position: 'relative' }}>
+                          <Card sx={{ borderRadius: 0, backgroundColor: '#f8fafc' }}> {/* Square edges and light background */}
+                            <CardMedia
+                              component="img"
+                              image={base64}
+                              alt={`Preview ${index + 1}`}
+                              sx={{
+                                width: '100%',
+                                height: 'auto', // Auto height to maintain aspect ratio
+                                maxHeight: newPost.mediaBase64.length === 1 ? 300 : 200, // Max height constraint
+                                objectFit: 'contain' // Show full image without cropping
+                              }}
+                            />
+                          </Card>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setNewPost(prev => ({
+                                ...prev,
+                                media: prev.media.filter((_, i) => i !== index),
+                                mediaBase64: prev.mediaBase64.filter((_, i) => i !== index)
+                              }));
+                            }}
+                            sx={{
+                              position: 'absolute',
+                              top: 4,
+                              right: 4,
+                              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 1)'
+                              }
+                            }}
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  // Carousel Layout Preview
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Card sx={{ borderRadius: 0, maxWidth: 400, mx: 'auto', backgroundColor: '#f8fafc' }}> {/* Square edges and light background */}
+                      <CardMedia
+                        component="img"
+                        image={newPost.mediaBase64[0]}
+                        alt="Carousel Preview"
+                        sx={{
+                          width: '100%',
+                          height: 'auto', // Auto height to maintain aspect ratio
+                          maxHeight: 300, // Max height constraint
+                          objectFit: 'contain' // Show full image without cropping
+                        }}
+                      />
+                    </Card>
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                      Carousel view - {newPost.mediaBase64.length} image{newPost.mediaBase64.length > 1 ? 's' : ''} will be displayed in a slideshow
+                    </Typography>
+                    <Box sx={{ mt: 1 }}>
+                      {newPost.mediaBase64.map((_, index) => (
+                        <IconButton
+                          key={index}
+                          size="small"
+                          onClick={() => {
+                            setNewPost(prev => ({
+                              ...prev,
+                              media: prev.media.filter((_, i) => i !== index),
+                              mediaBase64: prev.mediaBase64.filter((_, i) => i !== index)
+                            }));
+                          }}
+                          sx={{ mx: 0.5 }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          )}
+
+          {/* File Count Display (when no preview available) */}
+          {newPost.media.length > 0 && newPost.mediaBase64.length === 0 && (
+            <Box sx={{ mt: 2, p: 2, backgroundColor: '#f8f9fa', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                📎 {newPost.media.length} file(s) selected (processing...)
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 1 }}>
+          <Button 
+            onClick={() => setCreatePostOpen(false)}
+            sx={{ 
+              textTransform: 'none',
+              borderRadius: 2
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreatePost}
+            variant="contained"
+            disabled={!newPost.content.trim() || submitting}
+            startIcon={submitting ? <CircularProgress size={16} /> : <Send />}
+            sx={{
+              textTransform: 'none',
+              borderRadius: 2,
+              background: 'linear-gradient(45deg, #667eea, #764ba2)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #5a67d8, #6b46c1)'
+              },
+              '&:disabled': {
+                background: '#e0e0e0'
+              }
+            }}
+          >
+            {submitting ? 'Posting...' : 'Share Post'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={3000}
+        onClose={handleNotificationClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleNotificationClose}
+          severity={notification.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+    </>
+  );
+};
+
+export default SocialFeed;

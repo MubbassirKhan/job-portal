@@ -198,19 +198,46 @@ router.get('/my-connections', authenticateToken, async (req, res) => {
       limit: parseInt(limit)
     });
 
-    // Format response to show the other user in each connection
-    const formattedConnections = connections.map(connection => {
+    // Get chat information for each connection to include last message time
+    const Chat = require('../models/Chat');
+    const Message = require('../models/Message');
+
+    const formattedConnections = await Promise.all(connections.map(async (connection) => {
       const otherUser = connection.requester._id.toString() === userId 
         ? connection.recipient 
         : connection.requester;
       
+      // Find existing chat between users
+      const existingChat = await Chat.findOne({
+        participants: { $all: [userId, otherUser._id] },
+        chatType: 'direct'
+      }).sort({ updatedAt: -1 });
+
+      let lastMessageTime = null;
+      let hasMessages = false;
+
+      if (existingChat) {
+        // Get the latest message in this chat
+        const latestMessage = await Message.findOne({
+          chatId: existingChat._id
+        }).sort({ createdAt: -1 });
+
+        if (latestMessage) {
+          lastMessageTime = latestMessage.createdAt;
+          hasMessages = true;
+        }
+      }
+
       return {
         _id: connection._id,
         user: otherUser,
         connectionDate: connection.connectionDate,
-        createdAt: connection.createdAt
+        createdAt: connection.createdAt,
+        lastMessageTime,
+        hasMessages,
+        chatId: existingChat?._id
       };
-    });
+    }));
 
     res.json({
       success: true,

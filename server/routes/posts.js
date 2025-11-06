@@ -441,11 +441,19 @@ router.get('/feed', authenticateToken, async (req, res) => {
     console.log(`Found ${posts.length} posts for user feed`);
 
     // Add user interaction status for each post
-    const postsWithUserStatus = posts.map(post => ({
-      ...post,
-      isLiked: post.likes.some(like => like.user.toString() === userId),
-      isAuthor: post.author._id.toString() === userId
-    }));
+    const postsWithUserStatus = posts.map(post => {
+      const isLiked = post.likes && post.likes.some(like => 
+        like.user && (like.user._id ? like.user._id.toString() === userId : like.user.toString() === userId)
+      );
+      
+      console.log(`Post ${post._id}: isLiked=${isLiked}, likes count=${post.likes ? post.likes.length : 0}`);
+      
+      return {
+        ...post,
+        isLiked: isLiked,
+        isAuthor: post.author._id.toString() === userId
+      };
+    });
 
     console.log(`Returning ${postsWithUserStatus.length} posts with user status`);
 

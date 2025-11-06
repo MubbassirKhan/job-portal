@@ -1,3 +1,10 @@
+#Other Files
+server/secretcode_drive.json
+server/service-account.json
+server/google-oauth-tokens.json
+server/.env
+server/package-lock.json
+
 # Dependencies
 node_modules/
 */node_modules/

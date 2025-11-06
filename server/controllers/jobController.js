@@ -12,7 +12,11 @@ const getJobs = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     // Build query
-    let query = { isActive: true };
+    let query = { 
+      isActive: true,
+      // Only show jobs where deadline hasn't passed
+      applicationDeadline: { $gte: new Date() }
+    };
 
     // Search by text
     if (req.query.search) {
@@ -119,6 +123,19 @@ const getJob = async (req, res, next) => {
 // @access  Private/Recruiter
 const createJob = async (req, res, next) => {
   try {
+    if (req.body.applicationDeadline) {
+      const deadline = new Date(req.body.applicationDeadline);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (Number.isNaN(deadline.getTime()) || deadline <= today) {
+        return res.status(400).json({
+          success: false,
+          message: 'Application deadline must be a future date.'
+        });
+      }
+    }
+
     const jobData = {
       ...req.body,
       postedBy: req.user.id
@@ -158,6 +175,19 @@ const updateJob = async (req, res, next) => {
         success: false,
         message: 'Not authorized to update this job'
       });
+    }
+
+    if (req.body.applicationDeadline) {
+      const deadline = new Date(req.body.applicationDeadline);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (Number.isNaN(deadline.getTime()) || deadline <= today) {
+        return res.status(400).json({
+          success: false,
+          message: 'Application deadline must be a future date.'
+        });
+      }
     }
 
     job = await Job.findByIdAndUpdate(req.params.id, req.body, {
