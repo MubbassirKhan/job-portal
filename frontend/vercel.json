@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "rewrites": [
     {
       "source": "/(.*)",
@@ -7,17 +8,13 @@
   ],
   "redirects": [
     {
-      "source": "http://talenthub-portal.vercel.app/(.*)",
-      "destination": "https://talenthub-portal.vercel.app/$1",
-      "permanent": true
-    },
-    {
-      "source": "http://www.talenthub-portal.vercel.app/(.*)",
-      "destination": "https://talenthub-portal.vercel.app/$1",
-      "permanent": true
-    },
-    {
-      "source": "https://www.talenthub-portal.vercel.app/(.*)",
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "talenthub-portal.vercel.app"
+        }
+      ],
       "destination": "https://talenthub-portal.vercel.app/$1",
       "permanent": true
     }
