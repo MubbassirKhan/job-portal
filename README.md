@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="./github/favicon.png" alt="TalentHub Logo" width="120" height="120" style="border-radius: 20px;">
+  <img src="./.github/favicon.png" alt="TalentHub Logo" width="120" height="120" style="border-radius: 20px;">
   
   # TalentHub - Modern Job Portal Platform
   
   > A comprehensive full-stack job portal connecting talented candidates with leading employers through an intuitive, feature-rich platform.
 </div>
 
-![Homepage Demo](./github/homepage.gif)
+![Homepage Demo](./.github/homepage.gif)
 
 ## Key Features
 
@@ -26,7 +26,7 @@
 - **Communication Hub** - Direct messaging with applicants
 - **Status Management** - Track hiring pipeline efficiently
 
-![Jobs Page](./github/jobspage1.png)
+![Jobs Page](./.github/jobspage1.png)
 
 ## Tech Stack
 
