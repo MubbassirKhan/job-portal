@@ -63,7 +63,7 @@ MONGODB_URI=
 JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRE=7d
 BCRYPT_ROUNDS=12
-CLIENT_URL=http://localhost:3000
+CLIENT_URL=http://localhost:5173
 ```
 
 4. Start the development servers
@@ -73,7 +73,7 @@ npm run dev
 
 This will start:
 - Backend server on http://localhost:5000
-- Frontend development server on http://localhost:3000
+- Frontend development server on http://localhost:5173
 
 ### Production Build
 
