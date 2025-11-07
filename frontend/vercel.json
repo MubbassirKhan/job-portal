@@ -12,7 +12,7 @@
       "has": [
         {
           "type": "host",
-          "value": "talenthub-portal.vercel.app"
+          "value": "www.talenthub-portal.vercel.app"
         }
       ],
       "destination": "https://talenthub-portal.vercel.app/$1",
