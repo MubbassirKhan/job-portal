@@ -349,8 +349,15 @@ const RecruiterApplications = () => {
           transition={{ duration: 0.6 }}
         >
           <Box sx={{ mb: 6 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-              <Box>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'space-between', 
+              alignItems: { xs: 'flex-start', sm: 'center' }, 
+              gap: { xs: 3, sm: 2 },
+              mb: 2 
+            }}>
+              <Box sx={{ flex: 1 }}>
                 <Typography
                   variant="h3"
                   sx={{
@@ -359,47 +366,66 @@ const RecruiterApplications = () => {
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    mb: 1,
+                    mb: { xs: 1, sm: 1 },
+                    fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' },
+                    lineHeight: { xs: 1.2, sm: 1.1 }
                   }}
                 >
                   Application Management
                 </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 400, color: 'rgba(255, 255, 255, 0.8)' }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    fontWeight: 400, 
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
+                    lineHeight: { xs: 1.4, sm: 1.3 }
+                  }}
+                >
                   Review and manage job applications from candidates
-              </Typography>
+                </Typography>
+              </Box>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                width: { xs: '100%', sm: 'auto' },
+                justifyContent: { xs: 'flex-start', sm: 'flex-end' }
+              }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant="contained"
+                    size="large"
+                    startIcon={<Refresh />}
+                    onClick={fetchApplications}
+                    sx={{
+                      background: '#00ff88',
+                      color: '#000000',
+                      borderRadius: 0,
+                      px: { xs: 2, sm: 3 },
+                      py: { xs: 1.2, sm: 1.5 },
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      fontWeight: 600,
+                      border: '2px solid #00ff88',
+                      boxShadow: '0 8px 30px rgba(0, 255, 136, 0.3)',
+                      minWidth: { xs: 'auto', sm: '160px' },
+                      width: { xs: '100%', sm: 'auto' },
+                      '&:hover': {
+                        background: 'transparent',
+                        color: '#00ff88',
+                        boxShadow: '0 12px 40px rgba(0, 255, 136, 0.4)',
+                      }
+                    }}
+                  >
+                    Refresh Data
+                  </Button>
+                </motion.div>
+              </Box>
             </Box>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<Refresh />}
-                onClick={fetchApplications}
-                sx={{
-                  background: '#00ff88',
-                  color: '#000000',
-                  borderRadius: 0,
-                  px: 3,
-                  py: 1.5,
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  border: '2px solid #00ff88',
-                  boxShadow: '0 8px 30px rgba(0, 255, 136, 0.3)',
-                  '&:hover': {
-                    background: 'transparent',
-                    color: '#00ff88',
-                    boxShadow: '0 12px 40px rgba(0, 255, 136, 0.4)',
-                  }
-                }}
-              >
-                Refresh Data
-              </Button>
-            </motion.div>
           </Box>
-        </Box>
-      </motion.div>
+        </motion.div>
 
       {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 6 }}>
