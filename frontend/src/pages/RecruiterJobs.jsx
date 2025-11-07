@@ -828,7 +828,16 @@ const RecruiterJobs = () => {
           transition={{ duration: 0.6 }}
         >
           <Box sx={{ mb: 6 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'column', md: 'row' },
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', md: 'center' },
+                gap: { xs: 2, sm: 2, md: 3 },
+                mb: 2
+              }}
+            >
               <Box>
                 <Typography
                   variant="h3"
@@ -847,35 +856,37 @@ const RecruiterJobs = () => {
                   Create, edit, and manage your job postings with advanced analytics
                 </Typography>
               </Box>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<Add />}
-                onClick={() => setCreateJobDialog(true)}
-                sx={{
-                  background: '#00ff88',
-                  color: '#000000',
-                  borderRadius: 0,
-                  px: 3,
-                  py: 1.5,
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  border: '2px solid #00ff88',
-                  boxShadow: '0 8px 30px rgba(0, 255, 136, 0.3)',
-                  '&:hover': {
-                    background: 'transparent',
-                    color: '#00ff88',
-                    boxShadow: '0 12px 40px rgba(0, 255, 136, 0.4)',
-                  }
-                }}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ width: '100%' }}
               >
-                Post New Job
-              </Button>
-            </motion.div>
+                <Button
+                  variant="contained"
+                  size="large"
+                  startIcon={<Add />}
+                  onClick={() => setCreateJobDialog(true)}
+                  sx={{
+                    background: '#00ff88',
+                    color: '#000000',
+                    borderRadius: 0,
+                    px: 3,
+                    py: 1.5,
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    border: '2px solid #00ff88',
+                    boxShadow: '0 8px 30px rgba(0, 255, 136, 0.3)',
+                    width: { xs: '100%', sm: '100%', md: 'auto' },
+                    '&:hover': {
+                      background: 'transparent',
+                      color: '#00ff88',
+                      boxShadow: '0 12px 40px rgba(0, 255, 136, 0.4)',
+                    }
+                  }}
+                >
+                  Post New Job
+                </Button>
+              </motion.div>
           </Box>
         </Box>
       </motion.div>
@@ -952,8 +963,16 @@ const RecruiterJobs = () => {
         >
           <CardContent sx={{ p: 0 }}>
             <Box sx={{ p: 3, borderBottom: '1px solid rgba(0, 255, 136, 0.4)' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'column', md: 'row' },
+                  justifyContent: 'space-between',
+                  alignItems: { xs: 'flex-start', md: 'center' },
+                  gap: { xs: 2, sm: 2, md: 3 }
+                }}
+              >
+                <Box sx={{ width: '100%' }}>
                   <Typography variant="h5" sx={{ fontWeight: 600, mb: 1, color: '#ffffff' }}>
                     All Job Postings
                   </Typography>
@@ -961,7 +980,15 @@ const RecruiterJobs = () => {
                     Manage and track all your job listings
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: 1,
+                    flexWrap: 'wrap',
+                    width: { xs: '100%', sm: '100%', md: 'auto' },
+                    justifyContent: { xs: 'flex-start', md: 'flex-start' }
+                  }}
+                >
                   <Tooltip title="Filter Jobs">
                     <IconButton
                       sx={{

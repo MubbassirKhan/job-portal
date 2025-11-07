@@ -16,7 +16,8 @@ import {
   Search,
   MoreVert,
   EmojiEmotions,
-  ArrowBack
+  ArrowBack,
+  Close
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { socialAPI } from '../utils/socialAPI';
@@ -55,8 +56,10 @@ const Messages = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const searchInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const shouldAutoScroll = useRef(true);
   const messageInputRef = useRef(null);
@@ -665,6 +668,27 @@ const Messages = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [showEmojiPicker]);
 
+  // Search handlers
+  const handleOpenSearch = useCallback(() => {
+    setIsSearchActive(true);
+    // Focus the search input after state update
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  }, []);
+
+  const handleCloseSearch = useCallback(() => {
+    setIsSearchActive(false);
+    setSearchQuery(''); // Clear search when closing
+  }, []);
+
+  // Focus search input when search becomes active
+  useEffect(() => {
+    if (isSearchActive && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchActive]);
+
   const startConversationWithConnection = useCallback(async (connection) => {
     try {
       const targetUser = connection.user || connection;
@@ -1133,70 +1157,104 @@ const Messages = () => {
                 justifyContent: 'space-between',
               }}
             >
-              <Typography
-                variant="h5"
-                sx={{
-                  color: '#00ff88',
-                  fontWeight: 700,
-                  fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
-                  mb: { xs: 1, sm: 2 },
-                }}
-              >
-                Messages
-              </Typography>
-              
-              {/* Mobile menu icon could go here if needed */}
-
-
-
-
-              {/* Search Bar */}
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search conversations..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                sx={{
-                  mt: { xs: 0, sm: 0 },
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: { xs: '20px', sm: '25px' },
-                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                    color: '#ffffff',
-                    border: '1px solid rgba(0, 255, 136, 0.3)',
-                    fontSize: { xs: '0.85rem', sm: '0.9rem' },
-                    minHeight: { xs: '40px', sm: '44px' },
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                      borderColor: 'rgba(0, 255, 136, 0.5)',
-                    },
-                    '&.Mui-focused': {
-                      backgroundColor: 'rgba(0, 255, 136, 0.15)',
-                      borderColor: '#00ff88',
-                      boxShadow: '0 0 0 2px rgba(0, 255, 136, 0.2)'
-                    },
-                    '& fieldset': {
-                      border: 'none',
-                    }
-                  },
-                  '& .MuiInputBase-input': {
-                    color: '#ffffff',
-                    fontSize: { xs: '0.85rem', sm: '0.9rem' },
-                    padding: { xs: '8px 12px', sm: '10px 14px' },
-                    '&::placeholder': {
-                      color: 'rgba(255, 255, 255, 0.5)',
-                      opacity: 1
-                    }
-                  }
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search sx={{ color: '#00ff88', fontSize: { xs: 16, sm: 18 }, ml: { xs: 0.5, sm: 1 } }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              {!isSearchActive ? (
+                // Default header with Messages title and search icon
+                <>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      color: '#00ff88',
+                      fontWeight: 700,
+                      fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
+                    }}
+                  >
+                    Messages
+                  </Typography>
+                  <IconButton
+                    onClick={handleOpenSearch}
+                    sx={{
+                      color: '#00ff88',
+                      backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                      borderRadius: '8px',
+                      p: { xs: 1, sm: 1.2 },
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                        transform: 'scale(1.05)',
+                      },
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    <Search sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                  </IconButton>
+                </>
+              ) : (
+                // Search mode with full search bar
+                <>
+                  <TextField
+                    ref={searchInputRef}
+                    fullWidth
+                    size="small"
+                    placeholder="Search conversations..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={{
+                      mr: 1,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: { xs: '20px', sm: '25px' },
+                        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                        color: '#ffffff',
+                        border: '1px solid rgba(0, 255, 136, 0.3)',
+                        fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                        minHeight: { xs: '40px', sm: '44px' },
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          borderColor: 'rgba(0, 255, 136, 0.5)',
+                        },
+                        '&.Mui-focused': {
+                          backgroundColor: 'rgba(0, 255, 136, 0.15)',
+                          borderColor: '#00ff88',
+                          boxShadow: '0 0 0 2px rgba(0, 255, 136, 0.2)'
+                        },
+                        '& fieldset': {
+                          border: 'none',
+                        }
+                      },
+                      '& .MuiInputBase-input': {
+                        color: '#ffffff',
+                        fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                        padding: { xs: '8px 12px', sm: '10px 14px' },
+                        '&::placeholder': {
+                          color: 'rgba(255, 255, 255, 0.5)',
+                          opacity: 1
+                        }
+                      }
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search sx={{ color: '#00ff88', fontSize: { xs: 16, sm: 18 }, ml: { xs: 0.5, sm: 1 } }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <IconButton
+                    onClick={handleCloseSearch}
+                    sx={{
+                      color: '#00ff88',
+                      backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                      borderRadius: '8px',
+                      p: { xs: 1, sm: 1.2 },
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                        transform: 'scale(1.05)',
+                      },
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    <Close sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                  </IconButton>
+                </>
+              )}
             </Box>
 
             {/* Chat List */}

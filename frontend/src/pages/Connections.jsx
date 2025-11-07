@@ -29,7 +29,8 @@ import {
   LocationOn,
   School,
   Visibility,
-  Send
+  Send,
+  Message
 } from '@mui/icons-material';
 import { socialAPI } from '../utils/socialAPI';
 
@@ -202,14 +203,14 @@ const Connections = () => {
           transform: 'translateY(0)',
           transition: 'all 0.4s ease-out',
           '&:hover': {
-            transform: 'translateY(-8px)',
-            boxShadow: '0 12px 40px rgba(0, 255, 136, 0.2)',
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 24px rgba(0, 255, 136, 0.2)',
           }
         }}
       >
         <Card 
           sx={{ 
-            mb: 3, 
+            mb: 2, 
             borderRadius: 0, 
             overflow: 'hidden',
             background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
@@ -218,8 +219,7 @@ const Connections = () => {
             cursor: 'pointer',
             '&:hover': {
               borderColor: '#00ff88',
-              transform: 'translateY(-4px)',
-              boxShadow: '0 12px 40px rgba(0, 255, 136, 0.2)',
+              boxShadow: '0 8px 24px rgba(0, 255, 136, 0.2)',
               transition: 'all 0.4s ease'
             },
             '&::before': {
@@ -233,363 +233,265 @@ const Connections = () => {
             }
           }}
         >
-          <CardContent sx={{ p: { xs: 2, sm: 3 }, position: 'relative' }}>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2 }, position: 'relative' }}>
+            {/* New Layout: Profile Left, Buttons Right */}
             <Box sx={{ 
               display: 'flex', 
-              alignItems: { xs: 'center', sm: 'flex-start' }, 
-              gap: { xs: 1.5, sm: 2, md: 3 },
-              flexDirection: { xs: 'column', sm: 'row' },
-              textAlign: { xs: 'center', sm: 'left' }
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              gap: { xs: 1, sm: 2 }
             }}>
-            {/* Professional Dark Profile Image with Status */}
-            <Box sx={{ 
-              position: 'relative',
-              alignSelf: { xs: 'center', sm: 'flex-start' }
-            }}>
-              <Avatar
-                component={profileLink ? RouterLink : 'div'}
-                to={profileLink}
-                src={user.profile.profileImage}
-                sx={{ 
-                  width: { xs: 60, sm: 70, md: 80 }, 
-                  height: { xs: 60, sm: 70, md: 80 },
-                  border: '3px solid #00ff88',
-                  boxShadow: '0 8px 24px rgba(0, 255, 136, 0.3)',
-                  background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 12px 32px rgba(0, 255, 136, 0.4)'
-                  },
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <Typography variant="h4" sx={{ fontWeight: 700, color: '#000000', fontSize: '2rem' }}>
-                  {user.profile.firstName.charAt(0)}
-                </Typography>
-              </Avatar>
-              {/* Professional Online Status */}
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: 4,
-                  right: 4,
-                  width: 18,
-                  height: 18,
-                  borderRadius: 0,
-                  backgroundColor: '#00ff88',
-                  border: '2px solid #000000',
-                  boxShadow: '0 0 10px rgba(0, 255, 136, 0.6)',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: 0,
-                    backgroundColor: '#000000',
-                  }
-                }}
-              />
-            </Box>
-            
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              {/* Professional Dark Name and Title */}
-              <Box sx={{ mb: 2 }}>
-                <Typography 
-                  variant="h6" 
-                  component={profileLink ? RouterLink : 'span'}
-                  to={profileLink}
-                  sx={{ 
-                    fontWeight: 700, 
-                    mb: 0.5,
-                    color: '#ffffff',
-                    cursor: profileLink ? 'pointer' : 'default',
-                    textTransform: 'uppercase',
-                    letterSpacing: { xs: '0.3px', sm: '0.5px' },
-                    fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
-                    textAlign: { xs: 'center', sm: 'left' },
-                    '&:hover': {
-                      color: '#00ff88',
-                      transform: profileLink ? 'translateX(4px)' : 'none',
-                      transition: 'all 0.3s ease'
-                    }
-                  }}
-                >
-                  {user.profile.firstName} {user.profile.lastName}
-                </Typography>
-                
-                {user.profile.headline && (
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: 'rgba(255, 255, 255, 0.8)', 
-                      fontWeight: 500,
-                      mb: 1,
-                      lineHeight: 1.4,
-                      fontSize: '0.95rem'
-                    }}
-                  >
-                    {user.profile.headline}
-                  </Typography>
-                )}
-              </Box>
               
-              {/* Professional Dark Company and Location Info */}
+              {/* Left Side: Profile Info */}
               <Box sx={{ 
                 display: 'flex', 
-                flexWrap: 'wrap', 
-                gap: { xs: 1, sm: 2 }, 
-                mb: 2,
-                justifyContent: { xs: 'center', sm: 'flex-start' }
+                alignItems: 'center', 
+                gap: { xs: 1, sm: 1.5 },
+                flex: 1,
+                minWidth: 0
               }}>
-                {user.profile.company && (
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 1,
-                    p: 1,
-                    borderRadius: 0,
-                    background: 'rgba(0, 255, 136, 0.1)',
+                {/* Avatar */}
+                <Avatar
+                  component={profileLink ? RouterLink : 'div'}
+                  to={profileLink}
+                  src={user.profile.profileImage}
+                  sx={{ 
+                    width: { xs: 50, sm: 60 }, 
+                    height: { xs: 50, sm: 60 },
+                    border: '2px solid #00ff88',
+                    boxShadow: '0 4px 16px rgba(0, 255, 136, 0.3)',
+                    background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
                     '&:hover': {
-                      background: 'rgba(0, 255, 136, 0.15)'
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 6px 20px rgba(0, 255, 136, 0.4)'
                     },
-                    transition: 'all 0.3s ease'
-                  }}>
-                    <BusinessCenter 
-                      fontSize="small" 
-                      sx={{ color: '#00ff88' }}
-                    />
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: 'rgba(255, 255, 255, 0.9)',
-                        fontWeight: 600,
-                        fontSize: '0.8rem'
-                      }}
-                    >
-                      {user.profile.company}
-                    </Typography>
-                  </Box>
-                )}
-                
-                {user.profile.location && (
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 1,
-                    p: 1,
-                    borderRadius: 0,
-                    background: 'rgba(0, 255, 136, 0.1)',
-                    '&:hover': {
-                      background: 'rgba(0, 255, 136, 0.15)'
-                    },
-                    transition: 'all 0.3s ease'
-                  }}>
-                    <LocationOn 
-                      fontSize="small" 
-                      sx={{ color: '#22c55e' }}
-                    />
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: 'rgba(255, 255, 255, 0.9)',
-                        fontWeight: 600,
-                        fontSize: '0.8rem'
-                      }}
-                    >
-                      {user.profile.location}
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-              
-              {/* Professional Dark Tags and Stats */}
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
-                <Chip 
-                  label={user.role === 'admin' ? 'Recruiter' : user.role} 
-                  size="small" 
-                  sx={{
-                    backgroundColor: (user.role === 'recruiter' || user.role === 'admin') ? '#00ff88' : '#22c55e',
-                    color: '#000000',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    borderRadius: 0,
-                    fontSize: '0.7rem',
-                    '&:hover': {
-                      backgroundColor: (user.role === 'recruiter' || user.role === 'admin') ? '#22c55e' : '#16a34a',
-                      transform: 'translateY(-1px)',
-                      boxShadow: '0 4px 12px rgba(0, 255, 136, 0.3)'
-                    },
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    position: 'relative'
                   }}
-                />
-                {user.connectionCount && (
-                  <Chip 
-                    label={`${user.connectionCount} connections`} 
-                    size="small" 
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#000000', fontSize: '1.2rem' }}>
+                    {user.profile.firstName.charAt(0)}
+                  </Typography>
+                  
+                  {/* Compact Online Status */}
+                  <Box
                     sx={{
-                      borderRadius: 0,
-                      background: 'rgba(0, 255, 136, 0.1)',
-                      color: 'rgba(255, 255, 255, 0.9)',
-                      fontWeight: 600,
-                      fontSize: '0.7rem',
-                      '&:hover': {
-                        backgroundColor: 'rgba(0, 255, 136, 0.15)',
-                        transform: 'translateY(-1px)'
-                      },
-                      transition: 'all 0.3s ease'
+                      position: 'absolute',
+                      bottom: 2,
+                      right: 2,
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      backgroundColor: '#00ff88',
+                      border: '2px solid #000000',
                     }}
                   />
-                )}
-                {user.profile.skills && user.profile.skills.length > 0 && (
-                  <Chip 
-                    label={`${user.profile.skills.length} skills`} 
-                    size="small" 
-                    sx={{
-                      borderRadius: 0,
-                      background: 'rgba(34, 197, 94, 0.1)',
-                      color: '#22c55e',
-                      fontWeight: 600,
-                      fontSize: '0.7rem',
+                </Avatar>
+                
+                {/* Profile Details */}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography 
+                    variant="subtitle1" 
+                    component={profileLink ? RouterLink : 'span'}
+                    to={profileLink}
+                    sx={{ 
+                      fontWeight: 700, 
+                      color: '#ffffff',
+                      cursor: profileLink ? 'pointer' : 'default',
+                      fontSize: { xs: '0.85rem', sm: '0.95rem' },
+                      lineHeight: 1.2,
+                      display: 'block',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                       '&:hover': {
-                        backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                        color: '#16a34a',
-                        transform: 'translateY(-1px)'
-                      },
-                      transition: 'all 0.3s ease'
+                        color: '#00ff88',
+                        transition: 'color 0.3s ease'
+                      }
                     }}
-                  />
-                )}
+                  >
+                    {user.profile.firstName} {user.profile.lastName}
+                  </Typography>
+                  
+                  {user.profile.headline && (
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: 'rgba(255, 255, 255, 0.7)', 
+                        fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                        lineHeight: 1.2,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        mt: 0.2
+                      }}
+                    >
+                      {user.profile.headline}
+                    </Typography>
+                  )}
+                  
+                  {/* Compact Tags */}
+                  <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
+                    <Chip 
+                      label={user.role === 'admin' ? 'Recruiter' : user.role} 
+                      size="small" 
+                      sx={{
+                        backgroundColor: (user.role === 'recruiter' || user.role === 'admin') ? '#00ff88' : '#22c55e',
+                        color: '#000000',
+                        fontWeight: 600,
+                        fontSize: '0.6rem',
+                        height: 'auto',
+                        py: 0.2,
+                        px: 0.5,
+                        borderRadius: '8px'
+                      }}
+                    />
+                    {user.profile.company && (
+                      <Chip 
+                        icon={<BusinessCenter sx={{ fontSize: '0.7rem' }} />}
+                        label={user.profile.company.length > 15 ? `${user.profile.company.substring(0, 15)}...` : user.profile.company}
+                        size="small" 
+                        sx={{
+                          backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                          color: 'rgba(255, 255, 255, 0.8)',
+                          fontSize: '0.6rem',
+                          height: 'auto',
+                          py: 0.2,
+                          px: 0.5,
+                          borderRadius: '8px'
+                        }}
+                      />
+                    )}
+                  </Box>
+                </Box>
               </Box>
               
-              {/* Professional Dark Action Buttons */}
+              {/* Right Side: Action Buttons */}
               {showActions && (
-                <Box sx={{ 
-                  display: 'flex', 
-                  gap: { xs: 1, sm: 1.5 },
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  width: { xs: '100%', sm: 'auto' },
-                  mt: { xs: 2, sm: 0 }
-                }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: { xs: 0.5, sm: 0.8 },
+                    alignItems: 'center',
+                    flexShrink: 0
+                  }}
+                >
                   {isRequest ? (
                     <>
                       <Button
                         size="small"
                         variant="contained"
-                        startIcon={<Check />}
                         onClick={() => handleAcceptRequest(requestId)}
                         sx={{ 
-                          textTransform: 'uppercase',
-                          fontWeight: 700,
-                          borderRadius: 0,
-                          px: { xs: 2, sm: 3 },
-                          py: { xs: 0.5, sm: 1 },
-                          fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                          letterSpacing: { xs: '0.3px', sm: '0.5px' },
-                          width: { xs: '100%', sm: 'auto' },
+                          minWidth: { xs: '40px', sm: '50px' },
+                          width: { xs: '40px', sm: '50px' },
+                          height: { xs: '32px', sm: '36px' },
+                          p: 0,
+                          borderRadius: '6px',
                           background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
                           color: '#000000',
                           '&:hover': {
                             background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                            transform: 'translateY(-2px) scale(1.02)',
-                            boxShadow: '0 8px 24px rgba(0, 255, 136, 0.4)'
+                            transform: 'scale(1.05)',
                           },
                           transition: 'all 0.3s ease'
                         }}
                       >
-                        Accept
+                        <Check sx={{ fontSize: { xs: '16px', sm: '18px' } }} />
                       </Button>
                       <Button
                         size="small"
                         variant="outlined"
-                        startIcon={<Close />}
                         onClick={() => handleDeclineRequest(requestId)}
                         sx={{ 
-                          textTransform: 'uppercase',
-                          fontWeight: 700,
-                          borderRadius: 0,
-                          px: { xs: 2, sm: 3 },
-                          py: { xs: 0.5, sm: 1 },
-                          fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                          letterSpacing: { xs: '0.3px', sm: '0.5px' },
-                          width: { xs: '100%', sm: 'auto' },
-                          borderWidth: 2,
+                          minWidth: { xs: '40px', sm: '50px' },
+                          width: { xs: '40px', sm: '50px' },
+                          height: { xs: '32px', sm: '36px' },
+                          p: 0,
+                          borderRadius: '6px',
                           borderColor: '#ef4444',
                           color: '#ef4444',
                           '&:hover': {
-                            borderWidth: 2,
                             backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            transform: 'translateY(-2px) scale(1.02)',
-                            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
+                            transform: 'scale(1.05)',
                           },
                           transition: 'all 0.3s ease'
                         }}
                       >
-                        Decline
+                        <Close sx={{ fontSize: { xs: '16px', sm: '18px' } }} />
                       </Button>
                     </>
                   ) : activeTab === 0 ? (
+                    // Connected tab - 3 compact icon buttons
                     <>
                       <Button
                         component={profileLink ? RouterLink : 'button'}
                         to={profileLink}
                         size="small"
                         variant="outlined"
-                        startIcon={<Visibility />}
+                        title="View Profile"
                         sx={{ 
-                          textTransform: 'uppercase',
-                          fontWeight: 700,
-                          borderRadius: 0,
-                          px: { xs: 2, sm: 3 },
-                          py: { xs: 0.5, sm: 1 },
-                          fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                          letterSpacing: { xs: '0.3px', sm: '0.5px' },
-                          width: { xs: '100%', sm: 'auto' },
-                          borderWidth: 2,
+                          minWidth: { xs: '36px', sm: '42px' },
+                          width: { xs: '36px', sm: '42px' },
+                          height: { xs: '32px', sm: '36px' },
+                          p: 0,
+                          borderRadius: '6px',
                           borderColor: '#00ff88',
                           color: '#00ff88',
                           '&:hover': {
-                            borderWidth: 2,
                             backgroundColor: 'rgba(0, 255, 136, 0.1)',
-                            transform: 'translateY(-2px) scale(1.02)',
-                            boxShadow: '0 8px 24px rgba(0, 255, 136, 0.3)'
+                            transform: 'scale(1.05)',
                           },
                           transition: 'all 0.3s ease'
                         }}
                       >
-                        View Profile
+                        <Visibility sx={{ fontSize: { xs: '14px', sm: '16px' } }} />
                       </Button>
                       <Button
                         size="small"
                         variant="outlined"
-                        color="error"
-                        startIcon={<PersonRemove />}
-                        onClick={() => handleRemoveConnection(connectionId || user._id)}
+                        title="Send Message"
+                        onClick={() => {
+                          window.location.href = `/messages?user=${user._id}`;
+                        }}
                         sx={{ 
-                          textTransform: 'uppercase',
-                          fontWeight: 700,
-                          borderRadius: 0,
-                          px: { xs: 2, sm: 3 },
-                          py: { xs: 0.5, sm: 1 },
-                          fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                          letterSpacing: { xs: '0.3px', sm: '0.5px' },
-                          width: { xs: '100%', sm: 'auto' },
-                          borderWidth: 2,
-                          borderColor: '#ef4444',
-                          color: '#ef4444',
+                          minWidth: { xs: '36px', sm: '42px' },
+                          width: { xs: '36px', sm: '42px' },
+                          height: { xs: '32px', sm: '36px' },
+                          p: 0,
+                          borderRadius: '6px',
+                          borderColor: '#22c55e',
+                          color: '#22c55e',
                           '&:hover': {
-                            borderWidth: 2,
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            transform: 'translateY(-2px) scale(1.02)',
-                            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            transform: 'scale(1.05)',
                           },
                           transition: 'all 0.3s ease'
                         }}
                       >
-                        Remove
+                        <Message sx={{ fontSize: { xs: '14px', sm: '16px' } }} />
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        title="Remove Connection"
+                        onClick={() => handleRemoveConnection(connectionId || user._id)}
+                        sx={{ 
+                          minWidth: { xs: '36px', sm: '42px' },
+                          width: { xs: '36px', sm: '42px' },
+                          height: { xs: '32px', sm: '36px' },
+                          p: 0,
+                          borderRadius: '6px',
+                          borderColor: '#ef4444',
+                          color: '#ef4444',
+                          '&:hover': {
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            transform: 'scale(1.05)',
+                          },
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        <PersonRemove sx={{ fontSize: { xs: '14px', sm: '16px' } }} />
                       </Button>
                     </>
                   ) : (
@@ -600,30 +502,23 @@ const Connections = () => {
                       onClick={sentRequests.has(user._id) ? undefined : () => handleSendRequest(user._id)}
                       disabled={sentRequests.has(user._id)}
                       sx={{ 
-                        textTransform: 'uppercase',
-                        fontWeight: 700,
-                        borderRadius: 0,
-                        px: { xs: 2, sm: 3 },
-                        py: { xs: 0.5, sm: 1 },
-                        fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                        letterSpacing: { xs: '0.3px', sm: '0.5px' },
-                        width: { xs: '100%', sm: 'auto' },
+                        fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                        px: { xs: 1, sm: 1.5 },
+                        py: { xs: 0.5, sm: 0.7 },
+                        minWidth: { xs: '70px', sm: '90px' },
+                        height: { xs: '32px', sm: '36px' },
+                        borderRadius: '6px',
                         background: sentRequests.has(user._id) 
                           ? 'transparent' 
                           : 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
                         borderColor: sentRequests.has(user._id) ? '#22c55e' : 'transparent',
                         color: sentRequests.has(user._id) ? '#22c55e' : '#000000',
-                        borderWidth: sentRequests.has(user._id) ? 2 : 0,
+                        fontWeight: 600,
                         '&:hover': {
                           background: sentRequests.has(user._id) 
                             ? 'rgba(34, 197, 94, 0.1)' 
                             : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                          transform: sentRequests.has(user._id) ? 'none' : 'translateY(-2px) scale(1.02)',
-                          boxShadow: sentRequests.has(user._id) 
-                            ? '0 4px 12px rgba(34, 197, 94, 0.2)' 
-                            : '0 8px 24px rgba(0, 255, 136, 0.4)',
-                          borderWidth: sentRequests.has(user._id) ? 2 : 0,
-                          color: sentRequests.has(user._id) ? '#16a34a' : '#000000',
+                          transform: sentRequests.has(user._id) ? 'none' : 'scale(1.05)',
                         },
                         '&.Mui-disabled': {
                           backgroundColor: 'transparent',
@@ -639,7 +534,6 @@ const Connections = () => {
                   )}
                 </Box>
               )}
-            </Box>
             </Box>
           </CardContent>
         </Card>

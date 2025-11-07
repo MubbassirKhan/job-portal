@@ -67,7 +67,9 @@ const StatCard = ({ icon, title, value, trend, delay = 0, to }) => (
       component={to ? RouterLink : 'div'}
       to={to}
       sx={{
-        height: { xs: '120px', sm: '140px' },
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: { xs: 'auto', sm: 140 },
         borderRadius: 0,
         background: 'linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%)',
         border: '2px solid rgba(0, 255, 136, 0.3)',
@@ -97,7 +99,7 @@ const StatCard = ({ icon, title, value, trend, delay = 0, to }) => (
     >
       <CardContent sx={{ 
         p: { xs: 2, sm: 3 }, 
-        height: '100%', 
+        flexGrow: 1, 
         display: 'flex', 
         flexDirection: 'column', 
         justifyContent: 'space-between',

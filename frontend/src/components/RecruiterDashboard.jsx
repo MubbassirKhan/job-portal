@@ -73,7 +73,9 @@ const StatCard = ({ icon, title, value, trend, delay = 0, to }) => (
       component={to ? RouterLink : 'div'}
       to={to}
       sx={{
-        height: { xs: '120px', sm: '140px' },
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: { xs: 'auto', sm: 140 },
         borderRadius: 0,
         background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(26, 26, 26, 0.9) 100%)',
         backdropFilter: 'blur(20px)',
@@ -104,7 +106,7 @@ const StatCard = ({ icon, title, value, trend, delay = 0, to }) => (
     >
       <CardContent sx={{ 
         p: { xs: 2, sm: 3 }, 
-        height: '100%', 
+        flexGrow: 1, 
         display: 'flex', 
         flexDirection: 'column', 
         justifyContent: 'space-between' 
@@ -528,7 +530,15 @@ const RecruiterDashboard = () => {
                 }}>
                   Quick Actions
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: { xs: 1.5, sm: 2 },
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    flexWrap: { xs: 'nowrap', sm: 'wrap' },
+                    alignItems: { xs: 'stretch', sm: 'center' }
+                  }}
+                >
                   <Button
                     variant="contained"
                     startIcon={<Add />}
@@ -537,9 +547,10 @@ const RecruiterDashboard = () => {
                       background: 'linear-gradient(135deg, #00ff88 0%, #22c55e 100%)',
                       textTransform: 'none',
                       fontWeight: 600,
-                      px: 3,
-                      py: 1,
+                      px: { xs: 2.5, sm: 3 },
+                      py: { xs: 1.2, sm: 1 },
                       borderRadius: 0,
+                      width: { xs: '100%', sm: 'auto' },
                       color: '#000000',
                       '&:hover': {
                         background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
@@ -558,9 +569,10 @@ const RecruiterDashboard = () => {
                       color: '#00ff88',
                       textTransform: 'none',
                       fontWeight: 600,
-                      px: 3,
-                      py: 1,
+                      px: { xs: 2.5, sm: 3 },
+                      py: { xs: 1.2, sm: 1 },
                       borderRadius: 0,
+                      width: { xs: '100%', sm: 'auto' },
                       '&:hover': {
                         borderColor: '#00ff88',
                         backgroundColor: 'rgba(0, 255, 136, 0.1)',
@@ -579,9 +591,10 @@ const RecruiterDashboard = () => {
                       color: '#00ff88',
                       textTransform: 'none',
                       fontWeight: 600,
-                      px: 3,
-                      py: 1,
+                      px: { xs: 2.5, sm: 3 },
+                      py: { xs: 1.2, sm: 1 },
                       borderRadius: 0,
+                      width: { xs: '100%', sm: 'auto' },
                       '&:hover': {
                         borderColor: '#00ff88',
                         backgroundColor: 'rgba(0, 255, 136, 0.1)',
@@ -646,108 +659,174 @@ const RecruiterDashboard = () => {
               </Box>
 
               {jobs.length > 0 ? (
-                <TableContainer sx={{ 
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  borderRadius: 0,
-                  border: '1px solid rgba(0, 255, 136, 0.2)'
-                }}>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow sx={{ 
-                        background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%)'
-                      }}>
-                        <TableCell sx={{ 
-                          fontWeight: 700, 
-                          color: '#00ff88',
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
-                        }}>Title</TableCell>
-                        <TableCell align="center" sx={{ 
-                          fontWeight: 700, 
-                          color: '#00ff88',
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
-                        }}>Applications</TableCell>
-                        <TableCell align="center" sx={{ 
-                          fontWeight: 700, 
-                          color: '#00ff88',
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
-                        }}>Status</TableCell>
-                        <TableCell sx={{ 
-                          fontWeight: 700, 
-                          color: '#00ff88',
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
-                        }}>Posted</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {jobs.map((job) => {
-                        const jobLink = job?._id ? `/jobs/${job._id}` : undefined;
-                        return (
-                          <TableRow key={job._id} sx={{
-                            '&:hover': {
-                              backgroundColor: 'rgba(0, 255, 136, 0.05)',
-                            }
-                          }}>
-                            <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
-                              <Typography
-                                component={jobLink ? RouterLink : 'span'}
-                                to={jobLink}
-                                variant="subtitle2"
-                                sx={{
-                                  color: '#ffffff',
-                                  fontWeight: 600,
-                                  textDecoration: 'none',
-                                  '&:hover': jobLink ? { color: '#00ff88' } : undefined
-                                }}
-                              >
-                                {job.title}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: '#cccccc' }}>
-                                {job.company}
-                              </Typography>
-                            </TableCell>
-                            <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
-                              <Typography variant="body2" sx={{ color: '#ffffff', fontWeight: 600 }}>
-                                {job.applicationsCount || 0}
-                              </Typography>
-                            </TableCell>
-                            <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
-                              <Chip
-                                label={job.isActive ? 'Active' : 'Inactive'}
-                                color={job.isActive ? 'success' : 'default'}
-                                size="small"
-                                sx={{
-                                  borderRadius: 0,
-                                  fontWeight: 600,
-                                  fontSize: '0.75rem',
-                                  backgroundColor: job.isActive ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                                  color: job.isActive ? '#00ff88' : '#cccccc',
-                                  border: job.isActive ? '1px solid #00ff88' : '1px solid rgba(255, 255, 255, 0.3)'
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
-                              <Typography variant="body2" sx={{ color: '#cccccc' }}>
-                                {format(new Date(job.createdAt), 'MMM dd')}
-                              </Typography>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                <>
+                  <TableContainer sx={{ 
+                    display: { xs: 'none', md: 'block' },
+                    background: 'rgba(0, 0, 0, 0.3)',
+                    borderRadius: 0,
+                    border: '1px solid rgba(0, 255, 136, 0.2)'
+                  }}>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow sx={{ 
+                          background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%)'
+                        }}>
+                          <TableCell sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Title</TableCell>
+                          <TableCell align="center" sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Applications</TableCell>
+                          <TableCell align="center" sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Status</TableCell>
+                          <TableCell sx={{ 
+                            fontWeight: 700, 
+                            color: '#00ff88',
+                            fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            borderBottom: '2px solid rgba(0, 255, 136, 0.3)'
+                          }}>Posted</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {jobs.map((job) => {
+                          const jobLink = job?._id ? `/jobs/${job._id}` : undefined;
+                          return (
+                            <TableRow key={job._id || job.title} sx={{
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 255, 136, 0.05)',
+                              }
+                            }}>
+                              <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                                <Typography
+                                  component={jobLink ? RouterLink : 'span'}
+                                  to={jobLink}
+                                  variant="subtitle2"
+                                  sx={{
+                                    color: '#ffffff',
+                                    fontWeight: 600,
+                                    textDecoration: 'none',
+                                    '&:hover': jobLink ? { color: '#00ff88' } : undefined
+                                  }}
+                                >
+                                  {job.title}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#cccccc' }}>
+                                  {job.company}
+                                </Typography>
+                              </TableCell>
+                              <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                                <Typography variant="body2" sx={{ color: '#ffffff', fontWeight: 600 }}>
+                                  {job.applicationsCount || 0}
+                                </Typography>
+                              </TableCell>
+                              <TableCell align="center" sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                                <Chip
+                                  label={job.isActive ? 'Active' : 'Inactive'}
+                                  color={job.isActive ? 'success' : 'default'}
+                                  size="small"
+                                  sx={{
+                                    borderRadius: 0,
+                                    fontWeight: 600,
+                                    fontSize: '0.75rem',
+                                    backgroundColor: job.isActive ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                    color: job.isActive ? '#00ff88' : '#cccccc',
+                                    border: job.isActive ? '1px solid #00ff88' : '1px solid rgba(255, 255, 255, 0.3)'
+                                  }}
+                                />
+                              </TableCell>
+                              <TableCell sx={{ borderBottom: '1px solid rgba(0, 255, 136, 0.1)' }}>
+                                <Typography variant="body2" sx={{ color: '#cccccc' }}>
+                                  {format(new Date(job.createdAt), 'MMM dd')}
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  <Stack spacing={2} sx={{ display: { xs: 'flex', md: 'none' } }}>
+                    {jobs.map((job) => {
+                      const jobLink = job?._id ? `/jobs/${job._id}` : undefined;
+                      const WrapperComponent = jobLink ? RouterLink : 'div';
+
+                      return (
+                        <Box
+                          key={job._id || job.title}
+                          component={WrapperComponent}
+                          to={jobLink}
+                          sx={{
+                            p: 2,
+                            borderRadius: 0,
+                            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(26, 26, 26, 0.6) 100%)',
+                            border: '1px solid rgba(0, 255, 136, 0.2)',
+                            textDecoration: 'none',
+                            color: '#ffffff',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1,
+                            transition: 'all 0.3s ease',
+                            '&:hover': jobLink ? {
+                              borderColor: '#00ff88',
+                              boxShadow: '0 8px 24px rgba(0, 255, 136, 0.25)',
+                              transform: 'translateY(-2px)'
+                            } : undefined
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#ffffff' }}>
+                              {job.title}
+                            </Typography>
+                            <Chip
+                              label={job.isActive ? 'Active' : 'Inactive'}
+                              size="small"
+                              sx={{
+                                borderRadius: 0,
+                                fontWeight: 600,
+                                fontSize: '0.7rem',
+                                backgroundColor: job.isActive ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                color: job.isActive ? '#00ff88' : '#cccccc',
+                                border: job.isActive ? '1px solid #00ff88' : '1px solid rgba(255, 255, 255, 0.3)'
+                              }}
+                            />
+                          </Box>
+
+                          <Typography variant="body2" sx={{ color: '#cccccc' }}>
+                            {job.company}
+                          </Typography>
+
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+                            <Typography variant="body2" sx={{ color: '#ffffff', fontWeight: 600 }}>
+                              Applications: <Box component="span" sx={{ color: '#00ff88', fontWeight: 700 }}>{job.applicationsCount || 0}</Box>
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#cccccc' }}>
+                              Posted {format(new Date(job.createdAt), 'MMM dd')}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Stack>
+                </>
               ) : (
                 <Box textAlign="center" py={4}>
                   <Typography sx={{ color: '#cccccc', fontWeight: 500 }}>

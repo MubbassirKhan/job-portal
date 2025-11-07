@@ -1,7 +1,0 @@
-# Domain redirects - HTTP to HTTPS and WWW to non-WWW
-http://talenthub-portal.vercel.app/* https://talenthub-portal.vercel.app/:splat 301!
-http://www.talenthub-portal.vercel.app/* https://talenthub-portal.vercel.app/:splat 301!
-https://www.talenthub-portal.vercel.app/* https://talenthub-portal.vercel.app/:splat 301!
-
-# SPA fallback
-/* /index.html 200
