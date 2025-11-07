@@ -1,79 +1,85 @@
-# TalentHub - Full Stack Job Portal Application
+<div align="center">
+  <img src="./github/favicon.png" alt="TalentHub Logo" width="120" height="120" style="border-radius: 20px;">
+  
+  # TalentHub - Modern Job Portal Platform
+  
+  > A comprehensive full-stack job portal connecting talented candidates with leading employers through an intuitive, feature-rich platform.
+</div>
 
-A comprehensive job portal application built with React.js, Node.js, Express, and MongoDB. This platform connects job seekers with employers, featuring separate dashboards for candidates and recruiters.
+![Homepage Demo](./github/homepage.gif)
 
-**Developer:** Mubbassir Khan  
-**Location:** Dharwad, Karnataka, India  
-**Contact:** +91 7619175596  
-**LinkedIn:** [linkedin.com/in/mubbassir-khan-jahagirdar-081715271](https://linkedin.com/in/mubbassir-khan-jahagirdar-081715271)  
-**Instagram:** [@mubbassir_khan](https://www.instagram.com/mubbassir_khan/)
-
-## Features
+## Key Features
 
 ### For Candidates
-- User registration and authentication
-- Profile management with resume upload
-- Job search with advanced filters
-- Job application system
-- Application tracking and status updates
-- Dashboard with application analytics
+- **Smart Job Discovery** - Advanced search and filtering system
+- **Profile Management** - Complete profile setup with resume upload
+- **One-Click Applications** - Streamlined application process
+- **Real-time Notifications** - Stay updated on application status
+- **Application Dashboard** - Track all applications in one place
+- **Social Feed** - Connect and network with professionals
 
-### For Recruiters
-- Job posting and management
-- Application review and management
-- Candidate search and filtering
-- Analytics dashboard
-- Application status updates
+### For Recruiters  
+- **Job Management** - Post, edit, and manage job openings
+- **Application Review** - Comprehensive candidate evaluation tools
+- **Advanced Analytics** - Insights on job performance and applications
+- **Candidate Search** - Find the perfect candidates with smart filters
+- **Communication Hub** - Direct messaging with applicants
+- **Status Management** - Track hiring pipeline efficiently
+
+![Jobs Page](./github/jobspage.png)
 
 ## Tech Stack
 
-- **Frontend**: React.js, Material-UI, React Router, React Hook Form
-- **Backend**: Node.js, Express.js, JWT Authentication
-- **Database**: MongoDB with Mongoose
-- **File Upload**: Multer for resume uploads
-- **Security**: bcrypt.js, Helmet, Rate limiting
+| Frontend | Backend | Database & Tools |
+|----------|---------|------------------|
+| React.js 18+ | Node.js & Express | MongoDB |
+| Material-UI | JWT Authentication | Mongoose ODM |
+| Framer Motion | Multer File Upload | Socket.io |
+| React Router | Rate Limiting | bcrypt.js |
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
-- Node.js (v22 recomended)
-- MongoDB (running locally or MongoDB Atlas)
-- npm or yarn
+- **Node.js** v18+ (v22 recommended)
+- **MongoDB** (local or Atlas)
+- **npm** or **yarn**
 
 ### Installation
 
-1. Clone the repository
+1. **Clone the repository**
 ```bash
 git clone https://github.com/MubbassirKhan/job-portal.git
 cd job-portal
 ```
 
-2. Install dependencies for all components
+2. **Install dependencies**
 ```bash
+# Install all dependencies (client + server)
 npm run install-deps
 ```
 
-3. Set up environment variables
+3. **Environment Setup**
 
-Create `.env` file in the `server` directory:
-```
+Create `.env` in the `server` directory:
+```env
 NODE_ENV=development
 PORT=5000
-MONGODB_URI=
-JWT_SECRET=your-super-secret-jwt-key
+MONGODB_URI=mongodb://localhost:27017/talenthub
+JWT_SECRET=your-super-secret-jwt-key-here
 JWT_EXPIRE=7d
 BCRYPT_ROUNDS=12
 CLIENT_URL=http://localhost:5173
 ```
 
-4. Start the development servers
+4. **Start Development Servers**
 ```bash
+# Starts both frontend (Vite) and backend (Express)
 npm run dev
 ```
 
-This will start:
-- Backend server on http://localhost:5000
-- Frontend development server on http://localhost:5173
+**Access your application:**
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:5000
 
 ### Production Build
 
@@ -81,120 +87,67 @@ This will start:
 npm run build
 ```
 
-## Project Structure
+## Project Architecture
 
 ```
-job-portal/
-├── client/                 # React frontend
-│   ├── public/
+talenthub/
+├── client/                 # React Frontend
 │   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── context/        # React context
-│   │   ├── hooks/          # Custom hooks
-│   │   └── utils/          # Utilities and API calls
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Application pages
+│   │   ├── context/        # State management
+│   │   ├── hooks/          # Custom React hooks
+│   │   └── utils/          # API utilities
 │   └── package.json
-├── server/                 # Node.js backend
-│   ├── controllers/        # Route controllers
-│   ├── models/            # Mongoose models
-│   ├── routes/            # Express routes
-│   ├── middleware/        # Custom middleware
-│   ├── uploads/           # File uploads directory
-│   └── package.json
-└── package.json           # Root package.json
+├── server/                 # Node.js Backend
+│   ├── controllers/        # Business logic
+│   ├── models/             # Database schemas
+│   ├── routes/             # API endpoints
+│   ├── middleware/         # Custom middleware
+│   └── uploads/            # File storage
+└── frontend/               # Alternative frontend (if exists)
 ```
 
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user
-- `PUT /api/auth/profile` - Update profile
-
-### Jobs
-- `GET /api/jobs` - Get all jobs (with filters)
-- `GET /api/jobs/:id` - Get single job
-- `POST /api/jobs` - Create job (recruiter only)
-- `PUT /api/jobs/:id` - Update job (recruiter only)
-- `DELETE /api/jobs/:id` - Delete job (recruiter only)
-
-### Applications
-- `POST /api/applications` - Apply to job
-- `GET /api/applications/my-applications` - Get user applications
-- `PUT /api/applications/:id/status` - Update application status (recruiter)
-
-### File Upload
-- `POST /api/upload/resume` - Upload resume
-- `GET /api/upload/resume/:filename` - Download resume
-- `DELETE /api/upload/resume` - Delete resume
-
-## Database Schema
-
-### User Model
-- Personal information (name, email, phone, location)
-- Professional details (skills, experience, education)
-- Role-based access (candidate/recruiter)
-- Resume file reference
-
-### Job Model
-- Job details (title, company, description, requirements)
-- Location and job type information
-- Salary range and experience level
-- Application deadline and status
-
-### Application Model
-- Job and candidate references
-- Application status tracking
-- Cover letter and notes
-- Interview scheduling
 
 ## Security Features
 
-- JWT token-based authentication
-- Password hashing with bcrypt
-- Rate limiting on API endpoints
-- Input validation and sanitization
-- File upload security
-- CORS protection
+- **JWT Authentication** - Secure token-based auth
+- **Password Encryption** - bcrypt hashing
+- **Rate Limiting** - API abuse prevention
+- **Input Validation** - Data sanitization
+- **File Upload Security** - Safe resume handling
+- **CORS Protection** - Cross-origin security
 
-## Deployment
+## Developer
 
-### Backend (Render/Heroku)
-1. Set environment variables
-2. Deploy server directory
-3. Set start command: `npm start`
+**Mubbassir Khan**  
+Full Stack Developer | Dharwad, Karnataka, India
 
-### Frontend (Vercel/Netlify)
-1. Build the client: `cd client && npm run build`
-2. Deploy the `client/build` directory
-3. Set up API URL environment variable
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mubbassir-khan-jahagirdar-081715271)
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/mubbassir_khan/)
+[![WhatsApp](https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/917619175596)
 
-### Database (MongoDB Atlas)
-1. Create MongoDB Atlas cluster
-2. Update MONGODB_URI in environment variables
-3. Set up database user and network access
+**Contact:** +91 7619175596  
+**Email:** contact@mubbassirkhan.dev
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Create** your feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-## Support
+## Show Your Support
 
-For support and questions, please contact:
+If this project helped you, please consider giving it a star
 
-**Mubbassir Khan**  
-📞 +91 7619175596 (WhatsApp available)  
-📧 mubbassir.khan@talenthub.com  
-🔗 [LinkedIn](https://linkedin.com/in/mubbassir-khan-jahagirdar-081715271)  
-📍 Dharwad, Karnataka, India
+---
 
-Or open an issue in the repository.
+<div align="center">
+  <strong>Built with ❤️ by Mubbassir Khan</strong>
+</div>
