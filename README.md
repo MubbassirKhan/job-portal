@@ -26,7 +26,7 @@
 - **Communication Hub** - Direct messaging with applicants
 - **Status Management** - Track hiring pipeline efficiently
 
-![Jobs Page](./github/jobspage.png)
+![Jobs Page](./github/jobspage1.png)
 
 ## Tech Stack
 
